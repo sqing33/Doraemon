@@ -1,0 +1,39 @@
+{
+  "name": "doraemons",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix --ignore-path .gitignore"
+  },
+  "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
+    "@wangeditor/editor": "^5.1.23",
+    "@wangeditor/editor-for-vue": "^5.1.12",
+    "axios": "^1.6.4",
+    "bootstrap": "^5.3.0-alpha2",
+    "dayjs": "^1.11.10",
+    "element-plus": "^2.4.4",
+    "lz-string": "^1.5.0",
+    "pako": "^2.1.0",
+    "vee-validate": "^4.5.8",
+    "vue": "^3.3.11",
+    "vue-router": "^4.2.5"
+  },
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "@types/node": "^20.11.30",
+    "@types/pako": "^2.0.3",
+    "@vitejs/plugin-vue": "^4.5.2",
+    "eslint": "^8.49.0",
+    "eslint-plugin-vue": "^9.17.0",
+    "sass": "^1.69.7",
+    "sharp": "^0.33.3",
+    "svgo": "^3.2.0",
+    "vite": "^5.0.10",
+    "vite-plugin-image-optimizer": "^1.1.7"
+  }
+}
