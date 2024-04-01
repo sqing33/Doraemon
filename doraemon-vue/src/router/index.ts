@@ -54,6 +54,11 @@ const routes: RouteRecordRaw[] = [
         path: "/regist",
         component: defineAsyncComponent(() => import("@/components/user/regist.vue")),
     },
+    {
+        path: "/userInfo",
+        component: defineAsyncComponent(() => import("@/components/user/userInfo.vue")),
+    },
+    
     
 ];
 

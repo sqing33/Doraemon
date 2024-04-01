@@ -98,11 +98,11 @@
                   <template #dropdown>
                     <el-dropdown-menu>
                       <router-link to="/login">
-                        <el-dropdown-item>登录</el-dropdown-item>
+                        <el-dropdown-item>登录/注册</el-dropdown-item>
                       </router-link>
-                      <router-link to="/regist">
-                        <el-dropdown-item>注册</el-dropdown-item>
-                      </router-link>
+                      <el-dropdown-item @click="userInfo">
+                        用户信息
+                      </el-dropdown-item>
                       <router-link to="/adminLogin">
                         <el-dropdown-item divided>管理员登录</el-dropdown-item>
                       </router-link>
@@ -144,11 +144,14 @@ import {
   User,
   VideoPlay,
 } from "@element-plus/icons-vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import axios from "axios";
+import { InterfaceUrl } from "@/api";
 
 const username = "用户中心";
 
 const route = useRoute();
+const router = useRouter();
 
 // 管理员页面导航栏
 const Admin = ref(false);
@@ -166,6 +169,29 @@ watch(route, (to) => {
     to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
 });
+
+const userInfo = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    await axios
+      .post(
+        InterfaceUrl + "/user/info",
+        { asd: "123" },
+        { headers: { Authorization: token } }
+      )
+      .then((res) => {
+        console.log(res.data);
+        if (res.data.state === 0) {
+          router.push("/userInfo");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  } catch (err) {
+    console.log(err);
+  }
+};
 </script>
 
 <style scoped>

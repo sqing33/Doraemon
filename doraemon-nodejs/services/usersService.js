@@ -1,41 +1,6 @@
 const db = require("../db");
 
-/* // 查询新闻列表
-const getNewsList = (callback) => {
-  const sql = "SELECT * FROM news";
-  db.query(sql, (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    const newsArr = result.map((news) => ({
-      id: news.id,
-      title: news.title,
-      content: news.content,
-      coverUrl: news.coverUrl,
-      region: news.region,
-      publisher: news.publisher,
-      date: news.date,
-      status: news.status,
-    }));
-    callback(null, newsArr);
-  });
-};
-
-// 根据id查询新闻详情
-const getNewsById = (id, callback) => {
-  const sql = "SELECT * FROM news WHERE id = ?";
-  db.query(sql, [id], (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    const news = result[0];
-    news.content = Buffer.from(news.content).toString("utf-8");
-    callback(null, news);
-  });
-}; */
-
+// 用户注册
 const registUser = (user, callback) => {
   const sql =
     "INSERT INTO users (username, password, nickname, email, phone) VALUES (?,?,?,?,?)";
@@ -52,6 +17,44 @@ const registUser = (user, callback) => {
   );
 };
 
+// 用户登录
+const loginUser = (user, callback) => {
+  const sql =
+    "SELECT username, nickname, email, phone FROM users WHERE username = ? OR phone = ? OR email = ? AND password = ?";
+  db.query(
+    sql,
+    [user.username, user.phone, user.email, user.password],
+    (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      if (result.length === 0) {
+        callback("用户名或密码错误", null);
+        return;
+      }
+      callback(null, result[0]);
+    }
+  );
+};
+
+const getUserInfo = (userId, callback) => {
+  /* const sql = "SELECT * FROM users WHERE id = ?";
+  db.query(sql, [userId], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    if (result.length === 0) {
+      callback("用户不存在", null);
+      return;
+    }
+    callback(null, result[0]);
+  }); */
+};
+
 module.exports = {
   registUser,
+  loginUser,
+  getUserInfo,
 };

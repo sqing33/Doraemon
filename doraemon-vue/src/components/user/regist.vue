@@ -38,13 +38,11 @@
         <el-form-item label="邮箱:" prop="email">
           <el-input v-model="form.email" placeholder="请输入邮箱"></el-input>
         </el-form-item>
-
         <el-form-item style="transform: translateX(-18px)">
-          <el-button type="primary" @click="login">登录</el-button>
-          <el-button type="warning" @click="this.$router.push('/user/regist')"
-            >注册</el-button
+          <el-button type="primary" @click="regist">注册</el-button>
+          <el-button type="warning" @click="this.$router.push('/login')"
+            >登录</el-button
           >
-          <el-button @click="this.$router.push('/')">返回</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -57,6 +55,7 @@ import axios from "axios";
 import { ElMessage } from "element-plus";
 import router from "@/router/index";
 import { InterfaceUrl } from "@/api";
+import CryptoJS from "crypto-js";
 
 interface FormType {
   username: string;
@@ -82,29 +81,27 @@ const rules = {
   confirmPassword: [
     {
       required: true,
-      message: "请再次输入密码",
-      trigger: "blur",
-    },
-    /* {
       validator: (rule, value, callback) => {
         if (value === "") {
           callback(new Error("请再次输入密码"));
-        } else if (value !== this.form.password) {
+        } else if (value !== form.value.password) {
           callback(new Error("两次输入密码不一致"));
         } else {
           callback();
         }
       },
-      trigger: "blur", 
-    },*/
+      trigger: "blur",
+    },
   ],
   nickname: [{ required: true, message: "请输入昵称", trigger: "blur" }],
   phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
   email: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
 };
 
-const login = async () => {
-  console.log(form.value);
+const regist = async () => {
+  // 密码加密 (前端SHA256 后端bcrypt)
+  const hash = await CryptoJS.SHA256(form.value.password).toString();
+  form.value.password = hash;
 
   try {
     axios
@@ -113,6 +110,7 @@ const login = async () => {
       })
       .then((res) => {
         ElMessage.success("注册成功!");
+        router.push("/login");
       })
       .catch((error) => {
         console.error(error);
@@ -120,7 +118,7 @@ const login = async () => {
       });
   } catch (error) {
     console.error(error);
-    ElMessage.error("注册失败，请联系管理员");
+    ElMessage.error("请求失败，请联系管理员。");
   }
 };
 </script>

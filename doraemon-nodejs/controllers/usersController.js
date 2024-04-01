@@ -1,29 +1,14 @@
 const userService = require("../services/usersService");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const jwtKey = require("../jwtKey");
 
-/* // 查询新闻列表
-const getNewsList = (req, res, next) => {
-  newsService.getNewsList((err, newsArr) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
-    }
-    return res.send({ state: 0, message: "查询成功", data: newsArr });
-  });
-};
-
-// 根据id查询新闻详情
-const getNewsById = (req, res, next) => {
-  const id = req.query.id;
-  newsService.getNewsById(id, (err, news) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
-    }
-    return res.send({ state: 0, message: "查询成功", data: news });
-  });
-}; */
-
-// 新增新闻
+// 用户注册
 const registUser = (req, res, next) => {
   const { username, password, nickname, email, phone } = req.query._value;
+
+  //const hashedPassword = bcrypt.hashSync(password, 10);
+
   const user = {
     username,
     password,
@@ -31,7 +16,6 @@ const registUser = (req, res, next) => {
     email,
     phone,
   };
-  console.log(user);
   userService.registUser(user, (err, result) => {
     if (err) {
       return res.send({ state: 1, message: err });
@@ -40,6 +24,47 @@ const registUser = (req, res, next) => {
   });
 };
 
+// 用户登录
+const loginUser = (req, res, next) => {
+  const { username, email, phone, password } = req.query._value;
+
+  //const hashedPassword = bcrypt.hashSync(password, 10);
+
+  const user = {
+    username,
+    email,
+    phone,
+    password,
+  };
+
+  userService.loginUser(user, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    jwt.sign({ username }, jwtKey.key, (err, token) => {
+      if (err) {
+        console.error(err);
+      } else {
+        res.send({ state: 0, message: "登录成功", data: result, token });
+      }
+    });
+  });
+};
+
+// 用户信息
+const getUserInfo = (req, res, next) => {
+  const token = req.headers.authorization;
+  console.log(token);
+  jwt.verify(token, jwtKey.key, (err, decoded) => {
+    if (err) {
+      return res.send({ state: 1, message: "token 验证失败" });
+    }
+  });
+  return res.send({ state: 0, message: "token 验证成功" });
+};
+
 module.exports = {
   registUser,
+  loginUser,
+  getUserInfo,
 };
