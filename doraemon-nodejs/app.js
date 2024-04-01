@@ -23,7 +23,7 @@ app.use(
 
 app.use("/", indexRouter);
 app.use("/admin", adminRouter);
-app.use("/users", usersRouter);
+app.use("/user", usersRouter);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

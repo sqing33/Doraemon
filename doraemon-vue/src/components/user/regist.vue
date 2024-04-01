@@ -9,19 +9,36 @@
         class="login-form"
         label-width="100px"
       >
-        <el-form-item label="用户名" prop="username">
+        <el-form-item label="用户名:" prop="username">
           <el-input
             v-model="form.username"
             placeholder="请输入用户名"
           ></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
+        <el-form-item label="密码:" prop="password">
           <el-input
             v-model="form.password"
             placeholder="请输入密码"
             type="password"
           ></el-input>
         </el-form-item>
+        <el-form-item label="确认密码:" prop="confirmPassword">
+          <el-input
+            v-model="form.confirmPassword"
+            placeholder="请再次输入密码"
+            type="password"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="昵称:" prop="nickname">
+          <el-input v-model="form.nickname" placeholder="请输入昵称"></el-input>
+        </el-form-item>
+        <el-form-item label="手机号:" prop="phone">
+          <el-input v-model="form.phone" placeholder="请输入手机号"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱:" prop="email">
+          <el-input v-model="form.email" placeholder="请输入邮箱"></el-input>
+        </el-form-item>
+
         <el-form-item style="transform: translateX(-18px)">
           <el-button type="primary" @click="login">登录</el-button>
           <el-button type="warning" @click="this.$router.push('/user/regist')"
@@ -34,46 +51,77 @@
   </div>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import { ref } from "vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import router from "@/router/index";
+import { InterfaceUrl } from "@/api";
 
-const form = ref({
+interface FormType {
+  username: string;
+  password: string;
+  confirmPassword: string;
+  nickname: string;
+  phone: string;
+  email: string;
+}
+
+const form: FormType = ref({
   username: "",
   password: "",
+  confirmPassword: "",
+  nickname: "",
+  phone: "",
+  email: "",
 });
 
 const rules = {
   username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
   password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  confirmPassword: [
+    {
+      required: true,
+      message: "请再次输入密码",
+      trigger: "blur",
+    },
+    /* {
+      validator: (rule, value, callback) => {
+        if (value === "") {
+          callback(new Error("请再次输入密码"));
+        } else if (value !== this.form.password) {
+          callback(new Error("两次输入密码不一致"));
+        } else {
+          callback();
+        }
+      },
+      trigger: "blur", 
+    },*/
+  ],
+  nickname: [{ required: true, message: "请输入昵称", trigger: "blur" }],
+  phone: [{ required: true, message: "请输入手机号", trigger: "blur" }],
+  email: [{ required: true, message: "请输入邮箱", trigger: "blur" }],
 };
 
 const login = async () => {
-  axios
-    .post("http://localhost:8080/api/login", form.value)
-    .then((response) => {
-      const result = response.data; // 获取响应数据
-      if (result === "登录成功") {
-        ElMessage({
-          message: "登录成功",
-          type: "success",
-        });
-        router.push("/guide");
-      } else {
-        ElMessage({
-          message: "用户名或密码错误",
-          type: "warning",
-        });
-      }
-    })
-    .catch((error) => {
-      ElMessage({
-        message: "系统错误，请联系管理员",
-        type: "warning",
+  console.log(form.value);
+
+  try {
+    axios
+      .post(InterfaceUrl + "/user/regist", null, {
+        params: form,
+      })
+      .then((res) => {
+        ElMessage.success("注册成功!");
+      })
+      .catch((error) => {
+        console.error(error);
+        ElMessage.error("请求失败，请联系管理员。");
       });
-    });
+  } catch (error) {
+    console.error(error);
+    ElMessage.error("注册失败，请联系管理员");
+  }
 };
 </script>
 

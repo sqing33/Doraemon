@@ -28,13 +28,13 @@ const insertNews = (req, res, next) => {
   const { title, content, coverUrl, region, publisher, date, status } =
     req.query;
   const news = {
-    title: title,
-    content: content,
+    title,
+    content,
     coverUrl: imagesUrl,
-    region: region,
-    publisher: publisher,
-    date: date,
-    status: status,
+    region,
+    publisher,
+    date,
+    status,
   };
   newsService.insertNews(news, (err, result) => {
     if (err) {

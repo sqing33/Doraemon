@@ -171,13 +171,12 @@ const onSubmit = () => {
     .then((response) => {
       ElMessage({
         type: "success",
-        message: "发布成功",
+        message: "发布成功!",
       });
       resetForm(); // 发布成功后重置表单
     })
     .catch((error) => {
-      console.log(error);
-      console.log(form);
+      console.error(error);
       ElMessage.error("请求失败，请联系管理员。");
     });
 };

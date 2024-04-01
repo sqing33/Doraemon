@@ -111,8 +111,6 @@ onMounted(() => {
   axios
     .get(InterfaceUrl + "/admin/news")
     .then((response) => {
-      // form.value = response.data;
-
       const data = response.data;
       if (data.state === 0) {
         const newsArray = data.data;

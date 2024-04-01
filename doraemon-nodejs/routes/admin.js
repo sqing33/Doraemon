@@ -5,7 +5,7 @@ const multer = require("multer");
 const crypto = require("crypto");
 
 // 管理员查询新闻列表
-router.get("/news", newsController.getNewsList);
+router.get("/news", newsController.getNewsList); 
 
 // 管理员插入新闻
 router.post("/newsInsert", newsController.insertNews);
