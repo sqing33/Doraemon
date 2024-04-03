@@ -1,4 +1,4 @@
-const userService = require("../services/usersService");
+const usersService = require("../services/usersService");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const jwtKey = require("../jwtKey");
@@ -16,7 +16,7 @@ const registUser = (req, res, next) => {
     email,
     phone,
   };
-  userService.registUser(user, (err, result) => {
+  usersService.registUser(user, (err, result) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
@@ -37,7 +37,7 @@ const loginUser = (req, res, next) => {
     password,
   };
 
-  userService.loginUser(user, (err, result) => {
+  usersService.loginUser(user, (err, result) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
@@ -62,8 +62,19 @@ const getUserInfo = (req, res, next) => {
   return res.send({ state: 0, message: "token 验证成功" });
 };
 
+// 管理员管理用户信息
+const getUsers = (req, res, next) => {
+  usersService.getUsers((err, usersArr) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "查询成功", data: usersArr });
+  });
+};
+
 module.exports = {
   registUser,
   loginUser,
   getUserInfo,
+  getUsers,
 };

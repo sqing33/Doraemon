@@ -53,8 +53,22 @@ const getUserInfo = (userId, callback) => {
   }); */
 };
 
+// 管理员管理用户信息
+const getUsers = (callback) => {
+  const sql =
+    "SELECT username, nickname, avatar, createTime, phone, email FROM users";
+  db.query(sql, (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result);
+  });
+};
+
 module.exports = {
   registUser,
   loginUser,
   getUserInfo,
+  getUsers,
 };

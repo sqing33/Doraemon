@@ -1,8 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const newsController = require("../controllers/newsController");
+const usersController = require("../controllers/usersController");
 const multer = require("multer");
 const crypto = require("crypto");
+
+// 管理员管理用户信息
+router.get("/users", usersController.getUsers);
 
 // 管理员查询新闻列表
 router.post("/news", newsController.getNewsByPage);

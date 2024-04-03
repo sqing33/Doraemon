@@ -6,14 +6,13 @@
   <el-table
     :data="form"
     border
-    height="80vh"
-    style="margin: 0 auto; font: 1.5vh sans-serif"
+    style="margin: 0 auto; font: 0.85em sans-serif"
     :row-class-name="tableRowClassName"
     :header-cell-style="{ textAlign: 'center' }"
     :cell-style="{ textAlign: 'center' }"
     :row-style="{ height: '125px' }"
   >
-    <el-table-column prop="id" label="ID" width="50" />
+    <el-table-column type="index" label="序号" width="50" />
     <el-table-column prop="title" label="标题" width="330" />
     <el-table-column prop="coverUrl" label="封面" width="200">
       <template #default="scope">
@@ -31,7 +30,11 @@
         <el-tag v-if="scope.row.region === '3'">公告</el-tag>
       </template>
     </el-table-column>
-    <el-table-column prop="date" label="发布日期" width="175" />
+    <el-table-column prop="date" label="发布日期">
+      <template #default="scope">
+        <span>{{ timeConvert(scope.row.date) }}</span>
+      </template>
+    </el-table-column>
     <el-table-column prop="publisher" label="发布者" width="100">
       <template #default="scope">
         <el-tag v-if="scope.row.publisher === '1'">张三</el-tag>
@@ -41,21 +44,31 @@
     </el-table-column>
     <el-table-column prop="status" label="发布状态" width="100">
       <template #default="scope">
-        <el-tag v-if="scope.row.status === 'false'" type="warning"
-          >未发布</el-tag
-        >
+        <el-tag v-if="scope.row.status === 'false'" type="warning">
+          未发布
+        </el-tag>
         <el-tag v-if="scope.row.status === 'true'">已发布</el-tag>
       </template>
     </el-table-column>
     <el-table-column align="center" label="操作" width="150">
       <template #default="scope">
-        <el-button type="primary" @click="doCheck(scope.row.id)"
-          >查看
-        </el-button>
-        <el-button type="primary" @click="doEdit(scope.row.id)">编辑</el-button>
-        <el-button type="danger" @click="doDelete(scope.row.id)"
-          >删除
-        </el-button>
+        <div style="display: flex; flex-direction: column; padding: 0 30px">
+          <el-button type="primary" @click="doCheck(scope.row.id)"
+            >查看
+          </el-button>
+          <el-button
+            style="margin: 5px 0 0 0"
+            type="primary"
+            @click="doEdit(scope.row.id)"
+            >编辑</el-button
+          >
+          <el-button
+            style="margin: 5px 0 0 0"
+            type="danger"
+            @click="doDelete(scope.row.id)"
+            >删除
+          </el-button>
+        </div>
       </template>
     </el-table-column>
   </el-table>
@@ -67,6 +80,7 @@
     :pager-count="11"
     :page-size="pagination.size"
     @current-change="currentChange"
+    style="transform: translateY(20px)"
   ></el-pagination>
 
   <el-dialog
@@ -184,6 +198,19 @@ const doDelete = (id) => {
         ElMessage.error('删除失败，请联系管理员。')
       });
 }*/
+
+// 转换时间格式
+const timeConvert = (time) => {
+  const date = new Date(time);
+  const year = date.getUTCFullYear();
+  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
+  const day = date.getUTCDate().toString().padStart(2, "0");
+  const hours = date.getUTCHours().toString().padStart(2, "0");
+  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
+  const seconds = date.getUTCSeconds().toString().padStart(2, "0");
+  const cstDateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+  return cstDateTime;
+};
 </script>
 
 <style lang="scss" scoped>
@@ -197,7 +224,7 @@ const doDelete = (id) => {
 
 .el-tag,
 .el-button {
-  font-size: 1.6vh;
+  font-size: 1em;
 }
 
 .checkDialog {

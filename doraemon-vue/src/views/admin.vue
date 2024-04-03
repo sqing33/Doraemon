@@ -33,8 +33,8 @@
                 </el-menu-item>
               </router-link>
 
-              <router-link to="/admin/user">
-                <el-menu-item index="/admin/user">
+              <router-link to="/admin/users">
+                <el-menu-item index="/admin/users">
                   <el-icon>
                     <User />
                   </el-icon>
@@ -53,7 +53,7 @@
                 <router-link to="/admin/addNews">
                   <el-menu-item index="1-1"> 发布新闻 </el-menu-item>
                 </router-link>
-                <router-link to="/admin/newsList">
+                <router-link to="/admin/news">
                   <el-menu-item index="1-2"> 新闻列表 </el-menu-item>
                 </router-link>
               </el-sub-menu>

@@ -8,17 +8,7 @@ const getNewsList = (callback) => {
       callback(err, null);
       return;
     }
-    const newsArr = result.map((news) => ({
-      id: news.id,
-      title: news.title,
-      content: news.content,
-      coverUrl: news.coverUrl,
-      region: news.region,
-      publisher: news.publisher,
-      date: news.date,
-      status: news.status,
-    }));
-    callback(null, newsArr);
+    callback(null, result);
   });
 };
 
@@ -70,6 +60,7 @@ const getNewsById = (id, callback) => {
   });
 };
 
+// 新增新闻
 const insertNews = (news, callback) => {
   const sql =
     "INSERT INTO news (title, content, coverUrl, region, publisher, date, status) VALUES (?,?,?,?,?,?,?)";
