@@ -25,11 +25,25 @@
             "url": "http://localhost:5173",
             "webRoot": "${workspaceFolder}"
         },
+        {
+            "command": "npm run build",
+            "name": "vue打包",
+            "request": "launch",
+            "type": "node-terminal",
+            "cwd": "${workspaceFolder}/doraemon-vue"
+        },
+        {
+            "command": "pkg . --out-path=dist",
+            "name": "nodejs打包",
+            "request": "launch",
+            "type": "node-terminal",
+            "cwd": "${workspaceFolder}/doraemon-nodejs"
+        },
     ],
     "compounds": [
         {
             "name": "一键启动",
-            "configurations": ["Launch Edge", "npm start", "npm run dev"]
+            "configurations": [ "npm run dev", "npm start", "Launch Edge"]
         }
     ]
 }

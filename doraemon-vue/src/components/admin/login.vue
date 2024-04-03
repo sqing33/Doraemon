@@ -2,12 +2,25 @@
   <div class="login-container">
     <el-card class="login-card">
       <h2 class="login-title">管理员登录</h2>
-      <el-form ref="loginForm" :model="form" :rules="rules" class="login-form" label-width="100px">
+      <el-form
+        ref="loginForm"
+        :model="form"
+        :rules="rules"
+        class="login-form"
+        label-width="100px"
+      >
         <el-form-item label="用户名" prop="username">
-          <el-input v-model="form.username" placeholder="请输入用户名"></el-input>
+          <el-input
+            v-model="form.username"
+            placeholder="请输入用户名"
+          ></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
-          <el-input v-model="form.password" placeholder="请输入密码" type="password"></el-input>
+          <el-input
+            v-model="form.password"
+            placeholder="请输入密码"
+            type="password"
+          ></el-input>
         </el-form-item>
         <el-form-item style="transform: translateX(18px)">
           <el-button type="primary" @click="login">登录</el-button>
@@ -19,25 +32,24 @@
 </template>
 
 <script setup>
-import {reactive} from 'vue';
+import { reactive } from "vue";
 import router from "@/router";
 
 const form = reactive({
-  username: '',
-  password: '',
+  username: "",
+  password: "",
 });
 
 const rules = {
-  username: [{required: true, message: '请输入用户名', trigger: 'blur'}],
-  password: [{required: true, message: '请输入密码', trigger: 'blur'}],
+  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
 };
 
-function login() {
-  if (form.username === 'admin' || form.password === 'admin') {
-    router.push('/admin');
-  }
-}
-
+const login = () => {
+  //if (form.username === 'admin' || form.password === 'admin') {
+  router.push("/admin");
+  //}
+};
 </script>
 
 <style scoped>

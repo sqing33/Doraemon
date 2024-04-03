@@ -13,13 +13,13 @@
     :cell-style="{ textAlign: 'center' }"
     :row-style="{ height: '125px' }"
   >
-    <el-table-column prop="id" label="ID" width="75" />
+    <el-table-column prop="id" label="ID" width="50" />
     <el-table-column prop="title" label="标题" width="330" />
     <el-table-column prop="coverUrl" label="封面" width="200">
       <template #default="scope">
         <img
           :src="scope.row.coverUrl"
-          style="width: auto; height: 275px"
+          style="width: 150px; height: auto; max-height: 100px"
           alt=""
         />
       </template>
@@ -59,6 +59,15 @@
       </template>
     </el-table-column>
   </el-table>
+
+  <el-pagination
+    background
+    layout="prev, pager, next, jumper,"
+    :total="total"
+    :pager-count="11"
+    :page-size="pagination.size"
+    @current-change="currentChange"
+  ></el-pagination>
 
   <el-dialog
     v-model="centerDialogVisible"
@@ -107,15 +116,35 @@ const router = useRouter();
 
 const form = ref();
 
+const pagination = ref({
+  page: 1,
+  size: 5,
+});
+
+const currentChange = (currentPage) => {
+  pagination.value.page = currentPage;
+  fetchPets();
+};
+
+const total = ref();
+
 onMounted(() => {
+  fetchPets();
+});
+
+const fetchPets = () => {
   axios
-    .get(InterfaceUrl + "/admin/news")
+    .post(InterfaceUrl + "/admin/news", null, {
+      params: {
+        page: pagination.value.page,
+        size: pagination.value.size,
+      },
+    })
     .then((response) => {
       const data = response.data;
       if (data.state === 0) {
-        const newsArray = data.data;
-        form.value = newsArray;
-        console.log(newsArray);
+        form.value = data.data.newsArr.newsArr;
+        total.value = data.data.newsArr.total;
       } else {
         console.error(data.message);
       }
@@ -123,7 +152,7 @@ onMounted(() => {
     .catch((error) => {
       ElMessage.error("请求失败，请联系管理员。");
     });
-});
+};
 
 const tableRowClassName = ({ row }) => {
   if (row.status === true) {

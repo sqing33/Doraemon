@@ -3,12 +3,16 @@
     <el-container>
       <el-header
         v-if="!Admin"
-        style="--el-menu-bg-color: transparent; --el-header-padding: 0"
+        style="
+          --el-menu-bg-color: transparent;
+          --el-header-padding: 0;
+          border-bottom: 1px solid #eee;
+        "
         height="40px"
       >
         <div style="display: flex; justify-content: space-between">
           <div class="nav" style="flex: 1; height: 40px">
-            <el-menu mode="horizontal" style="height: 40px">
+            <el-menu mode="horizontal" style="height: 40px" :ellipsis="false">
               <el-menu-item>
                 <router-link style="display: flex" to="/">
                   <img
@@ -164,7 +168,7 @@ const AdminPage = ref(false);
 
 watch(route, (to) => {
   Admin.value = to.path.startsWith("/admin");
-  HomePage.value = to.path === "/";
+  HomePage.value = to.path === "/" || to.path === "/author";
   OtherPage.value =
     to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
@@ -174,11 +178,9 @@ const userInfo = async () => {
   try {
     const token = localStorage.getItem("token");
     await axios
-      .post(
-        InterfaceUrl + "/user/info",
-        { asd: "123" },
-        { headers: { Authorization: token } }
-      )
+      .post(InterfaceUrl + "/user/info", null, {
+        headers: { Authorization: token },
+      })
       .then((res) => {
         console.log(res.data);
         if (res.data.state === 0) {

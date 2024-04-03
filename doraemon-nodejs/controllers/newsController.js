@@ -12,6 +12,21 @@ const getNewsList = (req, res, next) => {
   });
 };
 
+// 分页查询新闻列表
+const getNewsByPage = (req, res, next) => {
+  const { page, size } = req.query;
+  newsService.getNewsByPage(page, size, (err, newsArr, total) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({
+      state: 0,
+      message: "查询成功",
+      data: { newsArr, total },
+    });
+  });
+};
+
 // 根据id查询新闻详情
 const getNewsById = (req, res, next) => {
   const id = req.query.id;
@@ -63,6 +78,7 @@ const upload = (req, res, next) => {
 
 module.exports = {
   getNewsList,
+  getNewsByPage,
   getNewsById,
   insertNews,
   upload,

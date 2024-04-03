@@ -1,4 +1,5 @@
 import {createApp} from "vue";
+import {store} from "./store";
 // @ts-ignore
 import App from "./App.vue";
 // @ts-ignore
@@ -13,7 +14,7 @@ import "bootstrap";
 
 
 const app = createApp(App);
-
+app.use(store);
 app.use(router);
 app.use(ElementPlus);
 app.mount("#app");

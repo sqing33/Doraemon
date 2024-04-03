@@ -22,7 +22,8 @@
     "pako": "^2.1.0",
     "vee-validate": "^4.5.8",
     "vue": "^3.3.11",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.10",

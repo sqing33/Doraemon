@@ -29,7 +29,6 @@
             v-for="(form, index) in form.data.slice(0, 10)"
             :key="index"
             style="height: 42px"
-            @click="doGoToNewsPage(form.id)"
           >
             <h6>
               <span
@@ -38,11 +37,12 @@
                   width: 30px;
                   text-align: center;
                   transform: translateY(1px);
+                  cursor: pointer;
                 "
               >
                 {{ index + 1 + ". " }}
               </span>
-              <span>
+              <span @click="doGoToNewsPage(form.id)">
                 {{ form.title }}
               </span>
             </h6>
@@ -58,7 +58,6 @@
         v-for="(form, index) in form.data"
         :key="index"
         style="margin: 20px -5px; text-align: left; width: 95%"
-        @click="doGoToNewsPage(form.id)"
       >
         <div
           style="
@@ -67,6 +66,7 @@
             border: 1px solid #111;
             padding: 10px;
           "
+          @click="doGoToNewsPage(form.id)"
         >
           <img
             :src="form.coverUrl"

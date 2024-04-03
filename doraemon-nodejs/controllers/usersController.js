@@ -54,7 +54,6 @@ const loginUser = (req, res, next) => {
 // 用户信息
 const getUserInfo = (req, res, next) => {
   const token = req.headers.authorization;
-  console.log(token);
   jwt.verify(token, jwtKey.key, (err, decoded) => {
     if (err) {
       return res.send({ state: 1, message: "token 验证失败" });

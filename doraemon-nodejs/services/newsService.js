@@ -22,6 +22,40 @@ const getNewsList = (callback) => {
   });
 };
 
+// 分页查询新闻列表
+const getNewsByPage = (page, pageSize, callback) => {
+  const pages = (page - 1) * pageSize;
+  const sql = "SELECT * FROM news LIMIT ? OFFSET ?";
+  const sql2 = "SELECT COUNT(*) AS total FROM news";
+  let newsArr = [];
+  let total;
+
+  db.query(sql, [parseInt(pageSize), pages], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    newsArr = result.map((news) => ({
+      id: news.id,
+      title: news.title,
+      content: news.content,
+      coverUrl: news.coverUrl,
+      region: news.region,
+      publisher: news.publisher,
+      date: news.date,
+      status: news.status,
+    }));
+  });
+  db.query(sql2, (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    total = result[0].total;
+    callback(null, { newsArr, total });
+  });
+};
+
 // 根据id查询新闻详情
 const getNewsById = (id, callback) => {
   const sql = "SELECT * FROM news WHERE id = ?";
@@ -62,6 +96,7 @@ const insertNews = (news, callback) => {
 
 module.exports = {
   getNewsList,
+  getNewsByPage,
   getNewsById,
   insertNews,
 };
