@@ -25,3 +25,6 @@ dist-ssr
 
 # Token Key
 jwtKey.js
+
+# 邮箱验证码配置
+emailService.js

@@ -151,6 +151,9 @@ import {
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 import { InterfaceUrl } from "@/api";
+import { useStore } from "vuex";
+
+const store = useStore();
 
 const username = "用户中心";
 
@@ -182,9 +185,12 @@ const userInfo = async () => {
         headers: { Authorization: token },
       })
       .then((res) => {
-        console.log(res.data);
         if (res.data.state === 0) {
+          store.dispatch("setUserInfoFromAxios", res.data.data);
           router.push("/userInfo");
+        } else if (res.data.state === 2) {
+          ElMessage.error("登录超时，请重新登录");
+          router.push("/login");
         }
       })
       .catch((err) => {
