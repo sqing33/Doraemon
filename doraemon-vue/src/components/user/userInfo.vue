@@ -1,8 +1,8 @@
 <template>
-  <div class="row">
-    <div v-if="isLoading" class="col-sm-12" style="height: 10vh"></div>
-    <div v-if="isLoading" class="col-sm-2 content"></div>
-    <div class="content" :class="Class.row1">
+  <el-row :gutter="10">
+    <el-col :span="24" class="head"></el-col>
+    <el-col :sm="4" class="content hidden-sm-and-down"></el-col>
+    <el-col :sm="4" :xs="7" class="content">
       <el-menu class="content" default-active="我的资料" @select="menuSelect">
         <h4
           style="
@@ -20,10 +20,11 @@
         <el-menu-item index="我的收藏">我的收藏</el-menu-item>
         <el-menu-item index="建议意见">建议意见</el-menu-item>
       </el-menu>
-    </div>
-    <div
+    </el-col>
+    <el-col
+      :sm="12"
+      :xs="17"
       class="content"
-      :class="Class.row2"
       style="
         background-image: linear-gradient(
           120deg,
@@ -60,28 +61,14 @@
       </div>
       <div class="contentInfo" v-if="menuIndex == '我的收藏'">我的收藏</div>
       <div class="contentInfo" v-if="menuIndex == '建议意见'">建议意见</div>
-    </div>
-    <div v-if="isLoading" class="col-sm-2 content"></div>
-  </div>
+    </el-col>
+    <el-col :sm="4" class="content hidden-sm-and-down"></el-col>
+  </el-row>
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, watchEffect, watch, onMounted } from "vue";
+import { ref } from "vue";
 import { useStore } from "vuex";
-
-const Class = reactive({
-  row1: "col-2",
-  row2: "col-6",
-});
-
-const windowWidth = window.innerWidth;
-const isLoading = ref(true);
-
-if (windowWidth < 600) {
-  isLoading.value = false;
-  Class.row1 = "col-3";
-  Class.row2 = "col-9";
-}
 
 const menuIndex = ref("我的资料");
 
@@ -109,12 +96,22 @@ const timeConvert = (time) => {
   padding: 0;
 }
 
+.head {
+  height: 10vh;
+  padding: 0;
+
+  @media (max-width: 768px) {
+    height: 5vh;
+  }
+}
+
 .content {
   height: 70vh;
   border-radius: 10px;
 }
 
 .contentInfo {
+  width: 80%;
   position: relative;
   top: 50%;
   transform: translate(10vw, -50%);

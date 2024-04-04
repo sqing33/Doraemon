@@ -1,9 +1,9 @@
-const db = require("../db");
+const { mysqlDb } = require("../db");
 
 // 查询新闻列表
 const getNewsList = (callback) => {
   const sql = "SELECT * FROM news";
-  db.query(sql, (err, result) => {
+  mysqlDb.query(sql, (err, result) => {
     if (err) {
       callback(err, null);
       return;
@@ -20,7 +20,7 @@ const getNewsByPage = (page, pageSize, callback) => {
   let newsArr = [];
   let total;
 
-  db.query(sql, [parseInt(pageSize), pages], (err, result) => {
+  mysqlDb.query(sql, [parseInt(pageSize), pages], (err, result) => {
     if (err) {
       callback(err, null);
       return;
@@ -36,7 +36,7 @@ const getNewsByPage = (page, pageSize, callback) => {
       status: news.status,
     }));
   });
-  db.query(sql2, (err, result) => {
+  mysqlDb.query(sql2, (err, result) => {
     if (err) {
       callback(err, null);
       return;
@@ -49,7 +49,7 @@ const getNewsByPage = (page, pageSize, callback) => {
 // 根据id查询新闻详情
 const getNewsById = (id, callback) => {
   const sql = "SELECT * FROM news WHERE id = ?";
-  db.query(sql, [id], (err, result) => {
+  mysqlDb.query(sql, [id], (err, result) => {
     if (err) {
       callback(err, null);
       return;

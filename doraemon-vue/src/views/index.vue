@@ -4,6 +4,7 @@
       <el-header
         v-if="!Admin"
         style="
+          width: 100%;
           --el-menu-bg-color: transparent;
           --el-header-padding: 0;
           border-bottom: 1px solid #eee;
@@ -12,7 +13,12 @@
       >
         <div style="display: flex; justify-content: space-between">
           <div class="nav" style="flex: 1; height: 40px">
-            <el-menu mode="horizontal" style="height: 40px" :ellipsis="false">
+            <el-menu
+              class="head"
+              mode="horizontal"
+              style="height: 40px"
+              :ellipsis="true"
+            >
               <el-menu-item>
                 <router-link style="display: flex" to="/">
                   <img
@@ -171,7 +177,10 @@ const AdminPage = ref(false);
 
 watch(route, (to) => {
   Admin.value = to.path.startsWith("/admin");
-  HomePage.value = to.path === "/" || to.path === "/author";
+  console.log(window.innerWidth);
+  if (window.innerWidth >= 1024) {
+    HomePage.value = to.path === "/" || to.path === "/author";
+  }
   OtherPage.value =
     to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
@@ -212,6 +221,12 @@ const userInfo = async () => {
 
 li {
   padding: 0 10px;
+}
+
+@media screen and (max-width: 768px) {
+  .head {
+    width: 60vw;
+  }
 }
 
 @font-face {
