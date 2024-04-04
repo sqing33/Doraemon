@@ -107,16 +107,19 @@
                   </span>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <router-link to="/login">
+                      <router-link to="/login" v-if="isLoading">
                         <el-dropdown-item>登录/注册</el-dropdown-item>
                       </router-link>
                       <el-dropdown-item @click="userInfo">
                         用户信息
                       </el-dropdown-item>
+                      <router-link to="/">
+                        <el-dropdown-item divided>建议/意见</el-dropdown-item>
+                      </router-link>
                       <router-link to="/adminLogin">
                         <el-dropdown-item divided>管理员登录</el-dropdown-item>
                       </router-link>
-                      <router-link to="">
+                      <router-link to="" v-if="!isLoading" @click="logout">
                         <el-dropdown-item divided>退出登录</el-dropdown-item>
                       </router-link>
                     </el-dropdown-menu>
@@ -142,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import {
   ArrowDown,
   Avatar,
@@ -161,7 +164,13 @@ import { useStore } from "vuex";
 
 const store = useStore();
 
-const username = "用户中心";
+/* const username = computed(() => {
+  if (store.getters.getUserInfo.username == null) {
+    return "用户中心";
+  } else {
+    return store.getters.getUserInfo.username;
+  }
+}); */
 
 const route = useRoute();
 const router = useRouter();
@@ -186,6 +195,16 @@ watch(route, (to) => {
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
 });
 
+const isLoading = computed(() => {
+  return localStorage.getItem("token") ? false : true;
+});
+
+const logout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("vuex");
+  router.push("/login");
+};
+
 const userInfo = async () => {
   try {
     const token = localStorage.getItem("token");
@@ -194,8 +213,8 @@ const userInfo = async () => {
         headers: { Authorization: token },
       })
       .then((res) => {
+        console.log(res.data.state);
         if (res.data.state === 0) {
-          store.dispatch("setUserInfoFromAxios", res.data.data);
           router.push("/userInfo");
         } else if (res.data.state === 2) {
           ElMessage.error("登录超时，请重新登录");

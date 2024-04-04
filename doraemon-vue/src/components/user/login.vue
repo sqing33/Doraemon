@@ -41,6 +41,9 @@ import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { InterfaceUrl } from "@/api";
 import CryptoJS from "crypto-js";
+import { useStore } from "vuex";
+
+const store = useStore();
 
 const router = useRouter();
 
@@ -96,10 +99,15 @@ const login = async () => {
         params: form,
       })
       .then((res) => {
-        ElMessage.success("登录成功!");
-        router.push("/");
-        // 保存token到localStorage
-        localStorage.setItem("token", res.data.token);
+        if (res.data.state === 1) {
+          ElMessage.error("用户名或密码错误");
+        } else {
+          ElMessage.success("登录成功!");
+          store.dispatch("setUserInfoFromAxios", res.data.data);
+          router.push("/");
+          // 保存token到localStorage
+          localStorage.setItem("token", res.data.token);
+        }
       })
       .catch((error) => {
         console.error(error);

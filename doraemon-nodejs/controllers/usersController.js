@@ -118,15 +118,16 @@ const getUserInfo = (req, res, next) => {
   const token = req.headers.authorization;
   jwt.verify(token, jwtKey.key, (err, decoded) => {
     if (err) {
-      return res.send({ state: 2, message: "token 验证失败" });
+      return res.send({ state: 2, message: "token 已过期或无效" });
     }
-    const { username } = decoded;
+    /* const { username } = decoded;
     usersService.getUserInfo(username, (err, result) => {
       if (err) {
         return res.send({ state: 1, message: err });
       }
       return res.send({ state: 0, message: "查询成功", data: result });
-    });
+    }); */
+    return res.send({ state: 0, message: "token 验证成功" });
   });
 };
 
