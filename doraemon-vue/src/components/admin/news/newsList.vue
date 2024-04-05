@@ -12,7 +12,7 @@
     :cell-style="{ textAlign: 'center' }"
     :row-style="{ height: '125px' }"
   >
-    <el-table-column type="index" label="序号" width="50" />
+    <el-table-column type="index" label="序号" width="75" />
     <el-table-column prop="title" label="标题" width="330" />
     <el-table-column prop="coverUrl" label="封面" width="200">
       <template #default="scope">

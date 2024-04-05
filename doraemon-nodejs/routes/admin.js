@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const blogController = require("../controllers/blogController");
 const newsController = require("../controllers/newsController");
 const usersController = require("../controllers/usersController");
 const multer = require("multer");
@@ -7,6 +8,15 @@ const crypto = require("crypto");
 
 // 管理员管理用户信息
 router.get("/users", usersController.getUsers);
+
+// 管理员查询文章分类
+router.get("/blog/categories", blogController.getBlogCategories);
+
+// 管理员插入文章分类
+router.post("/blog/categoryInsert", blogController.insertBlogCategories);
+
+// 管理员查询文章列表
+// router.post("/blog", blogController.getBlogByPage);
 
 // 管理员查询新闻列表
 router.post("/news", newsController.getNewsByPage);

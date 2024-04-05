@@ -62,22 +62,16 @@
                   剧场史
                 </router-link>
               </el-menu-item>
+
               <el-menu-item>
-                <router-link to="/interaction">
+                <router-link to="/blog">
                   <el-icon>
                     <Connection />
                   </el-icon>
                   用户互动
                 </router-link>
               </el-menu-item>
-              <el-menu-item>
-                <router-link to="/media">
-                  <el-icon>
-                    <VideoPlay />
-                  </el-icon>
-                  音乐视频
-                </router-link>
-              </el-menu-item>
+
               <el-menu-item>
                 <router-link to="/news">
                   <el-icon>
@@ -86,6 +80,7 @@
                   新闻活动
                 </router-link>
               </el-menu-item>
+
               <el-menu-item>
                 <router-link to="/website">
                   <el-icon>

@@ -4,6 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var cors = require("cors");
+const bodyParser = require("body-parser");
 
 var indexRouter = require("./routes/index");
 var adminRouter = require("./routes/admin");
@@ -16,10 +17,13 @@ app.use(
   cors({
     origin: "*",
     methods: ["GET", "POST"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: "*",
     credentials: true,
   })
 );
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/", indexRouter);
 app.use("/admin", adminRouter);

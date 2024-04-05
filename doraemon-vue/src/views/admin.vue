@@ -23,7 +23,10 @@
                 />
               </router-link>
             </h4>
-            <el-menu :default-openeds="['/admin/news']" default-active="/admin">
+            <el-menu
+              :default-openeds="['/admin/news', '/admin/blogs']"
+              default-active="/admin"
+            >
               <router-link to="/admin">
                 <el-menu-item index="/admin" router="/admin">
                   <el-icon>
@@ -38,9 +41,23 @@
                   <el-icon>
                     <User />
                   </el-icon>
-                  用户信息
+                  用户管理
                 </el-menu-item>
               </router-link>
+
+              <el-sub-menu index="/admin/blogs">
+                <template #title>
+                  <el-icon><ChatLineSquare /></el-icon>
+                  论坛管理
+                </template>
+
+                <router-link to="/admin/blog/categories">
+                  <el-menu-item index="1-1"> 文章分类 </el-menu-item>
+                </router-link>
+                <router-link to="/admin/blog/blogList">
+                  <el-menu-item index="1-2"> 文章管理 </el-menu-item>
+                </router-link>
+              </el-sub-menu>
 
               <el-sub-menu index="/admin/news">
                 <template #title>
@@ -50,11 +67,11 @@
                   新闻管理
                 </template>
 
-                <router-link to="/admin/addNews">
-                  <el-menu-item index="1-1"> 发布新闻 </el-menu-item>
+                <router-link to="/admin/news/addNews">
+                  <el-menu-item index="2-1"> 发布新闻 </el-menu-item>
                 </router-link>
-                <router-link to="/admin/news">
-                  <el-menu-item index="1-2"> 新闻列表 </el-menu-item>
+                <router-link to="/admin/news/newsList">
+                  <el-menu-item index="2-2"> 新闻列表 </el-menu-item>
                 </router-link>
               </el-sub-menu>
 
@@ -84,6 +101,7 @@ import {
   House,
   Menu,
   RefreshLeft,
+  ChatLineSquare,
   Tickets,
   User,
 } from "@element-plus/icons-vue";
