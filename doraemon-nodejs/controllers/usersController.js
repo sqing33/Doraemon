@@ -2,7 +2,7 @@ const usersService = require("../services/usersService");
 const emailService = require("../services/emailService");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const jwtKey = require("../jwtKey");
+const jwtKey = require("../utils/jwtKey");
 const { redisDb } = require("../db");
 const _ = require("lodash");
 

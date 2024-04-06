@@ -25,6 +25,12 @@ const adminRoutes: RouteRecordRaw[] = [
         ),
       },
       {
+        path: "comment",
+        component: defineAsyncComponent(
+          () => import("@/components/user/comment.vue")
+        ),
+      },
+      {
         path: "blog",
         children: [
           {

@@ -1,4 +1,6 @@
 <template>
+  <el-button type="primary" @click="writeBlog">发帖</el-button>
+
   <el-table
     :data="blog"
     border
@@ -35,4 +37,8 @@ onMounted(() => {
       console.log(blog.value);
     });
 });
+
+const writeBlog = () => {
+  console.log("writeBlog");
+};
 </script>

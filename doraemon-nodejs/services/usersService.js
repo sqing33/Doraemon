@@ -38,6 +38,7 @@ const loginUser = (user, callback) => {
   );
 };
 
+// 获取用户信息
 const getUserInfo = (username, callback) => {
   const sql =
     "SELECT username, nickname, avatar, createTime, phone, email, gender, birthday FROM users WHERE username = ?";

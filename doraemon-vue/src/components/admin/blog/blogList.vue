@@ -17,7 +17,6 @@
     :data="blog"
     border
     style="margin: 0 auto; font: 0.85em sans-serif"
-    :row-class-name="tableRowClassName"
     :header-cell-style="{ textAlign: 'center' }"
     :cell-style="{ textAlign: 'center' }"
     :row-style="{ height: '125px' }"
@@ -81,10 +80,12 @@
         文章分类：
       </span>
       <el-select v-model="form.region" placeholder="分类" style="width: 240px">
-        <el-option label="分享" :value="550829782863941" />
-        <el-option label="杂谈" :value="550829850009669" />
-        <el-option label="娱乐" :value="550829869162565" />
-        <el-option label="提示" :value="550829949513797" />
+        <el-option
+          v-for="item in categoryOptions"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
       </el-select>
     </div>
 
@@ -125,6 +126,8 @@ const blog = ref([
   },
 ]);
 
+const categoryOptions = ref();
+
 interface Blog {
   title: string;
   content: string;
@@ -139,8 +142,19 @@ const form: Blog = reactive({
 
 const dialogVisible = ref(false);
 
-const doAddBlog = () => {
-  dialogVisible.value = true;
+const doAddBlog = async () => {
+  await axios
+    .get(InterfaceUrl + "/admin/blog/categories")
+    .then((res) => {
+      categoryOptions.value = res.data.data
+        .filter((item: any) => item.state !== "false")
+        .map((item: any) => {
+          return { label: item.name, value: item.id };
+        });
+    })
+    .then(() => {
+      dialogVisible.value = true;
+    });
 };
 
 const submitForm = () => {

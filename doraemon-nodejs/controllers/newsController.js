@@ -1,6 +1,5 @@
 const newsService = require("../services/newsService");
-
-let imagesUrl = [];
+const dateFunction = require("../utils/Date");
 
 // 查询新闻列表
 const getNewsList = (req, res, next) => {
@@ -41,16 +40,17 @@ const getNewsById = (req, res, next) => {
 // 新增新闻
 const insertNews = (req, res, next) => {
   const { title, content, coverUrl, region, publisher, date, status } =
-    req.query;
+    req.body;
   const news = {
     title,
     content,
-    coverUrl: imagesUrl,
+    coverUrl,
     region,
     publisher,
-    date,
+    date: dateFunction(),
     status,
   };
+
   newsService.insertNews(news, (err, result) => {
     if (err) {
       return res.send({ state: 1, message: err });
@@ -64,7 +64,8 @@ const upload = (req, res, next) => {
   if (!req.file) {
     return res.status(400).send({ errno: 1, message: "上传失败" });
   }
-  imagesUrl = "http://localhost:3000/uploads/images/news/" + req.file.filename;
+  const imagesUrl =
+    "http://localhost:3000/uploads/images/news/" + req.file.filename;
   res.send({
     errno: 0,
     data: {

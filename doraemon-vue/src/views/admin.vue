@@ -45,6 +45,13 @@
                 </el-menu-item>
               </router-link>
 
+              <router-link to="/admin/comment">
+                <el-menu-item index="/admin/comment">
+                  <el-icon><Edit /></el-icon>
+                  评论管理
+                </el-menu-item>
+              </router-link>
+
               <el-sub-menu index="/admin/blogs">
                 <template #title>
                   <el-icon><ChatLineSquare /></el-icon>
@@ -100,6 +107,7 @@ import {
   Connection,
   House,
   Menu,
+  Edit,
   RefreshLeft,
   ChatLineSquare,
   Tickets,

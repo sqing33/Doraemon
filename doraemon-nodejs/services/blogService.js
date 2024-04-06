@@ -1,5 +1,5 @@
 const { mysqlDb } = require("../db");
-const SnowFlakeId = require("../SnowFlakeIdGenerator");
+const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
 
 // 查询文章分类
 const getBlogCategories = (callback) => {

@@ -181,7 +181,6 @@ const AdminPage = ref(false);
 
 watch(route, (to) => {
   Admin.value = to.path.startsWith("/admin");
-  console.log(window.innerWidth);
   if (window.innerWidth >= 1024) {
     HomePage.value = to.path === "/" || to.path === "/author";
   }

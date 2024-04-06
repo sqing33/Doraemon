@@ -64,7 +64,7 @@ const getNewsById = (id, callback) => {
 const insertNews = (news, callback) => {
   const sql =
     "INSERT INTO news (title, content, coverUrl, region, publisher, date, status) VALUES (?,?,?,?,?,?,?)";
-  db.query(
+  mysqlDb.query(
     sql,
     [
       news.title,
