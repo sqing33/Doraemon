@@ -13,9 +13,9 @@ const date = (dates) => {
   const minutes = date.getMinutes().toString().padStart(2, "0");
   const seconds = date.getSeconds().toString().padStart(2, "0");
 
-  const formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  const formattedDateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
 
   return formattedDateTime;
 };
 
-module.exports = date;
+export default date;

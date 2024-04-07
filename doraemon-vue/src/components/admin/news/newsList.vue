@@ -6,6 +6,7 @@
   <el-table
     :data="form"
     border
+    height="71.4vh"
     style="margin: 0 auto; font: 0.85em sans-serif"
     :row-class-name="tableRowClassName"
     :header-cell-style="{ textAlign: 'center' }"
@@ -80,7 +81,13 @@
     :pager-count="11"
     :page-size="pagination.size"
     @current-change="currentChange"
-    style="transform: translateY(20px)"
+    style="
+      transform: translateY(20px);
+      margin: auto;
+      width: 80vw;
+      height: 15vh;
+      text-align: center;
+    "
   ></el-pagination>
 
   <el-dialog
@@ -125,6 +132,7 @@ import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import { onMounted, reactive, ref } from "vue";
 import { InterfaceUrl } from "@/api";
+import LZString from "lz-string";
 
 const router = useRouter();
 

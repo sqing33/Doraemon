@@ -1,5 +1,7 @@
 const { mysqlDb } = require("../db");
 const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
+const dateFunction = require("../utils/Date");
+const LZString = require("lz-string");
 
 // 查询文章分类
 const getBlogCategories = (callback) => {
@@ -9,7 +11,6 @@ const getBlogCategories = (callback) => {
       callback(err, null);
       return;
     }
-    console.log(result);
     callback(null, result);
   });
 };
@@ -31,25 +32,37 @@ const insertBlogCategories = (name, state, callback) => {
 };
 
 // 新增文章
-const insertBlog = (title, content, categoryId, callback) => {
+const insertBlog = (
+  title,
+  content,
+  categoryId,
+  coverUrl,
+  publsher_id,
+  callback
+) => {
   const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
   const id = snowFlakeId.NextId();
 
-  const sql = "INSERT INTO blog SET id=?, title=?, content=?, category_id=?";
-  mysqlDb.query(sql, [id, title, content, categoryId], (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
+  const sql =
+    "INSERT INTO blog SET id=?, title=?, content=?, category_id=?, coverUrl=?, publisher_id=?, create_time=? ";
+  mysqlDb.query(
+    sql,
+    [id, title, content, categoryId, coverUrl, publsher_id, dateFunction()],
+    (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      callback(null, result);
     }
-    console.log(result);
-    callback(null, result);
-  });
+  );
 };
 
-// 查询文章
-const getBlogs = (page, pageSize, categoryId, keyword, callback) => {
+// 根据条件查询文章
+const getBlogs = (page, pageSize, categoryId, keyword, length, callback) => {
   let sqlParams = [];
   let sqlCondition = [];
+
   if (categoryId != 0) {
     sqlCondition.push(" category_id = ? ");
     sqlParams.push(categoryId);
@@ -69,12 +82,9 @@ const getBlogs = (page, pageSize, categoryId, keyword, callback) => {
   let sql;
 
   if (pageSize !== null) {
-    sql =
-      " SELECT id, category_id, title, content FROM blog " +
-      sqlCondition +
-      " LIMIT ?,? ";
+    sql = " SELECT * FROM blog " + whereSqlStr + " LIMIT ?,? ";
   } else if (page == 1 && pageSize == null) {
-    sql = " SELECT id, category_id, title, content FROM blog ";
+    sql = " SELECT * FROM blog " + whereSqlStr;
   }
 
   let params = sqlParams.concat([(page - 1) * pageSize, parseInt(pageSize)]);
@@ -87,12 +97,22 @@ const getBlogs = (page, pageSize, categoryId, keyword, callback) => {
       callback(err, null);
       return;
     }
-    blogArr = result;
+
+    if (length === 0) {
+      blogArr = result;
+    } else if (length) {
+      blogArr = result.map((item) => {
+        item.content = LZString.decompressFromBase64(item.content);
+        item.content = item.content.slice(0, 99) + "...";
+        item.content = LZString.compressToBase64(item.content);
+        return item;
+      });
+    }
 
     if (page == 1 && pageSize == null) {
       callback(null, blogArr);
     } else {
-      let sql2 = " SELECT count(*) AS total FROM blog " + sqlCondition;
+      let sql2 = " SELECT count(*) AS total FROM blog " + whereSqlStr;
 
       mysqlDb.query(sql2, sqlParams, (err, result) => {
         if (err) {
@@ -106,9 +126,21 @@ const getBlogs = (page, pageSize, categoryId, keyword, callback) => {
   });
 };
 
+const getBlogById = (id, callback) => {
+  const sql = "SELECT * FROM blog WHERE id = ? ";
+  mysqlDb.query(sql, [id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result[0]);
+  });
+};
+
 module.exports = {
   getBlogCategories,
   insertBlogCategories,
   insertBlog,
   getBlogs,
+  getBlogById,
 };

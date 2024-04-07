@@ -89,6 +89,7 @@
 import { ref, reactive, onMounted } from "vue";
 import axios from "axios";
 import { InterfaceUrl } from "@/api";
+import { ElMessage } from "element-plus";
 
 const categories = ref([]);
 
@@ -125,7 +126,14 @@ const submitForm = () => {
       },
     })
     .then((res) => {
-      console.log(res);
+      ElMessage({
+        type: "success",
+        message: "发布成功!",
+      });
+    })
+    .catch((error) => {
+      console.error(error);
+      ElMessage.error("请求失败，请联系管理员。");
     });
 };
 </script>

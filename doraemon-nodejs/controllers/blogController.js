@@ -17,32 +17,58 @@ const insertBlogCategories = (req, res, next) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
-    return res.send({ state: 0, message: "新增成功", data: result });
+    return res.send({ state: 0, message: "新增成功" });
   });
 };
 
 // 新增文章
 const insertBlog = (req, res, next) => {
-  const { title, content, region } = req.body;
+  const { title, content, region, coverUrl, publsher_id } = req.body;
   const categoryId = region;
-  blogService.insertBlog(title, content, categoryId, (err, result) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
+  blogService.insertBlog(
+    title,
+    content,
+    categoryId,
+    coverUrl,
+    publsher_id,
+    (err, result) => {
+      if (err) {
+        return res.send({ state: 1, message: err });
+      }
+      return res.send({ state: 0, message: "新增成功", data: result });
     }
-    return res.send({ state: 0, message: "新增成功", data: result });
-  });
+  );
 };
 
-// 查询文章
+// 根据条件查询文章
 const getBlogs = (req, res, next) => {
-  let { keyword, categoryId, page, pageSize } = req.query;
+  let { keyword, categoryId, page, pageSize, length } = req.query;
 
   page = page == null ? 1 : page;
   pageSize = pageSize == null ? null : pageSize;
   categoryId = categoryId == null ? 0 : categoryId;
   keyword = keyword == null ? "" : keyword;
+  length = length == null ? 0 : length;
 
-  blogService.getBlogs(page, pageSize, categoryId, keyword, (err, result) => {
+  blogService.getBlogs(
+    page,
+    pageSize,
+    categoryId,
+    keyword,
+    length,
+    (err, result) => {
+      if (err) {
+        return res.send({ state: 1, message: err });
+      }
+      return res.send({ state: 0, message: "查询成功", data: result });
+    }
+  );
+};
+
+// 根据id查询文章
+const getBlogById = (req, res, next) => {
+  const { id } = req.query;
+  blogService.getBlogById(id, (err, result) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
@@ -55,4 +81,5 @@ module.exports = {
   insertBlogCategories,
   insertBlog,
   getBlogs,
+  getBlogById,
 };

@@ -1,12 +1,13 @@
 <template>
-  <div style="border: 1px solid #ccc">
+  <div style="border: 1px solid #ccc" :style="style().width">
     <Toolbar
       style="border-bottom: 1px solid #ccc; z-index: 1000 !important"
       :editor="editorRef"
       :defaultConfig="toolbarConfig"
     />
     <Editor
-      style="height: 20vh; overflow-y: hidden; z-index: 999 !important"
+      style="overflow-y: hidden; z-index: 999 !important"
+      :style="style().height"
       v-model="valueHtml"
       :defaultConfig="editorConfig"
       @onCreated="handleCreated"
@@ -19,37 +20,40 @@ import "@wangeditor/editor/dist/css/style.css";
 import { onBeforeUnmount, ref, shallowRef, watch } from "vue";
 import { Editor, Toolbar } from "@wangeditor/editor-for-vue";
 import { InterfaceUrl } from "@/api";
+import { useStore } from "vuex";
+
+const store = useStore();
+
+const props = defineProps({
+  style: Object,
+});
+
+let style = () => {
+  return {
+    width: props.style.width
+      ? "width: " + props.style.width + ";"
+      : "width:100%;",
+    height: props.style.height
+      ? "height: " + props.style.height + ";"
+      : "height:40vh;",
+  };
+};
+
+console.log(style().height);
 
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef();
 
-// 定义props和emits
-const props = defineProps({
-  message: String,
-});
-
-const emits = defineEmits(["update:message"]);
-
 // 内容 HTML
 const valueHtml = ref("");
 
-// 监听props属性的变化，更新内部状态
-watch(
-  () => props.message,
-  (newValue) => {
-    valueHtml.value = newValue;
-    console.log(valueHtml.value);
-  }
-);
-
-// 监听内部状态的变化，通过emits向父组件发送数据
+// 监听内容 HTML 的变化，更新 store
 watch(valueHtml, (newValue) => {
-  emits("update:message", newValue);
+  store.dispatch("setRichTextEditor", newValue);
 });
 
 const toolbarConfig = {};
 const editorConfig = {
-  placeholder: "请输入内容...",
   MENU_CONF: {},
 };
 

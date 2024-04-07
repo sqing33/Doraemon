@@ -22,6 +22,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/blog",
+    name: "blog",
     children: [
       {
         path: "",
@@ -31,15 +32,23 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: ":id",
+        name: "blogPage",
         component: defineAsyncComponent(
           () => import("@/components/blog/blogPage.vue")
         ),
         props: true,
       },
+      {
+        path: "postBlog",
+        component: defineAsyncComponent(
+          () => import("@/components/blog/postBlog.vue")
+        ),
+      },
     ],
   },
   {
     path: "/news",
+    name: "news",
     children: [
       {
         path: "",
@@ -49,6 +58,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: ":id",
+        name: "newsPage",
         component: defineAsyncComponent(
           () => import("@/components/news/newsPage.vue")
         ),

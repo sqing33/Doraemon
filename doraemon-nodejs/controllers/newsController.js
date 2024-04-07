@@ -74,7 +74,6 @@ const upload = (req, res, next) => {
       href: req.file.filename,
     },
   });
-  imagesUrl = [];
 };
 
 module.exports = {

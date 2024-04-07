@@ -1,10 +1,7 @@
 <template>
   <div>
     <el-container>
-      <el-aside
-        style="height: 100vh; border: 1px solid #ccc; background-color: white"
-        width="200px"
-      >
+      <el-aside style="height: 100vh; border-radius: 20px" width="200px">
         <el-row class="tac">
           <el-col :span="24">
             <h4
@@ -82,8 +79,11 @@
                 </router-link>
               </el-sub-menu>
 
-              <router-link to="/">
-                <el-menu-item index="5">
+              <router-link
+                to="/"
+                style="width: 200px; position: fixed; bottom: 20px; left: 0"
+              >
+                <el-menu-item index="/">
                   <el-icon>
                     <RefreshLeft />
                   </el-icon>
@@ -95,7 +95,14 @@
         </el-row>
       </el-aside>
 
-      <el-main>
+      <el-main
+        style="
+          border: 1px solid #ccc;
+          background: white;
+          border-radius: 20px;
+          margin-left: 3px;
+        "
+      >
         <router-view></router-view>
       </el-main>
     </el-container>
@@ -115,9 +122,20 @@ import {
 } from "@element-plus/icons-vue";
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 a {
   color: black;
+}
+
+aside {
+  * {
+    background: rgb(240, 244, 255);
+  }
+  background: rgb(240, 244, 255);
+}
+
+.el-menu {
+  border: 0px;
 }
 
 * {

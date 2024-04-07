@@ -110,10 +110,11 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive } from "vue";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { ElMessage } from "element-plus";
 import { InterfaceUrl } from "@/api";
 import { useRouter } from "vue-router";
+import dateFunction from "@/utils/Date";
 
 interface NewsItem {
   title: string;
@@ -138,7 +139,10 @@ onMounted(() => {
     .then((response) => {
       const data = response.data;
       if (data.state === 0) {
-        form.data = data.data;
+        form.data = data.data.map((item: any) => {
+          item.date = dateFunction(item.date);
+          return item;
+        });
       } else {
         console.error(data.message);
       }

@@ -75,6 +75,7 @@ import { InterfaceUrl } from "@/api";
 import { ElMessage } from "element-plus";
 import { Share, Star, Tickets } from "@element-plus/icons-vue";
 import LZString from "lz-string";
+import dateFunction from "@/utils/Date";
 
 const props = defineProps({
   id: {
@@ -106,7 +107,8 @@ onMounted(() => {
     .then((response) => {
       const data = response.data;
       form.data = data.data;
-      form.data.content = LZString.decompressFromBase64(data.data.content);
+      form.data.content = LZString.decompressFromBase64(form.data.content);
+      form.data.date = dateFunction(form.data.date);
     })
     .catch((error) => {
       console.log(error);

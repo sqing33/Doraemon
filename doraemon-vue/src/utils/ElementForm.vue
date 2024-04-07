@@ -4,8 +4,9 @@
     :label-width="props.labelWidth"
     :model="modelValue"
     :rules="props.formRules"
+    :label-position="props.labelPosition"
   >
-    <template v-for="(item, index) in props.formItems" :key="index">
+    <template v-for="item in props.formItems">
       <el-form-item :label="item.label">
         <!-- 输入框 -->
         <template v-if="item.type === 'input' || item.type === 'password'">
@@ -19,16 +20,12 @@
         </template>
 
         <!-- 富文本编辑器 -->
-        <template v-if="item.type === 'textarea'">
-          <RichTextEditor
-            :message="modelValue[item.prop]"
-            @update:message="updateContent"
-            :style="item.style"
-          />
+        <template v-else-if="item.type === 'textarea'">
+          <RichTextEditor :style="item.style" />
         </template>
 
         <!-- 开关 -->
-        <template v-if="item.type === 'switch'">
+        <template v-else-if="item.type === 'switch'">
           <el-switch
             class="ml-2"
             style="
@@ -44,7 +41,7 @@
         </template>
 
         <!-- 选择按钮 -->
-        <template v-if="item.type === 'select'">
+        <template v-else-if="item.type === 'select'">
           <el-select
             :placeholder="item.placeholder"
             v-model="modelValue[item.prop]"
@@ -61,7 +58,7 @@
         </template>
 
         <!-- 日期选择 -->
-        <template v-if="item.type === 'date'">
+        <template v-else-if="item.type === 'date'">
           <el-date-picker
             type="date"
             :placeholder="item.placeholder"
@@ -72,7 +69,7 @@
         </template>
 
         <!-- 时间选择 -->
-        <template v-if="item.type === 'time'">
+        <template v-else-if="item.type === 'time'">
           <el-time-select
             :placeholder="item.placeholder"
             v-model="modelValue[item.prop]"
@@ -82,7 +79,7 @@
         </template>
 
         <!-- 上传图片 -->
-        <template v-if="item.type === 'upload'">
+        <template v-else-if="item.type === 'upload'">
           <el-upload
             :action="item.uploadUrl"
             multiple
@@ -116,6 +113,9 @@
 <script lang="ts" setup>
 import { ref, defineProps, defineEmits } from "vue";
 import RichTextEditor from "./RichTextEditor.vue";
+import { useStore } from "vuex";
+
+const store = useStore();
 
 const props = defineProps({
   formRules: {
@@ -123,25 +123,22 @@ const props = defineProps({
     default: () => ({}),
   },
   formItems: {
-    type: Array,
+    type: Array as () => any[],
     default: () => [],
   },
   labelWidth: {
     type: String,
     default: "100px",
   },
+  labelPosition: {
+    type: String,
+    default: "right",
+  },
   modelValue: {
     type: Object,
     default: () => ({}),
   },
 });
-
-const emits = defineEmits(["richTextEditor", "upload-url"]);
-
-// 获取富文本编辑器内容传给父组件
-const updateContent = (newContent: string) => {
-  emits("richTextEditor", newContent);
-};
 
 // 数据
 const imagePreviewUrls = ref<string[]>([]); // 预览图片的数组
@@ -164,9 +161,8 @@ const closeImgViewer = () => {
 // 上传成功回调
 const uploadSuccess = (file: any) => {
   imagePreviewUrls.value.push(file.data.url);
-
-  // 获取图片上传地址传给父组件p
-  emits("upload-url", file.data.url);
+  // 将图片地址存入vuex
+  store.dispatch("setElementImageUrl", file.data.url);
 };
 
 // 删除选中的文件

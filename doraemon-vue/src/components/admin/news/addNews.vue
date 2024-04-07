@@ -2,7 +2,7 @@
   <h1
     style="
       margin-top: 2vh;
-      margin-bottom: 4vh;
+      margin-bottom: 3vh;
       text-align: center;
       font: 5vh sans-serif;
     "
@@ -10,16 +10,13 @@
     发布新闻
   </h1>
   <div style="width: 75%; margin: 20px auto">
-    <ElementForm
-      v-bind="formConfig"
-      v-model="form"
-      @upload-url="handleUploadUrl"
-      @richTextEditor="handleRichTextEditor"
-    >
+    <ElementForm v-bind="formConfig" v-model="form">
       <template #footer>
         <div style="display: flex; justify-content: center">
-          <el-button type="primary" @click="onSubmit">发布</el-button>
-          <el-button style="margin-left: 5vw">取消</el-button>
+          <el-button size="large" type="primary" @click="onSubmit"
+            >发布</el-button
+          >
+          <el-button size="large" style="margin-left: 5vw">取消</el-button>
         </div>
       </template>
     </ElementForm>
@@ -31,7 +28,11 @@ import { reactive } from "vue";
 import { InterfaceUrl } from "@/api";
 import { ElMessage } from "element-plus";
 import axios from "axios";
+import LZString from "lz-string";
 import ElementForm from "@/utils/ElementForm.vue";
+import { useStore } from "vuex";
+
+const store = useStore();
 
 // 表单内容配置
 const formItems = reactive([
@@ -105,16 +106,6 @@ const formConfig = {
   labelWidth: "75px",
 };
 
-// 获取上传图片url
-const handleUploadUrl = (uploadUrl: string) => {
-  form.coverUrl = uploadUrl;
-};
-
-// 获取富文本编辑器内容
-const handleRichTextEditor = (content: string) => {
-  form.content = content;
-};
-
 const formValues: any = {};
 formConfig.formItems.map((item) => {
   formValues[item.prop] = "";
@@ -122,28 +113,21 @@ formConfig.formItems.map((item) => {
 
 const form = reactive(formValues);
 
-const resetForm = () => {
-  form.title = "";
-  form.content = "";
-  form.coverUrl = "";
-  form.region = "1";
-  form.publisher = "";
-  form.status = true;
-};
-
 const onSubmit = () => {
+  form.coverUrl = store.getters.getElementImageUrl;
+  form.content = LZString.compressToBase64(store.getters.getRichTextEditor);
+
   if (form.status === "") {
     form.status = true;
   }
 
   axios
     .post(InterfaceUrl + "/admin/newsInsert", form)
-    .then((response) => {
+    .then((res) => {
       ElMessage({
         type: "success",
         message: "发布成功!",
       });
-      resetForm(); // 发布成功后重置表单
     })
     .catch((error) => {
       console.error(error);

@@ -55,7 +55,6 @@ const getNewsById = (id, callback) => {
       return;
     }
     const news = result[0];
-    news.content = Buffer.from(news.content).toString("utf-8");
     callback(null, news);
   });
 };
@@ -84,7 +83,7 @@ const insertNews = (news, callback) => {
     }
   );
 };
-
+ 
 module.exports = {
   getNewsList,
   getNewsByPage,

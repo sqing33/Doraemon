@@ -20,7 +20,7 @@ const registUser = (user, callback) => {
 // 用户登录
 const loginUser = (user, callback) => {
   const sql =
-    "SELECT username, nickname, avatar, createTime, phone, email, gender, birthday FROM users WHERE username = ? OR phone = ? OR email = ? AND password = ?";
+    "SELECT id, username, nickname, avatar, createTime, phone, email, gender, birthday FROM users WHERE username = ? OR phone = ? OR email = ? AND password = ?";
   mysqlDb.query(
     sql,
     [user.username, user.phone, user.email, user.password],

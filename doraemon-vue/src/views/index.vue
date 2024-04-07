@@ -17,7 +17,7 @@
               class="head"
               mode="horizontal"
               style="height: 40px"
-              :ellipsis="true"
+              :ellipsis="ellipsis"
             >
               <el-menu-item>
                 <router-link style="display: flex" to="/">
@@ -179,10 +179,13 @@ const OtherPage = ref(false);
 // 管理员页面height属性
 const AdminPage = ref(false);
 
+const ellipsis = ref(true);
+
 watch(route, (to) => {
   Admin.value = to.path.startsWith("/admin");
   if (window.innerWidth >= 1024) {
     HomePage.value = to.path === "/" || to.path === "/author";
+    ellipsis.value = false;
   }
   OtherPage.value =
     to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
@@ -207,7 +210,6 @@ const userInfo = async () => {
         headers: { Authorization: token },
       })
       .then((res) => {
-        console.log(res.data.state);
         if (res.data.state === 0) {
           router.push("/userInfo");
         } else if (res.data.state === 2) {
@@ -257,5 +259,6 @@ li {
 
 :deep(.admin-page) {
   height: 100vh;
+  background-image: none !important;
 }
 </style>
