@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import { defineAsyncComponent } from "vue";
+import { useStore } from "vuex";
 import adminRoutes from "./admin";
 import usersRoutes from "./users";
 
@@ -43,6 +44,14 @@ const routes: RouteRecordRaw[] = [
         component: defineAsyncComponent(
           () => import("@/components/blog/postBlog.vue")
         ),
+        beforeEnter: (to, from, next) => {
+          const store = useStore();
+          if (store.getters.getUserInfo) {
+            next();
+          } else {
+            next("/login");
+          }
+        },
       },
     ],
   },

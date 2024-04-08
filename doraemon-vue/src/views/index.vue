@@ -159,14 +159,6 @@ import { useStore } from "vuex";
 
 const store = useStore();
 
-/* const username = computed(() => {
-  if (store.getters.getUserInfo.username == null) {
-    return "用户中心";
-  } else {
-    return store.getters.getUserInfo.username;
-  }
-}); */
-
 const route = useRoute();
 const router = useRouter();
 
@@ -198,7 +190,7 @@ const isLoading = computed(() => {
 
 const logout = () => {
   localStorage.removeItem("token");
-  localStorage.removeItem("vuex");
+  store.dispatch("setUserInfoFromAxios", "");
   router.push("/login");
 };
 
