@@ -9,7 +9,7 @@
   >
     <h3 style="margin-left: 20px; margin-top: 8px">新闻列表</h3>
     <div style="margin-right: 20px">
-      <ElementForm v-bind="formConfig">
+      <ElementForm v-bind="formConfig" v-model="searchValues">
         <template #footer>
           <el-button
             type="primary"
@@ -25,7 +25,7 @@
   </div>
 
   <el-table
-    :data="form"
+    :data="news"
     border
     height="70.4vh"
     style="margin: 0 auto; font: 0.85em sans-serif"
@@ -34,6 +34,7 @@
     :row-style="{ height: '110px' }"
   >
     <el-table-column type="index" label="序号" width="75" />
+    <el-table-column type="id" label="ID" width="75" />
     <el-table-column prop="title" label="标题" width="auto" />
     <el-table-column prop="coverUrl" label="封面" width="200">
       <template #default="scope">
@@ -44,24 +45,22 @@
         />
       </template>
     </el-table-column>
-    <el-table-column prop="region" label="类型" width="100">
+    <el-table-column prop="category_id" label="类型" width="100">
       <template #default="scope">
-        <el-tag v-if="scope.row.region === '1'">新闻</el-tag>
-        <el-tag v-if="scope.row.region === '2'">活动</el-tag>
-        <el-tag v-if="scope.row.region === '3'">公告</el-tag>
+        <el-tag>{{ getCategoryLabel(scope.row.category_id) }}</el-tag>
       </template>
     </el-table-column>
-    <el-table-column prop="date" label="发布日期">
+    <el-table-column prop="create_time" label="发布日期">
       <template #default="scope">
-        <span>{{ dateFunction(scope.row.date) }}</span>
+        <span>{{ dateFunction(scope.row.create_time) }}</span>
       </template>
     </el-table-column>
-    <el-table-column prop="status" label="发布状态" width="100">
+    <el-table-column prop="state" label="发布状态" width="100">
       <template #default="scope">
-        <el-tag v-if="scope.row.status === 'false'" type="warning">
+        <el-tag v-if="scope.row.state === 'false'" type="warning">
           未发布
         </el-tag>
-        <el-tag v-if="scope.row.status === 'true'">已发布</el-tag>
+        <el-tag v-if="scope.row.state === 'true'">已发布</el-tag>
       </template>
     </el-table-column>
     <el-table-column align="center" label="操作" width="150">
@@ -127,116 +126,141 @@
   </el-dialog>
 </template>
 
-<script setup>
+<script lang="ts" setup>
 import axios from "axios";
 import { ElMessage } from "element-plus";
-import { useRouter } from "vue-router";
 import { onMounted, reactive, ref } from "vue";
 import { InterfaceUrl } from "@/api";
-import LZString from "lz-string";
 import dateFunction from "@/utils/Date";
 import ElementForm from "@/utils/ElementForm.vue";
 
-const router = useRouter();
+const categories = ref();
 
-const options = [
+const formItems = reactive([
   {
-    value: "Option1",
-    label: "Option1",
+    label: "关键字",
+    type: "input",
+    placeholder: "请输入关键字",
+    prop: "keyword",
+    style: ["width: 14vw", "margin-right: 20px"],
   },
   {
-    value: "Option2",
-    label: "Option2",
+    label: "类型",
+    type: "select",
+    placeholder: "请选择类型",
+    prop: "categories",
+    style: ["width: 13vw", "margin-right: 20px"],
+    options: categories,
   },
   {
-    value: "Option3",
-    label: "Option3",
+    label: "发布时间",
+    type: "date",
+    placeholder: "请选择发布时间",
+    prop: "date",
+    style: ["width: 13vw", "margin-right: 20px"],
   },
-  {
-    value: "Option4",
-    label: "Option4",
-  },
-  {
-    value: "Option5",
-    label: "Option5",
-  },
-];
+]);
 
-// 表单配置
 const formConfig = {
-  formItems: [
-    {
-      label: "关键字",
-      type: "input",
-      placeholder: "请输入关键字",
-      prop: "keyword",
-      style: ["width: 14vw", "margin-right: 20px"],
-    },
-    {
-      label: "类型",
-      type: "select",
-      placeholder: "请选择类型",
-      prop: "categories",
-      style: ["width: 13vw", "margin-right: 20px"],
-      options: options,
-    },
-    {
-      label: "发布时间",
-      type: "date",
-      placeholder: "请选择发布时间",
-      prop: "date",
-      style: ["width: 13vw", "margin-right: 20px"],
-    },
-  ],
+  formItems,
   labelStyle: ["display: flex", "padding-top: 8px"],
 };
 
-const form = ref();
+const formValues: any = {};
+formConfig.formItems.map((item) => {
+  formValues[item.prop] = "";
+});
+
+const searchValues = reactive(formValues);
+
+const news = ref();
 
 const pagination = ref({
   page: 1,
   size: 5,
 });
 
+onMounted(() => {
+  axios
+    .get(InterfaceUrl + "/news/categories")
+    .then((res) => {
+      // 在分类列表中添加一个全部选项
+      const allOption = {
+        label: "所有",
+        value: null,
+      };
+      categories.value = [
+        allOption,
+        ...res.data.data.map((item: any) => {
+          return {
+            label: item.name,
+            value: item.id,
+          };
+        }),
+      ];
+    })
+    .catch((error) => {
+      console.log(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
+  getNews();
+});
+
+const getCategoryLabel = (categoryId: any) => {
+  const category = categories.value.find(
+    (item: any) => item.value === categoryId
+  );
+  return category ? category.label : "";
+};
+
 const currentChange = (currentPage) => {
   pagination.value.page = currentPage;
-  fetchPets();
+  getNews();
 };
 
 const total = ref();
 
 const keyword = ref();
-const categories = ref();
+
 const date = ref();
 
 const search = () => {
-  console.log(keyword.value);
-  console.log(categories.value);
-  console.log(date.value);
+  if (searchValues.date) {
+    const date = new Date(searchValues.date);
+    searchValues.date = `${date.getFullYear()}-${
+      date.getMonth() + 1
+    }-${date.getDate()}`;
+  }
+  getNews(searchValues.keyword, searchValues.category, searchValues.date);
+  console.log(searchValues);
 };
 
-onMounted(() => {
-  fetchPets();
-});
-
-const fetchPets = () => {
+const getNews = (
+  keyword?: string,
+  categoryId?: number,
+  create_time?: string
+) => {
   axios
-    .post(InterfaceUrl + "/admin/news", null, {
+    .post(InterfaceUrl + "/news", null, {
       params: {
         page: pagination.value.page,
-        size: pagination.value.size,
+        pageSize: pagination.value.size,
+        keyword,
+        categoryId,
+        create_time,
       },
     })
     .then((response) => {
       const data = response.data;
       if (data.state === 0) {
-        form.value = data.data.newsArr.newsArr;
-        total.value = data.data.newsArr.total;
+        news.value = data.data.newsArr;
+        total.value = data.data.total;
       } else {
         console.error(data.message);
       }
     })
     .catch((error) => {
+      console.error(error);
       ElMessage.error("请求失败，请联系管理员。");
     });
 };

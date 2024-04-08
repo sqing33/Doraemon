@@ -51,7 +51,7 @@
       </template>
     </el-table-column>
     <el-table-column prop="publisher_id" label="发布者ID" width="100">
-    </el-table-column>
+    </el-table-column> 
     <el-table-column prop="create_time" label="发布日期">
       <template #default="scope">
         <span>{{ dateFunction(scope.row.create_time) }}</span>
@@ -130,7 +130,6 @@ import dateFunction from "@/utils/Date";
 import ElementForm from "@/utils/ElementForm.vue";
 
 const categories = ref();
-console.log(categories);
 
 const formItems = reactive([
   {

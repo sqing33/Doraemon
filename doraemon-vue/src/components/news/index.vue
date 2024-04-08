@@ -3,9 +3,9 @@
     <!-- 上左轮播新闻 -->
     <el-col :xs="24" :sm="10">
       <div class="news-carousel" style="height: 40vh">
-        <el-carousel arrow="always" height="40vh">
+        <el-carousel arrow="always" height="40vh" v-if="news">
           <el-carousel-item
-            v-for="(form, index) in form.data.slice(0, 5)"
+            v-for="(form, index) in news.slice(0, 5)"
             :key="index"
             @click="doGoToNewsPage(form.id)"
           >
@@ -26,9 +26,9 @@
         "
       >
         <h3>热点新闻</h3>
-        <ul style="padding: 10px 0; list-style: none">
+        <ul style="padding: 10px 0; list-style: none" v-if="news">
           <li
-            v-for="(form, index) in form.data.slice(0, 5)"
+            v-for="(form, index) in news.slice(0, 5)"
             :key="index"
             style="height: 42px"
           >
@@ -73,7 +73,7 @@
         <el-col
           :xs="24"
           :sm="8"
-          v-for="(form, index) in form.data"
+          v-for="(form, index) in news"
           :key="index"
           style="max-width: 100vw"
         >
@@ -101,7 +101,7 @@
             />
             <template #footer>
               <div style="display: flex; justify-content: space-between">
-                <strong>
+                <!-- <strong>
                   [{{
                     form.region === "1"
                       ? "新闻"
@@ -111,9 +111,9 @@
                       ? "公告"
                       : "未知"
                   }}]
-                </strong>
+                </strong> -->
                 <div>
-                  <span style="font-size: 0.8em">
+                  <!-- <span style="font-size: 0.8em">
                     {{
                       form.publisher === "1"
                         ? "张三"
@@ -123,9 +123,9 @@
                         ? "王五"
                         : "未知"
                     }}
-                  </span>
+                  </span> -->
                   <span style="margin-left: 10px; font-size: 0.8em">
-                    {{ form.date }}
+                    {{ form.create_time }}
                   </span>
                 </div>
               </div>
@@ -138,50 +138,63 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive } from "vue";
+import { onMounted, ref } from "vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import { InterfaceUrl } from "@/api";
 import { useRouter } from "vue-router";
 import dateFunction from "@/utils/Date";
+import LZString from "lz-string";
 
-interface NewsItem {
-  title: string;
-  content: string;
-  coverUrl: string;
-  region: string;
-  date: string;
-  publisher: string;
-  radio: number;
-  status: boolean;
-}
+const news = ref();
 
-interface FormData {
-  data: NewsItem[];
-}
+const categories = ref();
 
-const form: FormData = reactive({ data: [] });
+const router = useRouter();
 
-onMounted(() => {
+const getNews = (
+  categoryId: number | null = null,
+  keyword: string | null = null
+) => {
   axios
-    .get(InterfaceUrl + "/news")
-    .then((response) => {
-      const data = response.data;
-      if (data.state === 0) {
-        form.data = data.data.map((item: any) => {
-          item.date = dateFunction(item.date);
-          return item;
-        });
-      } else {
-        console.error(data.message);
-      }
+    .post(InterfaceUrl + "/news", null, {
+      params: {
+        page: 1,
+        pageSize: null,
+        categoryId,
+        keyword,
+        length: 99,
+      },
+    })
+    .then((res) => {
+      news.value = res.data.data.map((item: any) => {
+        item.content = LZString.decompressFromBase64(item.content);
+        item.create_time = dateFunction(item.create_time);
+        return item;
+      });
     })
     .catch((error) => {
+      console.log(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
+};
+
+onMounted(() => {
+  getNews();
+  axios
+    .get(InterfaceUrl + "/news/categories")
+    .then((res) => {
+      categories.value = res.data.data
+        .filter((item: any) => item.state === "true")
+        .map((item: any) => {
+          return item;
+        });
+    })
+    .catch((error) => {
+      console.log(error);
       ElMessage.error("请求失败，请联系管理员。");
     });
 });
-
-const router = useRouter();
 
 const doGoToNewsPage = (id: string) => {
   router.push({ name: "newsPage", params: { id } });

@@ -6,7 +6,7 @@ const blogController = require("../controllers/blogController");
 router.post("/blogInsert", blogController.insertBlog);
 
 // 根据条件查询文章
-router.post("/", blogController.getBlogs);
+router.post("/", blogController.getBlogs); 
 
 // 查询文章分类
 router.get("/categories", blogController.getBlogCategories);

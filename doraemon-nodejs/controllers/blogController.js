@@ -38,7 +38,7 @@ const insertBlog = (req, res, next) => {
       return res.send({ state: 0, message: "新增成功", data: result });
     }
   );
-};
+}; 
 
 // 根据条件查询文章
 const getBlogs = (req, res, next) => {

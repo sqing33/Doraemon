@@ -54,14 +54,15 @@
                   动漫人物介绍
                 </router-link>
               </el-menu-item>
-              <el-menu-item>
+
+              <!--      <el-menu-item>
                 <router-link to="/character">
                   <el-icon>
                     <Film />
                   </el-icon>
                   剧场史
                 </router-link>
-              </el-menu-item>
+              </el-menu-item> -->
 
               <el-menu-item>
                 <router-link to="/blog">
@@ -81,14 +82,14 @@
                 </router-link>
               </el-menu-item>
 
-              <el-menu-item>
+              <!--  <el-menu-item>
                 <router-link to="/website">
                   <el-icon>
                     <Link />
                   </el-icon>
                   相关网站
                 </router-link>
-              </el-menu-item>
+              </el-menu-item> -->
             </el-menu>
           </div>
           <div class="user">
