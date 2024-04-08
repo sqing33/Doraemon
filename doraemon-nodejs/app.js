@@ -6,9 +6,10 @@ var logger = require("morgan");
 var cors = require("cors");
 const bodyParser = require("body-parser");
 
-var indexRouter = require("./routes/index");
 var adminRouter = require("./routes/admin");
 var usersRouter = require("./routes/users");
+var newsRouter = require("./routes/news");
+var blogRouter = require("./routes/blog");
 
 var app = express();
 
@@ -25,9 +26,10 @@ app.use(
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/", indexRouter);
 app.use("/admin", adminRouter);
 app.use("/user", usersRouter);
+app.use("/news", newsRouter);
+app.use("/blog", blogRouter);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

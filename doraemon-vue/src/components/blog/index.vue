@@ -96,7 +96,7 @@ import { ElMessage } from "element-plus";
 import { InterfaceUrl } from "@/api";
 import { useRouter } from "vue-router";
 import LZString from "lz-string";
-import dateFunction from "@/utils/Date"; 
+import dateFunction from "@/utils/Date";
 
 const router = useRouter();
 
@@ -122,7 +122,7 @@ const getBlogs = (
   keyword: string | null = null
 ) => {
   axios
-    .post(InterfaceUrl + "/blogs", null, {
+    .post(InterfaceUrl + "/blog", null, {
       params: {
         page: 1,
         pageSize: null,

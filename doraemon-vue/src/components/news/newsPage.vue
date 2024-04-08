@@ -103,7 +103,7 @@ const form: FormData = reactive({ data: [] });
 
 onMounted(() => {
   axios
-    .post(InterfaceUrl + "/newsPage?id=" + props.id)
+    .post(InterfaceUrl + "/news/newsPage?id=" + props.id)
     .then((response) => {
       const data = response.data;
       form.data = data.data;
