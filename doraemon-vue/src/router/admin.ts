@@ -23,44 +23,59 @@ const adminRoutes: RouteRecordRaw[] = [
         component: defineAsyncComponent(
           () => import("@/components/admin/users/users.vue")
         ),
-      },
-      {
-        path: "comment",
-        component: defineAsyncComponent(
-          () => import("@/components/user/comment.vue")
-        ),
+        meta: {
+          title: "用户管理",
+        },
       },
       {
         path: "blog",
+        meta: {
+          title: "论坛管理",
+        },
         children: [
           {
             path: "categories",
             component: defineAsyncComponent(
               () => import("@/components/admin/blog/categories.vue")
             ),
+            meta: {
+              title: "帖子分类",
+            },
           },
           {
             path: "blogList",
             component: defineAsyncComponent(
               () => import("@/components/admin/blog/blogList.vue")
             ),
+            meta: {
+              title: "帖子管理",
+            },
           },
         ],
       },
       {
         path: "news",
+        meta: {
+          title: "新闻管理",
+        },
         children: [
           {
             path: "addNews",
             component: defineAsyncComponent(
               () => import("@/components/admin/news/addNews.vue")
             ),
+            meta: {
+              title: "添加新闻",
+            },
           },
           {
             path: "newsList",
             component: defineAsyncComponent(
               () => import("@/components/admin/news/newsList.vue")
             ),
+            meta: {
+              title: "新闻列表",
+            },
           },
         ],
       },

@@ -104,7 +104,7 @@ const login = async () => {
         } else {
           ElMessage.success("登录成功!");
           store.dispatch("setUserInfoFromAxios", res.data.data);
-          router.push("/");
+          router.go(-1);
           // 保存token到localStorage
           localStorage.setItem("token", res.data.token);
         }

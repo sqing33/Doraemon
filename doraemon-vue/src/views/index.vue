@@ -96,16 +96,23 @@
               <el-menu-item>
                 <el-dropdown>
                   <span class="el-dropdown-link" style="outline: none">
-                    <el-icon><Avatar /></el-icon>
-                    {{ username }}
-                    <el-icon class="el-icon--right"><arrow-down /></el-icon>
+                    <div v-if="userInfo">
+                      <img :src="userInfo.avatar" alt="" />
+                      <span>
+                        {{ userInfo.username }}
+                      </span>
+                    </div>
+                    <div v-else>
+                      <img src="../assets/avatar/2.jpg" alt="" />
+                      <span> 登录/注册 </span>
+                    </div>
                   </span>
                   <template #dropdown>
                     <el-dropdown-menu>
                       <router-link to="/login" v-if="isLoading">
                         <el-dropdown-item>登录/注册</el-dropdown-item>
                       </router-link>
-                      <el-dropdown-item @click="userInfo">
+                      <el-dropdown-item @click="goToUserInfo">
                         用户信息
                       </el-dropdown-item>
                       <router-link to="/">
@@ -159,6 +166,8 @@ import { useStore } from "vuex";
 
 const store = useStore();
 
+const userInfo = store.getters.getUserInfo;
+
 const route = useRoute();
 const router = useRouter();
 
@@ -191,10 +200,10 @@ const isLoading = computed(() => {
 const logout = () => {
   localStorage.removeItem("token");
   store.dispatch("setUserInfoFromAxios", "");
-  router.push("/login");
+  router.go(0);
 };
 
-const userInfo = async () => {
+const goToUserInfo = async () => {
   try {
     const token = localStorage.getItem("token");
     await axios
@@ -218,7 +227,7 @@ const userInfo = async () => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .conta {
   display: flex;
   flex-direction: column;
@@ -228,6 +237,23 @@ const userInfo = async () => {
 
 li {
   padding: 0 10px;
+}
+
+.el-dropdown-link {
+  div {
+    width: 120px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
 }
 
 @media screen and (max-width: 768px) {

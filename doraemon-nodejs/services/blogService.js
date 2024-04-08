@@ -59,7 +59,15 @@ const insertBlog = (
 };
 
 // 根据条件查询文章
-const getBlogs = (page, pageSize, categoryId, keyword, length, callback) => {
+const getBlogs = (
+  page,
+  pageSize,
+  categoryId,
+  keyword,
+  create_time,
+  length,
+  callback
+) => {
   let sqlParams = [];
   let sqlCondition = [];
 
@@ -74,9 +82,15 @@ const getBlogs = (page, pageSize, categoryId, keyword, length, callback) => {
     sqlParams.push("%" + keyword + "%");
   }
 
+  if (create_time != "") {
+    sqlCondition.push(" DATE(create_time) = ? ");
+    sqlParams.push(create_time);
+  }
+
   let whereSqlStr = "";
   if (sqlCondition.length > 0) {
     whereSqlStr = " WHERE " + sqlCondition.join(" AND ");
+    console.log(whereSqlStr);
   }
 
   let sql;
@@ -84,8 +98,10 @@ const getBlogs = (page, pageSize, categoryId, keyword, length, callback) => {
   if (pageSize !== null) {
     sql = " SELECT * FROM blog " + whereSqlStr + " LIMIT ?,? ";
   } else if (page == 1 && pageSize == null) {
-    sql = " SELECT * FROM blog " + whereSqlStr;
+    sql = " SELECT * FROM blog ";
   }
+
+  console.log(sql);
 
   let params = sqlParams.concat([(page - 1) * pageSize, parseInt(pageSize)]);
 
@@ -97,6 +113,7 @@ const getBlogs = (page, pageSize, categoryId, keyword, length, callback) => {
       callback(err, null);
       return;
     }
+    console.log(result);
 
     if (length === 0) {
       blogArr = result;

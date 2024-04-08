@@ -1,25 +1,45 @@
 <template>
-  <h1 style="margin-top: 3vh; text-align: center; font: 5vh sans-serif">
-    新闻列表
-  </h1>
+  <div
+    style="
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    "
+  >
+    <h3 style="margin-left: 20px; margin-top: 8px">新闻列表</h3>
+    <div style="margin-right: 20px">
+      <ElementForm v-bind="formConfig">
+        <template #footer>
+          <el-button
+            type="primary"
+            plain
+            @click="search"
+            style="margin-left: 10px; margin-top: 8px"
+          >
+            <span style="margin: 0">筛选</span>
+          </el-button>
+        </template>
+      </ElementForm>
+    </div>
+  </div>
 
   <el-table
     :data="form"
     border
-    height="71.4vh"
+    height="70.4vh"
     style="margin: 0 auto; font: 0.85em sans-serif"
-    :row-class-name="tableRowClassName"
     :header-cell-style="{ textAlign: 'center' }"
     :cell-style="{ textAlign: 'center' }"
-    :row-style="{ height: '125px' }"
+    :row-style="{ height: '110px' }"
   >
     <el-table-column type="index" label="序号" width="75" />
-    <el-table-column prop="title" label="标题" width="330" />
+    <el-table-column prop="title" label="标题" width="auto" />
     <el-table-column prop="coverUrl" label="封面" width="200">
       <template #default="scope">
         <img
           :src="scope.row.coverUrl"
-          style="width: 150px; height: auto; max-height: 100px"
+          style="width: auto; max-height: 90px"
           alt=""
         />
       </template>
@@ -33,14 +53,7 @@
     </el-table-column>
     <el-table-column prop="date" label="发布日期">
       <template #default="scope">
-        <span>{{ timeConvert(scope.row.date) }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column prop="publisher" label="发布者" width="100">
-      <template #default="scope">
-        <el-tag v-if="scope.row.publisher === '1'">张三</el-tag>
-        <el-tag v-if="scope.row.publisher === '2'">李四</el-tag>
-        <el-tag v-if="scope.row.publisher === '3'">王五</el-tag>
+        <span>{{ dateFunction(scope.row.date) }}</span>
       </template>
     </el-table-column>
     <el-table-column prop="status" label="发布状态" width="100">
@@ -59,12 +72,6 @@
           </el-button>
           <el-button
             style="margin: 5px 0 0 0"
-            type="primary"
-            @click="doEdit(scope.row.id)"
-            >编辑</el-button
-          >
-          <el-button
-            style="margin: 5px 0 0 0"
             type="danger"
             @click="doDelete(scope.row.id)"
             >删除
@@ -81,13 +88,7 @@
     :pager-count="11"
     :page-size="pagination.size"
     @current-change="currentChange"
-    style="
-      transform: translateY(20px);
-      margin: auto;
-      width: 80vw;
-      height: 15vh;
-      text-align: center;
-    "
+    style="margin: auto; width: 80vw; height: 8vh"
   ></el-pagination>
 
   <el-dialog
@@ -133,8 +134,62 @@ import { useRouter } from "vue-router";
 import { onMounted, reactive, ref } from "vue";
 import { InterfaceUrl } from "@/api";
 import LZString from "lz-string";
+import dateFunction from "@/utils/Date";
+import ElementForm from "@/utils/ElementForm.vue";
 
 const router = useRouter();
+
+const options = [
+  {
+    value: "Option1",
+    label: "Option1",
+  },
+  {
+    value: "Option2",
+    label: "Option2",
+  },
+  {
+    value: "Option3",
+    label: "Option3",
+  },
+  {
+    value: "Option4",
+    label: "Option4",
+  },
+  {
+    value: "Option5",
+    label: "Option5",
+  },
+];
+
+// 表单配置
+const formConfig = {
+  formItems: [
+    {
+      label: "关键字",
+      type: "input",
+      placeholder: "请输入关键字",
+      prop: "keyword",
+      style: ["width: 14vw", "margin-right: 20px"],
+    },
+    {
+      label: "类型",
+      type: "select",
+      placeholder: "请选择类型",
+      prop: "categories",
+      style: ["width: 13vw", "margin-right: 20px"],
+      options: options,
+    },
+    {
+      label: "发布时间",
+      type: "date",
+      placeholder: "请选择发布时间",
+      prop: "date",
+      style: ["width: 13vw", "margin-right: 20px"],
+    },
+  ],
+  labelStyle: ["display: flex", "padding-top: 8px"],
+};
 
 const form = ref();
 
@@ -149,6 +204,16 @@ const currentChange = (currentPage) => {
 };
 
 const total = ref();
+
+const keyword = ref();
+const categories = ref();
+const date = ref();
+
+const search = () => {
+  console.log(keyword.value);
+  console.log(categories.value);
+  console.log(date.value);
+};
 
 onMounted(() => {
   fetchPets();
@@ -176,14 +241,6 @@ const fetchPets = () => {
     });
 };
 
-const tableRowClassName = ({ row }) => {
-  if (row.status === true) {
-    return "success-row";
-  } else if (row.status === false) {
-    return "warning-row";
-  }
-};
-
 const centerDialogVisible = ref(false);
 const checkForm = reactive({ data: [] });
 
@@ -191,43 +248,11 @@ const doCheck = (newsId) => {
   checkForm.data = form.value.find((item) => item.id === newsId);
   centerDialogVisible.value = true;
 };
-
-/*const doEdit = (id) => {
-  router.push({name: 'NewsEdit', params: {id: id}});
-}
-
-const doDelete = (id) => {
-  axios.delete('http://localhost:8081/api/admin/news/' + id)
-      .then(response => {
-        ElMessage.success('删除成功！')
-        form.value = form.value.filter(item => item.id !== id);
-      })
-      .catch(error => {
-        ElMessage.error('删除失败，请联系管理员。')
-      });
-}*/
-
-// 转换时间格式
-const timeConvert = (time) => {
-  const date = new Date(time);
-  const year = date.getUTCFullYear();
-  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-  const day = date.getUTCDate().toString().padStart(2, "0");
-  const hours = date.getUTCHours().toString().padStart(2, "0");
-  const minutes = date.getUTCMinutes().toString().padStart(2, "0");
-  const seconds = date.getUTCSeconds().toString().padStart(2, "0");
-  const cstDateTime = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
-  return cstDateTime;
-};
 </script>
 
 <style lang="scss" scoped>
-.warning-row {
-  --el-table-tr-bg-color: var(--el-color-warning-light-9) !important;
-}
-
-.success-row {
-  --el-table-tr-bg-color: var(--el-color-success-light-9) !important;
+:deep(.el-input-group__prepend) {
+  padding: 0 8px;
 }
 
 .el-tag,

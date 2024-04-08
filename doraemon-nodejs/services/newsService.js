@@ -25,24 +25,15 @@ const getNewsByPage = (page, pageSize, callback) => {
       callback(err, null);
       return;
     }
-    newsArr = result.map((news) => ({
-      id: news.id,
-      title: news.title,
-      content: news.content,
-      coverUrl: news.coverUrl,
-      region: news.region,
-      publisher: news.publisher,
-      date: news.date,
-      status: news.status,
-    }));
-  });
-  mysqlDb.query(sql2, (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    total = result[0].total;
-    callback(null, { newsArr, total });
+    newsArr = result;
+    mysqlDb.query(sql2, (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      total = result[0].total;
+      callback(null, { newsArr, total });
+    });
   });
 };
 
@@ -83,7 +74,7 @@ const insertNews = (news, callback) => {
     }
   );
 };
- 
+
 module.exports = {
   getNewsList,
   getNewsByPage,

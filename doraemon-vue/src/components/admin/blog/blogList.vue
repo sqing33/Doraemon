@@ -1,98 +1,121 @@
 <template>
-  <h1 style="margin-top: 3vh; text-align: center; font: 5vh sans-serif">
-    文章管理
-  </h1>
-
-  <div>
-    <el-button
-      type="primary"
-      @click="doAddBlog"
-      style="position: relative; left: 50%; transform: translateX(-50%)"
-    >
-      添加文章
-    </el-button>
+  <div
+    style="
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    "
+  >
+    <h3 style="margin-left: 20px; margin-top: 8px">帖子管理</h3>
+    <div style="margin-right: 20px">
+      <ElementForm v-bind="formConfig" v-model="searchValues">
+        <template #footer>
+          <el-button
+            type="primary"
+            plain
+            @click="search"
+            style="margin-left: 10px; margin-top: 8px"
+          >
+            <span style="margin: 0">筛选</span>
+          </el-button>
+        </template>
+      </ElementForm>
+    </div>
   </div>
 
   <el-table
     :data="blog"
     border
+    height="70.4vh"
     style="margin: 0 auto; font: 0.85em sans-serif"
     :header-cell-style="{ textAlign: 'center' }"
     :cell-style="{ textAlign: 'center' }"
-    :row-style="{ height: '125px' }"
+    :row-style="{ height: '110px' }"
   >
     <el-table-column type="index" label="序号" width="75" />
-    <el-table-column prop="id" label="ID" width="200" />
-    <el-table-column prop="title" label="标题" />
-    <el-table-column prop="region" label="类型" width="100">
+    <el-table-column prop="id" label="ID" width="150" />
+    <el-table-column prop="title" label="标题" width="auto" />
+    <el-table-column prop="coverUrl" label="封面" width="200">
       <template #default="scope">
-        <el-tag v-if="scope.row.region === '550829782863941'">分享</el-tag>
-        <el-tag v-if="scope.row.region === '550829850009669'">杂谈</el-tag>
-        <el-tag v-if="scope.row.region === '550829869162565'">娱乐</el-tag>
-        <el-tag v-if="scope.row.region === '550829949513797'">提示</el-tag>
+        <img
+          :src="scope.row.coverUrl"
+          style="width: auto; max-height: 90px"
+          alt=""
+        />
+      </template>
+    </el-table-column>
+    <el-table-column prop="category_id" label="类型" width="100">
+      <template #default="scope">
+        <el-tag>{{ getCategoryLabel(scope.row.category_id) }}</el-tag>
+      </template>
+    </el-table-column>
+    <el-table-column prop="publisher_id" label="发布者ID" width="100">
+    </el-table-column>
+    <el-table-column prop="create_time" label="发布日期">
+      <template #default="scope">
+        <span>{{ dateFunction(scope.row.create_time) }}</span>
       </template>
     </el-table-column>
 
-    <el-table-column align="center" label="操作" width="300">
+    <el-table-column align="center" label="操作" width="150">
       <template #default="scope">
-        <div>
-          <el-button type="primary" @click="doEdit(scope.row.id)">
-            查看
+        <div style="display: flex; flex-direction: column; padding: 0 30px">
+          <el-button type="primary" @click="doCheck(scope.row.id)"
+            >查看
           </el-button>
-          <el-button type="primary" @click="doEdit(scope.row.id)">
-            编辑
-          </el-button>
-          <el-button type="danger" @click="doDelete(scope.row.id)">
-            删除
+          <el-button
+            style="margin: 5px 0 0 0"
+            type="danger"
+            @click="doDelete(scope.row.id)"
+            >删除
           </el-button>
         </div>
       </template>
     </el-table-column>
   </el-table>
 
-  <el-dialog v-model="dialogVisible" title="新增文章分类" width="500">
-    <div style="display: flex">
-      <span style="width: 80px; transform: translateY(4px)">分类名称：</span>
-      <el-input
-        style="width: 300px"
-        v-model="form.title"
-        placeholder="请输入文章标题"
-      />
-    </div>
+  <el-pagination
+    background
+    layout="prev, pager, next, jumper,"
+    :total="total"
+    :pager-count="11"
+    :page-size="pagination.size"
+    @current-change="currentChange"
+    style="margin: auto; width: 80vw; height: 8vh"
+  ></el-pagination>
 
-    <div style="margin-top: 10px">
+  <el-dialog
+    v-model="centerDialogVisible"
+    title="查看新闻内容"
+    width="60vw"
+    destroy-on-close
+    center
+  >
+    <div class="checkDialog">
+      <span><span>标题：</span> {{ checkForm.data.title }}</span>
       <span
-        style="width: 80px; transform: translateY(3px); display: inline-block"
-      >
-        文章内容：
+        ><span>内容：</span
+        ><span style="width: 40vw">{{ checkForm.data.content }}</span>
       </span>
-      <el-input
-        style="width: 300px"
-        v-model="form.content"
-        placeholder="请输入文章内容"
-      />
-    </div>
-
-    <div style="margin-top: 10px">
       <span
-        style="width: 80px; transform: translateY(3px); display: inline-block"
-      >
-        文章分类：
-      </span>
-      <el-select v-model="form.region" placeholder="分类" style="width: 240px">
-        <el-option
-          v-for="item in categoryOptions"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select>
+        ><span>封面：</span>
+        <img
+          style="height: 100px"
+          :src="InterfaceUrl + checkForm.data.coverUrl"
+          alt=""
+      /></span>
+      <span><span>类型：</span> {{ checkForm.data.region }}</span>
+      <span><span>发布者：</span> {{ checkForm.data.publisher }}</span>
+      <span><span>发布日期：</span> {{ checkForm.data.date }}</span>
+      <span><span>发布状态：</span> {{ checkForm.data.status }}</span>
     </div>
 
     <template #footer>
       <div class="dialog-footer">
-        <el-button @click="dialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitForm">确认</el-button>
+        <el-button @click="centerDialogVisible = false">关闭</el-button>
+        <el-button type="primary" @click="doEdit(id.value)"> 编辑</el-button>
+        <el-button type="danger" @click="doDelete(id.value)"> 删除</el-button>
       </div>
     </template>
   </el-dialog>
@@ -100,68 +123,174 @@
 
 <script lang="ts" setup>
 import axios from "axios";
-import { ref, reactive } from "vue";
+import { ElMessage } from "element-plus";
+import { onMounted, reactive, ref } from "vue";
 import { InterfaceUrl } from "@/api";
+import dateFunction from "@/utils/Date";
+import ElementForm from "@/utils/ElementForm.vue";
 
-const blog = ref([
+const categories = ref();
+console.log(categories);
+
+const formItems = reactive([
   {
-    id: "1",
-    title: "分享：如何用Python写一个爬虫？",
-    region: "550829782863941",
+    label: "关键字",
+    type: "input",
+    placeholder: "请输入关键字",
+    prop: "keyword",
+    style: ["width: 14vw", "margin-right: 20px"],
   },
   {
-    id: "2",
-    title: "娱乐：如何用Python写一个贪吃蛇？",
-    region: "550829869162565",
+    label: "类型",
+    type: "select",
+    placeholder: "请选择类型",
+    prop: "category",
+    style: ["width: 13vw", "margin-right: 20px"],
+    options: categories,
   },
   {
-    id: "3",
-    title: "提示：如何用Python写一个机器学习算法？",
-    region: "550829949513797",
-  },
-  {
-    id: "4",
-    title: "杂谈：如何用Python写一个股票分析程序？",
-    region: "550829850009669",
+    label: "发布时间",
+    type: "date",
+    placeholder: "请选择发布时间",
+    prop: "date",
+    style: ["width: 13vw", "margin-right: 20px"],
   },
 ]);
 
-const categoryOptions = ref();
+const formConfig = {
+  formItems,
+  labelStyle: ["display: flex", "padding-top: 8px"],
+};
 
-interface Blog {
-  title: string;
-  content: string;
-  region: string;
-}
-
-const form: Blog = reactive({
-  title: "",
-  content: "",
-  region: "",
+const formValues: any = {};
+formConfig.formItems.map((item) => {
+  formValues[item.prop] = "";
 });
 
-const dialogVisible = ref(false);
+const searchValues = reactive(formValues);
 
-const doAddBlog = async () => {
-  await axios
-    .get(InterfaceUrl + "/admin/blog/categories")
+const blog = ref();
+
+const pagination = ref({
+  page: 1,
+  size: 5,
+});
+
+onMounted(() => {
+  axios
+    .get(InterfaceUrl + "/blog/categories")
     .then((res) => {
-      categoryOptions.value = res.data.data
-        .filter((item: any) => item.state !== "false")
-        .map((item: any) => {
-          return { label: item.name, value: item.id };
-        });
+      // 在分类列表中添加一个全部选项
+      const allOption = {
+        label: "所有",
+        value: null,
+      };
+      categories.value = [
+        allOption,
+        ...res.data.data.map((item: any) => {
+          return {
+            label: item.name,
+            value: item.id,
+          };
+        }),
+      ];
     })
-    .then(() => {
-      dialogVisible.value = true;
+    .catch((error) => {
+      console.log(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
+  getBlogs();
+});
+
+const getCategoryLabel = (categoryId: any) => {
+  const category = categories.value.find(
+    (item: any) => item.value === categoryId
+  );
+  return category ? category.label : "";
+};
+
+const currentChange = (currentPage) => {
+  pagination.value.page = currentPage;
+  getBlogs();
+};
+
+const total = ref();
+
+const search = () => {
+  if (searchValues.date) {
+    const date = new Date(searchValues.date);
+    searchValues.date = `${date.getFullYear()}-${
+      date.getMonth() + 1
+    }-${date.getDate()}`;
+  }
+  getBlogs(searchValues.keyword, searchValues.category, searchValues.date);
+  console.log(searchValues);
+};
+
+const getBlogs = (
+  keyword?: string,
+  categoryId?: number,
+  create_time?: string
+) => {
+  axios
+    .post(InterfaceUrl + "/blog", null, {
+      params: {
+        page: pagination.value.page,
+        pageSize: pagination.value.size,
+        keyword,
+        categoryId,
+        create_time,
+      },
+    })
+    .then((res) => {
+      blog.value = res.data.data.blogArr;
+      total.value = res.data.data.total;
+    })
+    .catch((error) => {
+      console.log(error);
+      ElMessage.error("请求失败，请联系管理员。");
     });
 };
 
-const submitForm = () => {
-  dialogVisible.value = false;
-  console.log(form);
-  axios.post(InterfaceUrl + "/blogInsert", form).then((res) => {
-    console.log(res);
-  });
+const centerDialogVisible = ref(false);
+const checkForm = reactive({ data: [] });
+
+const doCheck = (newsId) => {
+  checkForm.data = form.value.find((item) => item.id === newsId);
+  centerDialogVisible.value = true;
 };
 </script>
+
+<style lang="scss" scoped>
+:deep(.el-input-group__prepend) {
+  padding: 0 8px;
+}
+
+.el-tag,
+.el-button {
+  font-size: 1em;
+}
+
+.checkDialog {
+  display: flex;
+  flex-direction: column;
+  font-size: 1.8vh;
+  height: 50vh;
+  transform: translateX(5vw);
+
+  span {
+    padding-bottom: 0.5vh;
+
+    &:nth-child(2),
+    &:nth-child(3) {
+      min-height: 100px;
+    }
+
+    span {
+      display: inline-block;
+      width: 95px;
+      transform: translateY(1vh);
+    }
+  }
+}
+</style>

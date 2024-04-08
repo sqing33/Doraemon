@@ -42,11 +42,12 @@ const insertBlog = (req, res, next) => {
 
 // 根据条件查询文章
 const getBlogs = (req, res, next) => {
-  let { keyword, categoryId, page, pageSize, length } = req.query;
+  let { keyword, categoryId, create_time, page, pageSize, length } = req.query;
 
   page = page == null ? 1 : page;
   pageSize = pageSize == null ? null : pageSize;
   categoryId = categoryId == null ? 0 : categoryId;
+  create_time = create_time == null ? "" : create_time;
   keyword = keyword == null ? "" : keyword;
   length = length == null ? 0 : length;
 
@@ -55,6 +56,7 @@ const getBlogs = (req, res, next) => {
     pageSize,
     categoryId,
     keyword,
+    create_time,
     length,
     (err, result) => {
       if (err) {
