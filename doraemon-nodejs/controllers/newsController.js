@@ -1,43 +1,36 @@
 const newsService = require("../services/newsService");
 const dateFunction = require("../utils/Date");
 
+// 查询--条件筛选
+const getNews = (req, res, next) => {
+  let { keyword, categoryId, create_time, page, pageSize, length } = req.query;
 
-// 查询新闻列表
-const getNewsList = (req, res, next) => {
-  newsService.getNewsList((err, newsArr) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
+  console.log(req.query);
+
+  page = page == null ? 1 : page;
+  pageSize = pageSize == null ? null : pageSize;
+  categoryId = categoryId == null ? 0 : categoryId;
+  create_time = create_time == null ? "" : create_time;
+  keyword = keyword == null ? "" : keyword;
+  length = length == null ? 0 : length;
+
+  newsService.getNews(
+    page,
+    pageSize,
+    categoryId,
+    keyword,
+    create_time,
+    length,
+    (err, result) => {
+      if (err) {
+        return res.send({ state: 1, message: err });
+      }
+      return res.send({ state: 0, message: "查询成功", data: result });
     }
-    return res.send({ state: 0, message: "查询成功", data: newsArr });
-  });
+  );
 };
 
-// 查询新闻分类
-const getNewsCategories = (req, res, next) => {
-  newsService.getNewsCategories((err, categories) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
-    }
-    return res.send({ state: 0, message: "查询成功", data: categories });
-  });
-};
-
-// 分页查询新闻列表
-const getNewsByPage = (req, res, next) => {
-  const { page, size } = req.query;
-  newsService.getNewsByPage(page, size, (err, newsArr, total) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
-    }
-    return res.send({
-      state: 0,
-      message: "查询成功",
-      data: { newsArr, total },
-    });
-  });
-};
-
-// 根据id查询新闻详情
+// 查询--通过id
 const getNewsById = (req, res, next) => {
   const id = req.query.id;
   newsService.getNewsById(id, (err, news) => {
@@ -45,6 +38,16 @@ const getNewsById = (req, res, next) => {
       return res.send({ state: 1, message: err });
     }
     return res.send({ state: 0, message: "查询成功", data: news });
+  });
+};
+
+// 查询--分类
+const getNewsCategories = (req, res, next) => {
+  newsService.getNewsCategories((err, categories) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "查询成功", data: categories });
   });
 };
 
@@ -70,29 +73,22 @@ const insertNews = (req, res, next) => {
   });
 };
 
-// 根据条件查询新闻
-const getNews = (req, res, next) => {
-  let { keyword, categoryId, create_time, page, pageSize, length } = req.query;
+// 更新新闻
+const updateNews = (req, res, next) => {
+  const { id, title, content, coverUrl, category_id, state } = req.body;
 
-  page = page == null ? 1 : page;
-  pageSize = pageSize == null ? null : pageSize;
-  categoryId = categoryId == null ? 0 : categoryId;
-  create_time = create_time == null ? "" : create_time;
-  keyword = keyword == null ? "" : keyword;
-  length = length == null ? 0 : length;
-
-  newsService.getNews(
-    page,
-    pageSize,
-    categoryId,
-    keyword,
-    create_time,
-    length,
+  newsService.updateNews(
+    id,
+    title,
+    content,
+    coverUrl,
+    category_id,
+    state.toString(),
     (err, result) => {
       if (err) {
         return res.send({ state: 1, message: err });
       }
-      return res.send({ state: 0, message: "查询成功", data: result });
+      return res.send({ state: 0, message: "更新成功", data: result });
     }
   );
 };
@@ -115,11 +111,10 @@ const upload = (req, res, next) => {
 };
 
 module.exports = {
-  getNewsList,
-  getNewsCategories,
   getNews,
-  getNewsByPage,
   getNewsById,
+  getNewsCategories,
   insertNews,
+  updateNews,
   upload,
 };

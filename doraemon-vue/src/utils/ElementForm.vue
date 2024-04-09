@@ -15,6 +15,7 @@
             <el-input
               :show-password="item.type === 'password'"
               :placeholder="item.placeholder"
+              clearable
               v-model="modelValue[item.prop]"
               :prop="item.prop"
               :style="item.style"
@@ -78,6 +79,15 @@
               :prop="item.prop"
               :style="item.style"
             ></el-time-select>
+          </template>
+
+          <template v-else-if="item.type === 'image'">
+            <img
+              :src="modelValue[item.prop]"
+              alt=""
+              :style="item.style"
+              style="border: 1px solid #ccc; padding: 10px; border-radius: 5px"
+            />
           </template>
 
           <!-- 上传图片 -->

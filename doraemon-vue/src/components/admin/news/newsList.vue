@@ -33,7 +33,11 @@
     :cell-style="{ textAlign: 'center' }"
     :row-style="{ height: '110px' }"
   >
-    <el-table-column type="index" label="序号" width="75" />
+    <el-table-column label="序号" width="75">
+      <template #default="{ $index }">
+        {{ (pagination.page - 1) * pagination.size + $index + 1 }}
+      </template>
+    </el-table-column>
     <el-table-column type="id" label="ID" width="75" />
     <el-table-column prop="title" label="标题" width="auto" />
     <el-table-column prop="coverUrl" label="封面" width="200">
@@ -57,10 +61,15 @@
     </el-table-column>
     <el-table-column prop="state" label="发布状态" width="100">
       <template #default="scope">
-        <el-tag v-if="scope.row.state === 'false'" type="warning">
+        <el-tag
+          v-if="scope.row.state === 'false' || scope.row.state === false"
+          type="warning"
+        >
           未发布
         </el-tag>
-        <el-tag v-if="scope.row.state === 'true'">已发布</el-tag>
+        <el-tag v-if="scope.row.state === 'true' || scope.row.state === true"
+          >已发布</el-tag
+        >
       </template>
     </el-table-column>
     <el-table-column align="center" label="操作" width="150">
@@ -91,38 +100,14 @@
   ></el-pagination>
 
   <el-dialog
-    v-model="centerDialogVisible"
+    v-model="dialogVisible"
     title="查看新闻内容"
-    width="60vw"
+    width="70vw"
     destroy-on-close
     center
+    top="20px"
   >
-    <div class="checkDialog">
-      <span><span>标题：</span> {{ checkForm.data.title }}</span>
-      <span
-        ><span>内容：</span
-        ><span style="width: 40vw">{{ checkForm.data.content }}</span>
-      </span>
-      <span
-        ><span>封面：</span>
-        <img
-          style="height: 100px"
-          :src="InterfaceUrl + checkForm.data.coverUrl"
-          alt=""
-      /></span>
-      <span><span>类型：</span> {{ checkForm.data.region }}</span>
-      <span><span>发布者：</span> {{ checkForm.data.publisher }}</span>
-      <span><span>发布日期：</span> {{ checkForm.data.date }}</span>
-      <span><span>发布状态：</span> {{ checkForm.data.status }}</span>
-    </div>
-
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="centerDialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="doEdit(id.value)"> 编辑</el-button>
-        <el-button type="danger" @click="doDelete(id.value)"> 删除</el-button>
-      </div>
-    </template>
+    <checkBlog> </checkBlog>
   </el-dialog>
 </template>
 
@@ -133,8 +118,15 @@ import { onMounted, reactive, ref } from "vue";
 import { InterfaceUrl } from "@/api";
 import dateFunction from "@/utils/Date";
 import ElementForm from "@/utils/ElementForm.vue";
+import checkBlog from "./checkBlog.vue";
+import { useStore } from "vuex";
+import LZString from "lz-string";
+
+const store = useStore();
 
 const categories = ref();
+
+const searchCategories = ref();
 
 const formItems = reactive([
   {
@@ -148,9 +140,9 @@ const formItems = reactive([
     label: "类型",
     type: "select",
     placeholder: "请选择类型",
-    prop: "categories",
+    prop: "category",
     style: ["width: 13vw", "margin-right: 20px"],
-    options: categories,
+    options: searchCategories,
   },
   {
     label: "发布时间",
@@ -182,15 +174,19 @@ const pagination = ref({
 
 onMounted(() => {
   axios
-    .get(InterfaceUrl + "/news/categories")
+    .get(InterfaceUrl + "/admin/news/categories")
     .then((res) => {
-      // 在分类列表中添加一个全部选项
-      const allOption = {
-        label: "所有",
-        value: null,
-      };
-      categories.value = [
-        allOption,
+      categories.value = res.data.data.map((item: any) => {
+        return {
+          label: item.name,
+          value: item.id,
+        };
+      });
+      searchCategories.value = [
+        {
+          label: "所有",
+          value: null,
+        },
         ...res.data.data.map((item: any) => {
           return {
             label: item.name,
@@ -213,16 +209,12 @@ const getCategoryLabel = (categoryId: any) => {
   return category ? category.label : "";
 };
 
-const currentChange = (currentPage) => {
+const currentChange = (currentPage: number) => {
   pagination.value.page = currentPage;
   getNews();
 };
 
 const total = ref();
-
-const keyword = ref();
-
-const date = ref();
 
 const search = () => {
   if (searchValues.date) {
@@ -231,8 +223,8 @@ const search = () => {
       date.getMonth() + 1
     }-${date.getDate()}`;
   }
-  getNews(searchValues.keyword, searchValues.category, searchValues.date);
   console.log(searchValues);
+  getNews(searchValues.keyword, searchValues.category, searchValues.date);
 };
 
 const getNews = (
@@ -241,7 +233,7 @@ const getNews = (
   create_time?: string
 ) => {
   axios
-    .post(InterfaceUrl + "/news", null, {
+    .post(InterfaceUrl + "/admin/news", null, {
       params: {
         page: pagination.value.page,
         pageSize: pagination.value.size,
@@ -265,12 +257,17 @@ const getNews = (
     });
 };
 
-const centerDialogVisible = ref(false);
-const checkForm = reactive({ data: [] });
+const dialogVisible = ref(false);
 
-const doCheck = (newsId) => {
-  checkForm.data = form.value.find((item) => item.id === newsId);
-  centerDialogVisible.value = true;
+const doCheck = (id: number) => {
+  const checkForm = news.value.find((item: any) => item.id === id);
+  checkForm.state = Boolean(checkForm.state === "false" ? "" : "true");
+  store.dispatch(
+    "setRichTextEditor",
+    LZString.decompressFromBase64(checkForm.content)
+  );
+  store.dispatch("setCheck", { form: checkForm, categories });
+  dialogVisible.value = true;
 };
 </script>
 

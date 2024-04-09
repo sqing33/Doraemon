@@ -13,18 +13,6 @@
         right: 20px;
       "
     >
-      <!-- <div>
-        发布人：
-        {{
-          blog.publisher === "1"
-            ? "张三"
-            : form.data.publisher === "2"
-            ? "李四"
-            : form.data.publisher === "3"
-            ? "王五"
-            : "未知"
-        }}
-      </div> -->
       <div>&nbsp;|&nbsp;</div>
       <div>{{ blog.create_time }}</div>
     </div>

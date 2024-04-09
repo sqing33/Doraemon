@@ -3,94 +3,7 @@ const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
 const dateFunction = require("../utils/Date");
 const LZString = require("lz-string");
 
-// 新增新闻
-const insertNews = (news, callback) => {
-  const sql =
-    "INSERT INTO news (title, content, coverUrl, region, publisher, date, status) VALUES (?,?,?,?,?,?,?)";
-  mysqlDb.query(
-    sql,
-    [
-      news.title,
-      news.content,
-      news.coverUrl,
-      news.region,
-      news.publisher,
-      news.date,
-      news.status,
-    ],
-    (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, result.insertId);
-    }
-  );
-};
-
-// 根据id查询新闻详情
-const getNewsById = (id, callback) => {
-  const sql = "SELECT * FROM news WHERE id = ?";
-  mysqlDb.query(sql, [id], (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    const news = result[0];
-    callback(null, news);
-  });
-};
-
-// 查询新闻列表
-const getNewsList = (callback) => {
-  const sql = "SELECT * FROM news";
-  mysqlDb.query(sql, (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    callback(null, result);
-  });
-};
-
-// 查询新闻分类
-const getNewsCategories = (callback) => {
-  const sql = "SELECT * FROM news_categories";
-  mysqlDb.query(sql, (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    callback(null, result);
-  });
-};
-
-// 分页查询新闻列表
-const getNewsByPage = (page, pageSize, callback) => {
-  const pages = (page - 1) * pageSize;
-  const sql = "SELECT * FROM news LIMIT ? OFFSET ?";
-  const sql2 = "SELECT COUNT(*) AS total FROM news";
-  let newsArr = [];
-  let total;
-
-  mysqlDb.query(sql, [parseInt(pageSize), pages], (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    newsArr = result;
-    mysqlDb.query(sql2, (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      total = result[0].total;
-      callback(null, { newsArr, total });
-    });
-  });
-};
-
-// 根据条件查询文章
+// 查询--条件筛选
 const getNews = (
   page,
   pageSize,
@@ -133,8 +46,6 @@ const getNews = (
     sql = " SELECT * FROM news ";
   }
 
-  console.log(sql);
-
   let params = sqlParams.concat([(page - 1) * pageSize, parseInt(pageSize)]);
 
   let newsArr = [];
@@ -145,7 +56,6 @@ const getNews = (
       callback(err, null);
       return;
     }
-    console.log(result);
 
     if (length === 0) {
       newsArr = result;
@@ -175,11 +85,86 @@ const getNews = (
   });
 };
 
+// 查询--通过id
+const getNewsById = (id, callback) => {
+  const sql = "SELECT * FROM news WHERE id = ?";
+  mysqlDb.query(sql, [id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    const news = result[0];
+    callback(null, news);
+  });
+};
+
+// 查询--分类
+const getNewsCategories = (callback) => {
+  const sql = "SELECT * FROM news_categories";
+  mysqlDb.query(sql, (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result);
+  });
+};
+
+// 新增新闻
+const insertNews = (news, callback) => {
+  const sql =
+    "INSERT INTO news (title, content, coverUrl, region, publisher, date, status) VALUES (?,?,?,?,?,?,?)";
+  mysqlDb.query(
+    sql,
+    [
+      news.title,
+      news.content,
+      news.coverUrl,
+      news.region,
+      news.publisher,
+      news.date,
+      news.status,
+    ],
+    (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      callback(null, result.insertId);
+    }
+  );
+};
+
+// 更新新闻
+const updateNews = (
+  id,
+  title,
+  content,
+  coverUrl,
+  category_id,
+
+  state,
+  callback
+) => {
+  const sql =
+    "UPDATE news SET title = ?, content = ?, coverUrl = ?, category_id = ?, state = ? WHERE id = ?";
+  mysqlDb.query(
+    sql,
+    [title, content, coverUrl, category_id, state, id],
+    (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      callback(null, result.affectedRows);
+    }
+  );
+};
+
 module.exports = {
-  getNewsList,
-  getNewsByPage,
-  getNewsCategories,
-  getNewsById,
   getNews,
+  getNewsById,
+  getNewsCategories,
   insertNews,
+  updateNews,
 };

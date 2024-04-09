@@ -2,16 +2,13 @@ const express = require("express");
 const router = express.Router();
 const newsController = require("../controllers/newsController");
 
-// 网页端查询新闻列表
-router.get("/", newsController.getNewsList);
+// 查询--条件筛选
+router.post("/", newsController.getNews);
 
-// 根据id新闻
+// 查询--通过id
 router.post("/newsPage", newsController.getNewsById);
 
-// 查询新闻分类
+// 查询--分类
 router.get("/categories", newsController.getNewsCategories);
-
-// 根据条件查询新闻
-router.post("/", newsController.getNews);
 
 module.exports = router;

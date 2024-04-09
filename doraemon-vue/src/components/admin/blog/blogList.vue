@@ -33,7 +33,11 @@
     :cell-style="{ textAlign: 'center' }"
     :row-style="{ height: '110px' }"
   >
-    <el-table-column type="index" label="序号" width="75" />
+    <el-table-column label="序号" width="75">
+      <template #default="{ $index }">
+        {{ (pagination.page - 1) * pagination.size + $index + 1 }}
+      </template>
+    </el-table-column>
     <el-table-column prop="id" label="ID" width="150" />
     <el-table-column prop="title" label="标题" width="auto" />
     <el-table-column prop="coverUrl" label="封面" width="200">
@@ -51,7 +55,7 @@
       </template>
     </el-table-column>
     <el-table-column prop="publisher_id" label="发布者ID" width="100">
-    </el-table-column> 
+    </el-table-column>
     <el-table-column prop="create_time" label="发布日期">
       <template #default="scope">
         <span>{{ dateFunction(scope.row.create_time) }}</span>
@@ -67,7 +71,7 @@
           <el-button
             style="margin: 5px 0 0 0"
             type="danger"
-            @click="doDelete(scope.row.id)"
+            @click="doDelete(scope.row.id, scope.row.title)"
             >删除
           </el-button>
         </div>
@@ -86,50 +90,46 @@
   ></el-pagination>
 
   <el-dialog
-    v-model="centerDialogVisible"
-    title="查看新闻内容"
+    v-model="dialogVisible"
+    title="查看帖子"
     width="60vw"
     destroy-on-close
     center
+    top="20px"
   >
-    <div class="checkDialog">
-      <span><span>标题：</span> {{ checkForm.data.title }}</span>
-      <span
-        ><span>内容：</span
-        ><span style="width: 40vw">{{ checkForm.data.content }}</span>
-      </span>
-      <span
-        ><span>封面：</span>
-        <img
-          style="height: 100px"
-          :src="InterfaceUrl + checkForm.data.coverUrl"
-          alt=""
-      /></span>
-      <span><span>类型：</span> {{ checkForm.data.region }}</span>
-      <span><span>发布者：</span> {{ checkForm.data.publisher }}</span>
-      <span><span>发布日期：</span> {{ checkForm.data.date }}</span>
-      <span><span>发布状态：</span> {{ checkForm.data.status }}</span>
-    </div>
-
+    <checkBlog> </checkBlog>
     <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="centerDialogVisible = false">关闭</el-button>
-        <el-button type="primary" @click="doEdit(id.value)"> 编辑</el-button>
-        <el-button type="danger" @click="doDelete(id.value)"> 删除</el-button>
-      </div>
+      <el-button @click="dialogVisible = false">关闭</el-button>
+      <el-button
+        type="danger"
+        @click="
+          doDelete(
+            store.getters.getCheck.form.id,
+            store.getters.getCheck.form.title
+          )
+        "
+      >
+        删除
+      </el-button>
     </template>
   </el-dialog>
 </template>
 
 <script lang="ts" setup>
 import axios from "axios";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { onMounted, reactive, ref } from "vue";
 import { InterfaceUrl } from "@/api";
 import dateFunction from "@/utils/Date";
 import ElementForm from "@/utils/ElementForm.vue";
+import checkBlog from "./checkBlog.vue";
+import { useStore } from "vuex";
+
+const store = useStore();
 
 const categories = ref();
+
+const searchCategories = ref();
 
 const formItems = reactive([
   {
@@ -145,7 +145,7 @@ const formItems = reactive([
     placeholder: "请选择类型",
     prop: "category",
     style: ["width: 13vw", "margin-right: 20px"],
-    options: categories,
+    options: searchCategories,
   },
   {
     label: "发布时间",
@@ -177,15 +177,19 @@ const pagination = ref({
 
 onMounted(() => {
   axios
-    .get(InterfaceUrl + "/blog/categories")
+    .get(InterfaceUrl + "/admin/blog/categories")
     .then((res) => {
-      // 在分类列表中添加一个全部选项
-      const allOption = {
-        label: "所有",
-        value: null,
-      };
-      categories.value = [
-        allOption,
+      categories.value = res.data.data.map((item: any) => {
+        return {
+          label: item.name,
+          value: item.id,
+        };
+      });
+      searchCategories.value = [
+        {
+          label: "所有",
+          value: null,
+        },
         ...res.data.data.map((item: any) => {
           return {
             label: item.name,
@@ -208,7 +212,7 @@ const getCategoryLabel = (categoryId: any) => {
   return category ? category.label : "";
 };
 
-const currentChange = (currentPage) => {
+const currentChange = (currentPage: number) => {
   pagination.value.page = currentPage;
   getBlogs();
 };
@@ -232,7 +236,7 @@ const getBlogs = (
   create_time?: string
 ) => {
   axios
-    .post(InterfaceUrl + "/blog", null, {
+    .post(InterfaceUrl + "/admin/blog", null, {
       params: {
         page: pagination.value.page,
         pageSize: pagination.value.size,
@@ -251,12 +255,32 @@ const getBlogs = (
     });
 };
 
-const centerDialogVisible = ref(false);
-const checkForm = reactive({ data: [] });
+const dialogVisible = ref(false);
 
-const doCheck = (newsId) => {
-  checkForm.data = form.value.find((item) => item.id === newsId);
-  centerDialogVisible.value = true;
+const doCheck = (id: number) => {
+  const checkForm = blog.value.find((item: any) => item.id === id);
+  store.dispatch("setCheck", { form: checkForm, categories });
+  dialogVisible.value = true;
+};
+
+const doDelete = (id: number, title: string) => {
+  ElMessageBox.confirm("是否确定要删除帖子[" + title + "]?", "确认删除", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+    axios
+      .post(InterfaceUrl + "/admin/blog/delete", { id })
+      .then((res) => {
+        ElMessage.success("删除成功！");
+        getBlogs();
+        dialogVisible.value = false;
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+  });
 };
 </script>
 

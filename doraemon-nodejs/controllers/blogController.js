@@ -1,27 +1,6 @@
 const blogService = require("../services/blogService");
 
-// 查询文章分类
-const getBlogCategories = (req, res, next) => {
-  blogService.getBlogCategories((err, blogArr) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
-    }
-    return res.send({ state: 0, message: "查询成功", data: blogArr });
-  });
-};
-
-// 新增文章分类
-const insertBlogCategories = (req, res, next) => {
-  const { name, state } = req.query;
-  blogService.insertBlogCategories(name, state, (err, result) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
-    }
-    return res.send({ state: 0, message: "新增成功" });
-  });
-};
-
-// 新增文章
+// 新增
 const insertBlog = (req, res, next) => {
   const { title, content, region, coverUrl, publsher_id } = req.body;
   const categoryId = region;
@@ -38,11 +17,24 @@ const insertBlog = (req, res, next) => {
       return res.send({ state: 0, message: "新增成功", data: result });
     }
   );
-}; 
+};
 
-// 根据条件查询文章
-const getBlogs = (req, res, next) => {
+// 删除
+const deleteBlog = (req, res, next) => {
+  const { id } = req.body;
+  blogService.deleteBlog(id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "删除成功" });
+  });
+};
+
+// 查询--条件筛选
+const getBlog = (req, res, next) => {
   let { keyword, categoryId, create_time, page, pageSize, length } = req.query;
+
+  console.log(req.query);
 
   page = page == null ? 1 : page;
   pageSize = pageSize == null ? null : pageSize;
@@ -51,7 +43,7 @@ const getBlogs = (req, res, next) => {
   keyword = keyword == null ? "" : keyword;
   length = length == null ? 0 : length;
 
-  blogService.getBlogs(
+  blogService.getBlog(
     page,
     pageSize,
     categoryId,
@@ -67,7 +59,7 @@ const getBlogs = (req, res, next) => {
   );
 };
 
-// 根据id查询文章
+// 查询--通过id
 const getBlogById = (req, res, next) => {
   const { id } = req.query;
   blogService.getBlogById(id, (err, result) => {
@@ -78,10 +70,32 @@ const getBlogById = (req, res, next) => {
   });
 };
 
+// 查询--分类
+const getBlogCategories = (req, res, next) => {
+  blogService.getBlogCategories((err, blogArr) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "查询成功", data: blogArr });
+  });
+};
+
+// 新增--帖子分类
+const insertBlogCategories = (req, res, next) => {
+  const { name, state } = req.query;
+  blogService.insertBlogCategories(name, state, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "新增成功" });
+  });
+};
+
 module.exports = {
+  insertBlog,
+  getBlog,
+  getBlogById,
+  deleteBlog,
   getBlogCategories,
   insertBlogCategories,
-  insertBlog,
-  getBlogs,
-  getBlogById,
 };

@@ -6,25 +6,31 @@ const usersController = require("../controllers/usersController");
 const multer = require("multer");
 const crypto = require("crypto");
 
-// 管理员管理用户信息
-router.get("/users", usersController.getUsers);
-
-// 管理员查询文章分类
+// blog管理--删除帖子
+router.post("/blog/delete", blogController.deleteBlog);
+// blog管理--查询帖子--条件筛选
+router.post("/blog", blogController.getBlog);
+// blog管理--新增帖子分类
+router.post("/blog/categoryInsert", blogController.insertBlogCategories);
+// blog管理--查询帖子分类
 router.get("/blog/categories", blogController.getBlogCategories);
 
-// 管理员插入文章分类
-router.post("/blog/categoryInsert", blogController.insertBlogCategories);
-
-// 管理员查询文章列表
-// router.post("/blog", blogController.getBlogByPage);
-
-// 管理员查询新闻列表
-router.post("/news", newsController.getNewsByPage);
-
-// 管理员插入新闻
+// news管理--新增新闻
 router.post("/newsInsert", newsController.insertNews);
+// news管理--删除新闻
+// router.post("/newsDelete", newsController.deleteNews);
+// news管理--修改新闻
+router.post("/newsUpdate", newsController.updateNews);
+// news管理--查询新闻--条件筛选
+router.post("/news", newsController.getNews);
+// news管理--查询新闻分类
+router.get("/news/categories", newsController.getNewsCategories);
+
+// user管理
+router.get("/users", usersController.getUsers);
 
 // 图片上传
+router.post("/upload", upload.single("file"), newsController.upload);
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public/images/news");
@@ -48,7 +54,5 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
-
-router.post("/upload", upload.single("file"), newsController.upload);
 
 module.exports = router;

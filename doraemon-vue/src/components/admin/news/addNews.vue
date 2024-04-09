@@ -84,7 +84,7 @@ const formItems = reactive([
   {
     label: "发布状态",
     type: "switch",
-    prop: "status",
+    prop: "state",
     style: ["margin-left: 2vh"],
   },
 ]);

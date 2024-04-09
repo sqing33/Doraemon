@@ -7,6 +7,10 @@ interface State {
   userInfo: any;
   elementImageUrl: any;
   richTextEditor: any;
+  check: {
+    form: any;
+    categories: any;
+  };
 }
 
 const storeOptions: StoreOptions<State> = {
@@ -16,6 +20,10 @@ const storeOptions: StoreOptions<State> = {
       userInfo: null,
       elementImageUrl: null,
       richTextEditor: null,
+      check: {
+        form: {},
+        categories: [],
+      },
     };
   },
   mutations: {
@@ -24,9 +32,13 @@ const storeOptions: StoreOptions<State> = {
     },
     setElementImageUrl(state, data) {
       state.elementImageUrl = data;
-    },
+    }, 
     setRichTextEditor(state, data) {
       state.richTextEditor = data;
+    },
+    setCheck(state, { form, categories }) {
+      state.check.form = form;
+      state.check.categories = categories;
     },
   },
   actions: {
@@ -39,11 +51,15 @@ const storeOptions: StoreOptions<State> = {
     setRichTextEditor({ commit }, data) {
       commit("setRichTextEditor", data);
     },
+    setCheck({ commit }, { form, categories }) {
+      commit("setCheck", { form, categories });
+    },
   },
   getters: {
     getUserInfo: (state) => state.userInfo,
     getElementImageUrl: (state) => state.elementImageUrl,
     getRichTextEditor: (state) => state.richTextEditor,
+    getCheck: (state) => state.check,
   },
   plugins: [
     new VuexPersistence({

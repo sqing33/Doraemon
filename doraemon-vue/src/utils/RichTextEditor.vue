@@ -39,13 +39,17 @@ let style = () => {
   };
 };
 
-console.log(style().height);
-
 // 编辑器实例，必须用 shallowRef
 const editorRef = shallowRef();
 
 // 内容 HTML
 const valueHtml = ref("");
+
+const intValueHtml = ref(store.state.richTextEditor);
+
+if (intValueHtml.value) {
+  valueHtml.value = intValueHtml.value;
+}
 
 // 监听内容 HTML 的变化，更新 store
 watch(valueHtml, (newValue) => {

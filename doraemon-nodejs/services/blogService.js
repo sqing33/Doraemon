@@ -3,35 +3,7 @@ const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
 const dateFunction = require("../utils/Date");
 const LZString = require("lz-string");
 
-// 查询文章分类
-const getBlogCategories = (callback) => {
-  const sql = "SELECT * FROM blog_categories";
-  mysqlDb.query(sql, (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    callback(null, result);
-  });
-};
-
-// 新增文章分类
-const insertBlogCategories = (name, state, callback) => {
-  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
-  const id = snowFlakeId.NextId();
-
-  const sql = "INSERT INTO blog_categories SET id=?, name=?, state=?";
-  mysqlDb.query(sql, [id, name, state], (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    console.log(result);
-    callback(null, result);
-  });
-};
-
-// 新增文章
+// 新增
 const insertBlog = (
   title,
   content,
@@ -58,8 +30,20 @@ const insertBlog = (
   );
 };
 
-// 根据条件查询文章
-const getBlogs = (
+// 删除
+const deleteBlog = (id, callback) => {
+  const sql = "DELETE FROM blog WHERE id = ? ";
+  mysqlDb.query(sql, [id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result);
+  });
+};
+
+// 查询--条件筛选
+const getBlog = (
   page,
   pageSize,
   categoryId,
@@ -90,7 +74,6 @@ const getBlogs = (
   let whereSqlStr = "";
   if (sqlCondition.length > 0) {
     whereSqlStr = " WHERE " + sqlCondition.join(" AND ");
-    console.log(whereSqlStr);
   }
 
   let sql;
@@ -98,10 +81,8 @@ const getBlogs = (
   if (pageSize !== null) {
     sql = " SELECT * FROM blog " + whereSqlStr + " LIMIT ?,? ";
   } else if (page == 1 && pageSize == null) {
-    sql = " SELECT * FROM blog ";
+    sql = " SELECT * FROM blog " + whereSqlStr;
   }
-
-  console.log(sql);
 
   let params = sqlParams.concat([(page - 1) * pageSize, parseInt(pageSize)]);
 
@@ -113,7 +94,6 @@ const getBlogs = (
       callback(err, null);
       return;
     }
-    console.log(result);
 
     if (length === 0) {
       blogArr = result;
@@ -143,6 +123,7 @@ const getBlogs = (
   });
 };
 
+// 查询--通过id
 const getBlogById = (id, callback) => {
   const sql = "SELECT * FROM blog WHERE id = ? ";
   mysqlDb.query(sql, [id], (err, result) => {
@@ -154,10 +135,39 @@ const getBlogById = (id, callback) => {
   });
 };
 
+// 查询--分类
+const getBlogCategories = (callback) => {
+  const sql = "SELECT * FROM blog_categories";
+  mysqlDb.query(sql, (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result);
+  });
+};
+
+// 新增--帖子分类
+const insertBlogCategories = (name, state, callback) => {
+  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
+  const id = snowFlakeId.NextId();
+
+  const sql = "INSERT INTO blog_categories SET id=?, name=?, state=?";
+  mysqlDb.query(sql, [id, name, state], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    console.log(result);
+    callback(null, result);
+  });
+};
+
 module.exports = {
+  insertBlog,
+  deleteBlog,
+  getBlog,
+  getBlogById,
   getBlogCategories,
   insertBlogCategories,
-  insertBlog,
-  getBlogs,
-  getBlogById,
 };
