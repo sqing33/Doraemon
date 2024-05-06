@@ -41,7 +41,10 @@
         <div><span>昵称:</span> {{ userInfo.nickname }}</div>
         <div><span>用户名:</span> {{ userInfo.username }}</div>
         <div><span>性别:</span> {{ userInfo.gender }}</div>
-        <div><span>生日:</span> {{ timeConvert(userInfo.birthday) }}</div>
+        <div>
+          <span>生日:</span>
+          {{ userInfo.birthday ? timeConvert(userInfo.birthday) : "" }}
+        </div>
       </div>
 
       <div class="contentInfo" v-if="menuIndex == '账号设置'">

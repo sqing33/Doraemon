@@ -177,7 +177,7 @@ const pagination = ref({
 
 onMounted(() => {
   axios
-    .get(InterfaceUrl + "/admin/blog/categories")
+    .get(InterfaceUrl + "/blog/categories")
     .then((res) => {
       categories.value = res.data.data.map((item: any) => {
         return {
@@ -227,7 +227,7 @@ const search = () => {
     }-${date.getDate()}`;
   }
   getBlogs(searchValues.keyword, searchValues.category, searchValues.date);
-  console.log(searchValues);
+  searchValues;
 };
 
 const getBlogs = (
@@ -236,7 +236,7 @@ const getBlogs = (
   create_time?: string
 ) => {
   axios
-    .post(InterfaceUrl + "/admin/blog", null, {
+    .post(InterfaceUrl + "/blog", null, {
       params: {
         page: pagination.value.page,
         pageSize: pagination.value.size,

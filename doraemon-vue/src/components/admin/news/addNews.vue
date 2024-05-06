@@ -41,20 +41,20 @@ const formItems = reactive([
     type: "input",
     placeholder: "请输入新闻标题",
     prop: "title",
-    style: ["width: 45vw", "margin-left: 2vh"],
+    style: ["width: 45vw"],
   },
   {
     label: "内容",
     type: "textarea",
     placeholder: "请输入新闻内容",
     prop: "content",
-    style: ["height: 40vh", "margin-left: 2vh"],
+    style: ["height: 40vh"],
   },
   {
     label: "封面",
     type: "upload",
     prop: "coverUrl",
-    style: ["margin-left: 2vh"],
+    style: [],
     uploadUrl: InterfaceUrl + "/admin/upload",
   },
   {
@@ -62,7 +62,7 @@ const formItems = reactive([
     type: "select",
     placeholder: "请选择类型",
     prop: "region",
-    style: ["width: 15vw", "margin-left: 2vh"],
+    style: ["width: 15vw"],
     options: [
       { label: "新闻", value: "1" },
       { label: "活动", value: "2" },
@@ -70,39 +70,16 @@ const formItems = reactive([
     ],
   },
   {
-    label: "发布者",
-    type: "select",
-    placeholder: "请选择发布者",
-    prop: "publisher",
-    style: ["width: 15vw", "margin-left: 2vh"],
-    options: [
-      { label: "松允", value: "1" },
-      { label: "雨迎", value: "2" },
-      { label: "暄妍", value: "3" },
-    ],
-  },
-  {
     label: "发布状态",
     type: "switch",
     prop: "state",
-    style: ["margin-left: 2vh"],
+    style: [],
   },
 ]);
-
-// 表单校验规则
-const formRules = reactive({
-  title: [{ required: true, message: "请输入新闻标题", trigger: "blur" }],
-  content: [{ required: true, message: "请输入新闻内容", trigger: "blur" }],
-  region: [{ required: true, message: "请选择新闻类别", trigger: "change" }],
-  publisher: [{ required: true, message: "请选择发布者", trigger: "change" }],
-  radio: [{ required: true, message: "请选择发布时间", trigger: "change" }],
-  status: [{ required: true, message: "请选择是否发布", trigger: "change" }],
-});
 
 // 表单配置
 const formConfig = {
   formItems,
-  formRules,
   labelWidth: "75px",
 };
 
@@ -115,14 +92,14 @@ const form = reactive(formValues);
 
 const onSubmit = () => {
   form.coverUrl = store.getters.getElementImageUrl;
-  form.content = LZString.compressToBase64(store.getters.getRichTextEditor);
+  form.content = store.getters.getRichTextEditor;
 
-  if (form.status === "") {
-    form.status = true;
+  if (form.state === "") {
+    form.state = true;
   }
 
   axios
-    .post(InterfaceUrl + "/admin/newsInsert", form)
+    .post(InterfaceUrl + "/admin/news/insert", form)
     .then((res) => {
       ElMessage({
         type: "success",

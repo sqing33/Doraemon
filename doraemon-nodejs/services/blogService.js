@@ -5,21 +5,20 @@ const LZString = require("lz-string");
 
 // 新增
 const insertBlog = (
+  id,
   title,
   content,
-  categoryId,
+  category_id,
   coverUrl,
-  publsher_id,
+  publisher_id,
+  create_time,
   callback
 ) => {
-  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
-  const id = snowFlakeId.NextId();
-
   const sql =
     "INSERT INTO blog SET id=?, title=?, content=?, category_id=?, coverUrl=?, publisher_id=?, create_time=? ";
   mysqlDb.query(
     sql,
-    [id, title, content, categoryId, coverUrl, publsher_id, dateFunction()],
+    [id, title, content, category_id, coverUrl, publisher_id, create_time],
     (err, result) => {
       if (err) {
         callback(err, null);
@@ -99,9 +98,9 @@ const getBlog = (
       blogArr = result;
     } else if (length) {
       blogArr = result.map((item) => {
-        item.content = LZString.decompressFromBase64(item.content);
+        //item.content = LZString.decompressFromBase64(item.content);
         item.content = item.content.slice(0, 99) + "...";
-        item.content = LZString.compressToBase64(item.content);
+        //item.content = LZString.compressToBase64(item.content);
         return item;
       });
     }

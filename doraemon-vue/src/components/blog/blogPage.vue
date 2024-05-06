@@ -95,7 +95,7 @@ onMounted(() => {
     .post(InterfaceUrl + "/blog/blogPage?id=" + props.id)
     .then((res) => {
       blog.value = res.data.data;
-      blog.value.content = LZString.decompressFromBase64(blog.value.content);
+      blog.value.content = blog.value.content;
       blog.value.create_time = dateFunction(blog.value.create_time);
     })
     .catch((error) => {
@@ -183,6 +183,16 @@ const copyToClipboard = (text: string) => {
   .news-intro {
     margin: 10px;
     width: 94%;
+  }
+}
+</style>
+
+<style lang="scss">
+@media (max-width: 1000px) {
+  .news-intro {
+    img {
+      width: 85vw !important;
+    }
   }
 }
 </style>

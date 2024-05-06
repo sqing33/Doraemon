@@ -10,5 +10,5 @@ router.post("/newsPage", newsController.getNewsById);
 
 // 查询--分类
 router.get("/categories", newsController.getNewsCategories);
-
+ 
 module.exports = router;

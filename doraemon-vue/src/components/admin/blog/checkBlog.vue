@@ -34,7 +34,7 @@ const form = reactive(store.getters.getCheck.form);
 
 const categories = ref(store.getters.getCheck.categories);
 
-const content = ref(LZString.decompressFromBase64(form.content));
+const content = ref(form.content);
 
 const getCategoryLabel = (categoryId: any) => {
   const category = categories.value.find(

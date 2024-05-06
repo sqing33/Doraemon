@@ -25,9 +25,9 @@
         />
       </template>
     </el-table-column>
-    <el-table-column prop="createTime" label="注册时间">
+    <el-table-column prop="create_time" label="注册时间">
       <template #default="scope">
-        <span>{{ timeConvert(scope.row.createTime) }}</span>
+        <span>{{ timeConvert(scope.row.create_time) }}</span>
       </template>
     </el-table-column>
     <el-table-column prop="phone" label="手机号" width="175" />

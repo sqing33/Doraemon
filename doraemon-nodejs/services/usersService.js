@@ -1,12 +1,21 @@
 const { mysqlDb } = require("../db");
 
 // 用户注册
-const registUser = (user, callback) => {
+const registUser = (
+  id,
+  username,
+  password,
+  nickname,
+  phone,
+  email,
+  create_time,
+  callback
+) => {
   const sql =
-    "INSERT INTO users (username, password, nickname, email, phone) VALUES (?,?,?,?,?)";
+    "INSERT INTO users (id, username, password, nickname, phone, email, create_time) VALUES (?,?,?,?,?,?,?)";
   mysqlDb.query(
     sql,
-    [user.username, user.password, user.nickname, user.email, user.phone],
+    [id, username, password, nickname, phone, email, create_time],
     (err, result) => {
       if (err) {
         callback(err, null);
@@ -20,7 +29,7 @@ const registUser = (user, callback) => {
 // 用户登录
 const loginUser = (user, callback) => {
   const sql =
-    "SELECT id, username, nickname, avatar, createTime, phone, email, gender, birthday FROM users WHERE username = ? OR phone = ? OR email = ? AND password = ?";
+    "SELECT id, username, nickname, avatar, create_time, phone, email, gender, birthday FROM users WHERE username = ? OR phone = ? OR email = ? AND password = ?";
   mysqlDb.query(
     sql,
     [user.username, user.phone, user.email, user.password],
@@ -41,7 +50,7 @@ const loginUser = (user, callback) => {
 // 用户信息
 const getUserInfo = (username, callback) => {
   const sql =
-    "SELECT username, nickname, avatar, createTime, phone, email, gender, birthday FROM users WHERE username = ?";
+    "SELECT username, nickname, avatar, create_time, phone, email, gender, birthday FROM users WHERE username = ?";
   mysqlDb.query(sql, [username], (err, result) => {
     if (err) {
       callback(err, null);
@@ -54,7 +63,7 @@ const getUserInfo = (username, callback) => {
 // 管理员管理
 const getUsers = (callback) => {
   const sql =
-    "SELECT username, nickname, avatar, createTime, phone, email, gender, birthday FROM users";
+    "SELECT username, nickname, avatar, create_time, phone, email, gender, birthday FROM users";
   mysqlDb.query(sql, (err, result) => {
     if (err) {
       callback(err, null);

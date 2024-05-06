@@ -22,7 +22,7 @@
               取消
             </el-button>
           </router-link>
-        </div> 
+        </div>
       </template>
     </ElementForm>
   </div>
@@ -36,8 +36,11 @@ import axios from "axios";
 import LZString from "lz-string";
 import ElementForm from "@/utils/ElementForm.vue";
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 
 const store = useStore();
+
+const router = useRouter();
 
 const categories = ref();
 
@@ -45,7 +48,7 @@ const formItems = reactive([
   {
     label: "标题",
     type: "input",
-    placeholder: "请输入新闻标题",
+    placeholder: "请输入标题",
     prop: "title",
     style: ["width: 45vw"],
   },
@@ -53,7 +56,7 @@ const formItems = reactive([
     label: "类型",
     type: "select",
     placeholder: "请选择类型",
-    prop: "region",
+    prop: "category_id",
     style: ["width: 15vw"],
     options: categories,
   },
@@ -62,7 +65,7 @@ const formItems = reactive([
     type: "textarea",
     placeholder: "请输入新闻内容",
     prop: "content",
-    style: ["height: 40vh", "width: 90%"],
+    style: ["height: 30vh", "width: 90%"],
   },
   {
     label: "封面",
@@ -114,7 +117,7 @@ onMounted(() => {
 
 const onSubmit = () => {
   form.coverUrl = store.getters.getElementImageUrl;
-  form.content = LZString.compressToBase64(store.getters.getRichTextEditor);
+  form.content = store.getters.getRichTextEditor;
   form.publisher_id = store.getters.getUserInfo.id;
 
   console.log(form);
@@ -126,6 +129,10 @@ const onSubmit = () => {
         type: "success",
         message: "发布成功!",
       });
+      form.value = "";
+      store.commit("setElementImageUrl", "");
+      store.commit("setRichTextEditor", "");
+      router.push("/blog");
     })
     .catch((error) => {
       console.error(error);
@@ -133,7 +140,12 @@ const onSubmit = () => {
     });
 };
 
-const onCancel = () => {};
+const onCancel = () => {
+  form.value = "";
+  store.commit("setElementImageUrl", "");
+  store.commit("setRichTextEditor", "");
+  router.push("/blog");
+};
 </script>
 
 <style lang="scss" scoped></style>

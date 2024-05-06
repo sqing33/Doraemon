@@ -151,7 +151,6 @@ const rules = {
 };
 
 const postCode = async () => {
-  console.log(form.value);
   await axios
     .post(InterfaceUrl + "/user/emailCode", null, {
       params: {
@@ -159,7 +158,6 @@ const postCode = async () => {
       },
     })
     .then((res) => {
-      console.log(res);
       ElMessage.success("验证码发送成功!");
     })
     .catch((error) => {

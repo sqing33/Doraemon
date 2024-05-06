@@ -107,7 +107,7 @@ onMounted(() => {
     .then((response) => {
       const data = response.data;
       form.data = data.data;
-      form.data.content = LZString.decompressFromBase64(form.data.content);
+      form.data.content = form.data.content;
       form.data.date = dateFunction(form.data.date);
     })
     .catch((error) => {
@@ -195,6 +195,16 @@ const copyToClipboard = (text: string) => {
   .news-intro {
     margin: 10px;
     width: 94%;
+  }
+}
+</style>
+
+<style lang="scss">
+@media (max-width: 1000px) {
+  .news-intro {
+    img {
+      width: 85vw !important;
+    }
   }
 }
 </style>

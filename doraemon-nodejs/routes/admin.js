@@ -16,11 +16,11 @@ router.post("/blog/categoryInsert", blogController.insertBlogCategories);
 router.get("/blog/categories", blogController.getBlogCategories);
 
 // news管理--新增新闻
-router.post("/newsInsert", newsController.insertNews);
+router.post("/news/insert", newsController.insertNews);
 // news管理--删除新闻
-// router.post("/newsDelete", newsController.deleteNews);
+router.post("/news/delete", newsController.deleteNews);
 // news管理--修改新闻
-router.post("/newsUpdate", newsController.updateNews);
+router.post("/news/update", newsController.updateNews);
 // news管理--查询新闻--条件筛选
 router.post("/news", newsController.getNews);
 // news管理--查询新闻分类
@@ -30,7 +30,7 @@ router.get("/news/categories", newsController.getNewsCategories);
 router.get("/users", usersController.getUsers);
 
 // 图片上传
-router.post("/upload", upload.single("file"), newsController.upload);
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, "public/images/news");
@@ -54,5 +54,6 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
+router.post("/upload", upload.single("file"), newsController.upload);
 
 module.exports = router;

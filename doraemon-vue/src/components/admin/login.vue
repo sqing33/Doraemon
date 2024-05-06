@@ -46,9 +46,9 @@ const rules = {
 };
 
 const login = () => {
-  //if (form.username === 'admin' || form.password === 'admin') {
-  router.push("/admin");
-  //}
+  if (form.username === "admin" || form.password === "admin") {
+    router.push("/admin");
+  }
 };
 </script>
 

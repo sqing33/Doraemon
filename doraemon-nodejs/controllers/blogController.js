@@ -1,15 +1,24 @@
 const blogService = require("../services/blogService");
+const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
+const dateFunction = require("../utils/Date");
 
 // 新增
 const insertBlog = (req, res, next) => {
-  const { title, content, region, coverUrl, publsher_id } = req.body;
-  const categoryId = region;
+  const { title, content, category_id, coverUrl, publisher_id } = req.body;
+
+  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
+  const id = snowFlakeId.NextId();
+
+  const create_time = dateFunction();
+
   blogService.insertBlog(
+    id,
     title,
     content,
-    categoryId,
+    category_id,
     coverUrl,
-    publsher_id,
+    publisher_id,
+    create_time,
     (err, result) => {
       if (err) {
         return res.send({ state: 1, message: err });
@@ -33,8 +42,6 @@ const deleteBlog = (req, res, next) => {
 // 查询--条件筛选
 const getBlog = (req, res, next) => {
   let { keyword, categoryId, create_time, page, pageSize, length } = req.query;
-
-  console.log(req.query);
 
   page = page == null ? 1 : page;
   pageSize = pageSize == null ? null : pageSize;

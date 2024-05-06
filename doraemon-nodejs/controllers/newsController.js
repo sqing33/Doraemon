@@ -1,5 +1,6 @@
 const newsService = require("../services/newsService");
 const dateFunction = require("../utils/Date");
+const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
 
 // 查询--条件筛选
 const getNews = (req, res, next) => {
@@ -53,23 +54,38 @@ const getNewsCategories = (req, res, next) => {
 
 // 新增新闻
 const insertNews = (req, res, next) => {
-  const { title, content, coverUrl, region, publisher, date, status } =
-    req.body;
-  const news = {
+  const { title, content, coverUrl, category_id, state } = req.body;
+
+  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
+  const id = snowFlakeId.NextId();
+
+  const date = dateFunction();
+
+  newsService.insertNews(
+    id,
     title,
     content,
     coverUrl,
-    region,
-    publisher,
-    date: dateFunction(),
-    status,
-  };
+    category_id,
+    date,
+    state,
+    (err, result) => {
+      if (err) {
+        return res.send({ state: 1, message: err });
+      }
+      return res.send({ state: 0, message: "新增成功", data: result });
+    }
+  );
+};
 
-  newsService.insertNews(news, (err, result) => {
+// 删除新闻
+const deleteNews = (req, res, next) => {
+  const id = req.body.id;
+  newsService.deleteNews(id, (err, result) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
-    return res.send({ state: 0, message: "新增成功", data: result });
+    return res.send({ state: 0, message: "删除成功", data: result });
   });
 };
 
@@ -115,6 +131,7 @@ module.exports = {
   getNewsById,
   getNewsCategories,
   insertNews,
+  deleteNews,
   updateNews,
   upload,
 };

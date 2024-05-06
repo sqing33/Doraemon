@@ -35,7 +35,6 @@ const getNews = (
   let whereSqlStr = "";
   if (sqlCondition.length > 0) {
     whereSqlStr = " WHERE " + sqlCondition.join(" AND ");
-    console.log(whereSqlStr);
   }
 
   let sql;
@@ -61,9 +60,9 @@ const getNews = (
       newsArr = result;
     } else if (length) {
       newsArr = result.map((item) => {
-        item.content = LZString.decompressFromBase64(item.content);
+        //item.content = LZString.decompressFromBase64(item.content);
         item.content = item.content.slice(0, 99) + "...";
-        item.content = LZString.compressToBase64(item.content);
+        //item.content = LZString.compressToBase64(item.content);
         return item;
       });
     }
@@ -111,20 +110,21 @@ const getNewsCategories = (callback) => {
 };
 
 // 新增新闻
-const insertNews = (news, callback) => {
+const insertNews = (
+  id,
+  title,
+  content,
+  coverUrl,
+  category_id,
+  create_time,
+  state,
+  callback
+) => {
   const sql =
-    "INSERT INTO news (title, content, coverUrl, region, publisher, date, status) VALUES (?,?,?,?,?,?,?)";
+    "INSERT INTO news (id, title, content, coverUrl, category_id, create_time, state) VALUES (?,?,?,?,?,?,?)";
   mysqlDb.query(
     sql,
-    [
-      news.title,
-      news.content,
-      news.coverUrl,
-      news.region,
-      news.publisher,
-      news.date,
-      news.status,
-    ],
+    [id, title, content, coverUrl, category_id, create_time, state],
     (err, result) => {
       if (err) {
         callback(err, null);
@@ -133,6 +133,18 @@ const insertNews = (news, callback) => {
       callback(null, result.insertId);
     }
   );
+};
+
+// 删除新闻
+const deleteNews = (id, callback) => {
+  const sql = "DELETE FROM news WHERE id = ?";
+  mysqlDb.query(sql, [id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result.affectedRows);
+  });
 };
 
 // 更新新闻
@@ -166,5 +178,6 @@ module.exports = {
   getNewsById,
   getNewsCategories,
   insertNews,
+  deleteNews,
   updateNews,
 };

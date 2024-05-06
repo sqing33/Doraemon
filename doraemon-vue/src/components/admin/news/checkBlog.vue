@@ -22,7 +22,9 @@ const store = useStore();
 
 const categories = ref(store.getters.getCheck.categories);
 
-const form = reactive(store.getters.getCheck.form);
+const getForm = store.getters.getCheck.form;
+
+const form = reactive(getForm);
 
 const formItems = reactive([
   {
@@ -46,7 +48,7 @@ const formItems = reactive([
     style: ["width: 150px"],
   },
   {
-    label: "封面",
+    label: "更换封面",
     type: "upload",
     prop: form.coverUrl,
     style: [],
@@ -75,9 +77,8 @@ const formConfig = {
 };
 
 const doUpdete = () => {
-  form.content = LZString.compressToBase64(form.content);
   axios
-    .post(InterfaceUrl + "/admin/newsUpdate", form)
+    .post(InterfaceUrl + "/admin/news/update", form)
     .then((res) => {
       ElMessage({
         type: "success",

@@ -133,7 +133,7 @@ const getBlogs = (
     })
     .then((res) => {
       blog.value = res.data.data.map((item: any) => {
-        item.content = LZString.decompressFromBase64(item.content);
+        item.content = item.content;
         item.create_time = dateFunction(item.create_time);
         return item;
       });

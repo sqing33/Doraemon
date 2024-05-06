@@ -97,20 +97,29 @@
               <el-menu-item>
                 <el-dropdown>
                   <span class="el-dropdown-link" style="outline: none">
-                    <div v-if="userInfo">
-                      <img :src="userInfo.avatar" alt="" />
-                      <span>
-                        {{ userInfo.username }}
-                      </span>
-                    </div>
-                    <div v-else>
-                      <img src="../assets/avatar/2.jpg" alt="" />
-                      <span> 登录/注册 </span>
+                    <div>
+                      <div>
+                        <img
+                          v-if="userInfo.avatar"
+                          :src="userInfo.avatar"
+                          alt=""
+                        />
+                        <img v-else src="../assets/avatar/2.jpg" alt="" />
+                      </div>
+                      <div>
+                        <span v-if="userInfo.nickname">
+                          {{ userInfo.nickname }}
+                        </span>
+                        <span v-else> 登录/注册 </span>
+                      </div>
                     </div>
                   </span>
                   <template #dropdown>
                     <el-dropdown-menu>
-                      <router-link to="/login" v-if="isLoading">
+                      <router-link
+                        to="/login"
+                        v-if="userInfo.isLogining === false"
+                      >
                         <el-dropdown-item>登录/注册</el-dropdown-item>
                       </router-link>
                       <el-dropdown-item @click="goToUserInfo">
@@ -122,7 +131,11 @@
                       <router-link to="/adminLogin">
                         <el-dropdown-item divided>管理员登录</el-dropdown-item>
                       </router-link>
-                      <router-link to="" v-if="!isLoading" @click="logout">
+                      <router-link
+                        to=""
+                        v-if="userInfo.isLogining === true"
+                        @click="logout"
+                      >
                         <el-dropdown-item divided>退出登录</el-dropdown-item>
                       </router-link>
                     </el-dropdown-menu>
@@ -148,7 +161,7 @@
 </template>
 
 <script setup>
-import { ref, watch, computed } from "vue";
+import { ref, reactive, watch, computed, watchEffect } from "vue";
 import {
   ArrowDown,
   Avatar,
@@ -167,7 +180,19 @@ import { useStore } from "vuex";
 
 const store = useStore();
 
-const userInfo = store.getters.getUserInfo;
+const userInfo = reactive({
+  nickname: "",
+  avatar: "",
+  isLogining: false,
+});
+
+watchEffect(() => {
+  const newUserInfo = store.getters.getUserInfo;
+  Object.assign(userInfo, newUserInfo); // 将新用户信息的所有属性复制到 userInfo 中
+  if (userInfo.nickname) {
+    userInfo.isLogining = true;
+  }
+});
 
 const route = useRoute();
 const router = useRouter();
@@ -194,13 +219,9 @@ watch(route, (to) => {
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
 });
 
-const isLoading = computed(() => {
-  return localStorage.getItem("token") ? false : true;
-});
-
 const logout = () => {
   localStorage.removeItem("token");
-  store.dispatch("setUserInfoFromAxios", "");
+  localStorage.removeItem("vuex");
   router.go(0);
 };
 
@@ -242,7 +263,6 @@ li {
 
 .el-dropdown-link {
   div {
-    width: 120px;
     height: 35px;
     display: flex;
     align-items: center;

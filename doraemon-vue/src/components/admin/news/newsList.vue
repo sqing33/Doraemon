@@ -38,7 +38,7 @@
         {{ (pagination.page - 1) * pagination.size + $index + 1 }}
       </template>
     </el-table-column>
-    <el-table-column type="id" label="ID" width="75" />
+    <el-table-column prop="id" label="ID" width="150" />
     <el-table-column prop="title" label="标题" width="auto" />
     <el-table-column prop="coverUrl" label="封面" width="200">
       <template #default="scope">
@@ -81,7 +81,7 @@
           <el-button
             style="margin: 5px 0 0 0"
             type="danger"
-            @click="doDelete(scope.row.id)"
+            @click="doDelete(scope.row.id, scope.row.title)"
             >删除
           </el-button>
         </div>
@@ -113,7 +113,7 @@
 
 <script lang="ts" setup>
 import axios from "axios";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import { onMounted, reactive, ref } from "vue";
 import { InterfaceUrl } from "@/api";
 import dateFunction from "@/utils/Date";
@@ -223,7 +223,6 @@ const search = () => {
       date.getMonth() + 1
     }-${date.getDate()}`;
   }
-  console.log(searchValues);
   getNews(searchValues.keyword, searchValues.category, searchValues.date);
 };
 
@@ -262,12 +261,33 @@ const dialogVisible = ref(false);
 const doCheck = (id: number) => {
   const checkForm = news.value.find((item: any) => item.id === id);
   checkForm.state = Boolean(checkForm.state === "false" ? "" : "true");
-  store.dispatch(
-    "setRichTextEditor",
-    LZString.decompressFromBase64(checkForm.content)
-  );
+  store.dispatch("setRichTextEditor", checkForm.content);
   store.dispatch("setCheck", { form: checkForm, categories });
   dialogVisible.value = true;
+};
+
+const doDelete = (id: number, title: string) => {
+  ElMessageBox.confirm("是否确定要删除新闻[" + title + "]?", "确认删除", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+    axios
+      .post(InterfaceUrl + "/admin/news/delete", { id })
+      .then((response) => {
+        const data = response.data;
+        if (data.state === 0) {
+          ElMessage.success("删除成功");
+          getNews();
+        } else {
+          console.error(data.message);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+  });
 };
 </script>
 

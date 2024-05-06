@@ -5,10 +5,12 @@ const jwt = require("jsonwebtoken");
 const jwtKey = require("../utils/jwtKey");
 const { redisDb } = require("../db");
 const _ = require("lodash");
+const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
+const dateFunction = require("../utils/Date");
 
 // 获取邮箱验证码
 const postCode = (req, res, next) => {
-  const code = _.random(0, 999999).toString();
+  const code = _.random(0, 999999).toString().padStart(6, "0");
   const email = req.query.email;
 
   emailService.sendVerificationCode(email, code, (err, result) => {
@@ -47,13 +49,10 @@ const registUser = (req, res, next) => {
 
   //const hashedPassword = bcrypt.hashSync(password, 10);
 
-  const user = {
-    username,
-    password,
-    nickname,
-    phone,
-    email,
-  };
+  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
+  const id = snowFlakeId.NextId();
+
+  const create_time = dateFunction();
 
   redisDb
     .connect()
@@ -69,12 +68,21 @@ const registUser = (req, res, next) => {
         return res.send({ state: 1, message: "验证码错误" });
       } else {
         // 注册用户
-        usersService.registUser(user, (err, result) => {
-          if (err) {
-            return res.send({ state: 1, message: err });
+        usersService.registUser(
+          id,
+          username,
+          password,
+          nickname,
+          phone,
+          email,
+          create_time,
+          (err, result) => {
+            if (err) {
+              return res.send({ state: 1, message: err });
+            }
+            return res.send({ state: 0, message: "新增成功", data: result });
           }
-          return res.send({ state: 0, message: "新增成功", data: result });
-        });
+        );
       }
     })
     .catch((error) => {
