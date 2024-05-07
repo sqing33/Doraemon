@@ -59,6 +59,11 @@
           <el-menu-item index="/admin/news/addNews"> 发布新闻 </el-menu-item>
           <el-menu-item index="/admin/news/newsList"> 新闻列表 </el-menu-item>
         </el-sub-menu>
+
+        <el-menu-item index="/admin/chart">
+          <el-icon><PieChart /></el-icon>
+          数据统计
+        </el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>
@@ -142,6 +147,7 @@ import {
   ChatLineSquare,
   Tickets,
   User,
+  PieChart,
 } from "@element-plus/icons-vue";
 import { computed, ref } from "vue";
 import { useRoute } from "vue-router";

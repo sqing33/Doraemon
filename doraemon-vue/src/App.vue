@@ -1,11 +1,9 @@
 <template>
   <index />
-  <CopyrightIcp />
 </template>
 
 <script setup>
 import Index from "@/views/index.vue";
-import CopyrightIcp from "@/components/copyright-icp.vue";
 </script>
 
 <style>

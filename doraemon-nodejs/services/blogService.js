@@ -48,7 +48,6 @@ const getBlog = (
   categoryId,
   keyword,
   create_time,
-  length,
   callback
 ) => {
   let sqlParams = [];
@@ -94,16 +93,7 @@ const getBlog = (
       return;
     }
 
-    if (length === 0) {
-      blogArr = result;
-    } else if (length) {
-      blogArr = result.map((item) => {
-        //item.content = LZString.decompressFromBase64(item.content);
-        item.content = item.content.slice(0, 99) + "...";
-        //item.content = LZString.compressToBase64(item.content);
-        return item;
-      });
-    }
+    blogArr = result;
 
     if (page == 1 && pageSize == null) {
       callback(null, blogArr);

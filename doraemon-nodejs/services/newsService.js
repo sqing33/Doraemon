@@ -10,7 +10,6 @@ const getNews = (
   categoryId,
   keyword,
   create_time,
-  length,
   callback
 ) => {
   let sqlParams = [];
@@ -42,7 +41,7 @@ const getNews = (
   if (pageSize !== null) {
     sql = " SELECT * FROM news " + whereSqlStr + " LIMIT ?,? ";
   } else if (page == 1 && pageSize == null) {
-    sql = " SELECT * FROM news ";
+    sql = " SELECT * FROM news " + whereSqlStr;
   }
 
   let params = sqlParams.concat([(page - 1) * pageSize, parseInt(pageSize)]);
@@ -56,16 +55,7 @@ const getNews = (
       return;
     }
 
-    if (length === 0) {
-      newsArr = result;
-    } else if (length) {
-      newsArr = result.map((item) => {
-        //item.content = LZString.decompressFromBase64(item.content);
-        item.content = item.content.slice(0, 99) + "...";
-        //item.content = LZString.compressToBase64(item.content);
-        return item;
-      });
-    }
+    newsArr = result;
 
     if (page == 1 && pageSize == null) {
       callback(null, newsArr);

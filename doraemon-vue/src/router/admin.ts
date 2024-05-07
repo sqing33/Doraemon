@@ -79,6 +79,15 @@ const adminRoutes: RouteRecordRaw[] = [
           },
         ],
       },
+      {
+        path: "chart",
+        meta: {
+          title: "数据统计",
+        },
+        component: defineAsyncComponent(
+          () => import("@/components/admin/chart.vue")
+        ),
+      },
     ],
   },
 ];

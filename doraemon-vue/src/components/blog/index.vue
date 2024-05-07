@@ -1,123 +1,192 @@
 <template>
-  <el-row :gutter="10" style="margin: 0" id="blog">
-    <el-col :sm="4" :xs="24" class="hidden-xs-only">
-      <el-affix :offset="145" style="width: 100%; height: 40vh">
-        <div
-          style="
-            min-height: 50vh;
-            margin: 0 20px;
-            padding: 20px 0;
-            background-color: rgb(240, 244, 255, 0.5);
-            border-radius: 20px;
-          "
-        >
-          <h3 style="text-align: center; margin-bottom: 20px">分类</h3>
-          <div style="width: 100px; margin: 0 auto">
-            <el-check-tag
-              :checked="tagChecked == null"
-              type="primary"
-              @click="tagCheck()"
-            >
-              <span style="font: 1.2em sans-serif; margin: auto">全部</span>
-            </el-check-tag>
-
-            <el-check-tag
-              :checked="tagChecked === item.id"
-              type="primary"
-              v-for="(item, index) in categories"
-              :key="index"
-              @click="tagCheck(item.id)"
-            >
-              <span style="font: 1.2em sans-serif; margin: auto">{{
-                item.name
-              }}</span>
-            </el-check-tag>
-          </div>
-        </div>
-      </el-affix>
-    </el-col>
-    <el-col :sm="15" :xs="24" class="affix-container">
-      <el-affix
-        target=".affix-container"
-        :offset="50"
-        style="height: 100px; width: 110%; position: relative; left: -5%"
-      >
-        <div class="search-write">
-          <div style="margin-left: 45px">
-            <el-input
-              v-model="keyword"
-              style="width: 350px; margin-right: 10px"
-              placeholder="请输入搜索内容..."
-              clearable
-              size="large"
-            />
-            <el-button type="primary" size="large" plain @click="search">
-              <span style="margin: 0; font-size: 1.3em">搜索</span>
-            </el-button>
-          </div>
-
-          <el-button
-            type="primary"
-            size="large"
-            @click="writeBlog"
-            round
-            style="margin-right: 45px"
+  <el-row :gutter="10" class="blog-container">
+    <!-- 上左轮播新闻 -->
+    <el-col :xs="24" :sm="10">
+      <div class="blog-carousel" style="height: 40vh">
+        <el-carousel arrow="always" height="40vh" v-if="blog">
+          <el-carousel-item
+            v-for="(form, index) in blog.slice(0, 5)"
+            :key="index"
+            @click="doGoToblogPage(form.id)"
           >
-            <span style="margin: 0; font-size: 1.3em">发表帖子</span>
+            <img :src="form.coverUrl" alt="" />
+          </el-carousel-item>
+        </el-carousel>
+      </div>
+    </el-col>
+
+    <!-- 上右热点新闻 -->
+    <el-col :xs="24" :sm="14">
+      <div
+        class="blog-hot"
+        style="
+          text-align: left;
+          background-color: rgba(242, 242, 242, 0.3);
+          height: 40vh;
+        "
+      >
+        <h3>热帖</h3>
+        <ul style="padding: 10px 0; list-style: none" v-if="blog">
+          <li
+            v-for="(form, index) in blog.slice(0, 5)"
+            :key="index"
+            style="height: 42px"
+          >
+            <h6>
+              <span
+                style="
+                  display: inline-block;
+                  width: 30px;
+                  text-align: center;
+                  transform: translateY(1px);
+                  cursor: pointer;
+                "
+              >
+                {{ index + 1 + ". " }}
+              </span>
+              <span @click="doGoToblogPage(form.id)">
+                {{ form.title }}
+              </span>
+            </h6>
+          </li>
+        </ul>
+      </div>
+    </el-col>
+
+    <!-- 下方筛选搜索 -->
+    <el-col :span="24">
+      <div class="search-write">
+        <div style="margin-left: 45px">
+          <el-input
+            v-model="keyword"
+            style="width: 350px; margin-right: 10px"
+            placeholder="请输入搜索内容..."
+            clearable
+            size="large"
+          />
+          <el-button type="primary" size="large" plain @click="search">
+            <span style="margin: 0; font-size: 1.3em">搜索</span>
           </el-button>
         </div>
-      </el-affix>
 
-      <el-card
-        style="width: 100%; margin-bottom: 10px"
-        shadow="hover"
-        v-for="(item, index) in blog"
-        :key="index"
-        @click="doGoToBlogPage(item.id)"
-      >
-        <template #header>{{ item.title }}</template>
-        <div style="display: flex; align-items: center">
-          <img :src="item.coverUrl" style="width: 15vw; max-width: 100px" />
-          <div v-html="item.content" style="margin-left: 10px"></div>
-        </div>
-        <template #footer>{{ item.create_time }}</template>
-      </el-card>
+        <el-select
+          v-model="categoriesChecked"
+          placeholder="分类"
+          style="width: 240px"
+          size="large"
+          @change="getBlog(categoriesChecked)"
+        >
+          <el-option label="全部" value="" />
+          <el-option
+            v-for="item in categories"
+            :key="item.id"
+            :label="item.name"
+            :value="item.id"
+          />
+        </el-select>
+
+        <el-button
+          type="primary"
+          size="large"
+          @click="writeBlog"
+          round
+          style="margin-right: 45px"
+        >
+          <span style="margin: 0; font-size: 1.3em">发表帖子</span>
+        </el-button>
+      </div>
     </el-col>
-    <el-col :sm="5" class="hidden-xs-only">
-      <el-affix :offset="145"> 推荐 </el-affix>
+
+    <!-- 下方新闻列表 -->
+    <el-col :span="24">
+      <el-row class="blog-list">
+        <el-col
+          :xs="24"
+          :sm="8"
+          v-for="(form, index) in blog"
+          :key="index"
+          style="max-width: 100vw"
+        >
+          <el-card
+            style="margin: 5px 5px"
+            shadow="hover"
+            @click="doGoToblogPage(form.id)"
+          >
+            <template #header>
+              <div style="height: 45px; text-align: center">
+                {{ form.title }}
+              </div>
+            </template>
+            <img
+              :src="form.coverUrl"
+              style="
+                height: 225px;
+                max-width: 100%;
+                object-fit: contain;
+                position: relative;
+                left: 50%;
+                transform: translateX(-50%);
+              "
+              alt=""
+            />
+            <template #footer>
+              <div style="display: flex; justify-content: space-between">
+                <!-- <strong>
+                  [{{
+                    form.region === "1"
+                      ? "新闻"
+                      : form.region === "2"
+                      ? "活动"
+                      : form.region === "3"
+                      ? "公告"
+                      : "未知"
+                  }}]
+                </strong> -->
+                <div>
+                  <!-- <span style="font-size: 0.8em">
+                    {{
+                      form.publisher === "1"
+                        ? "张三"
+                        : form.publisher === "2"
+                        ? "李四"
+                        : form.publisher === "3"
+                        ? "王五"
+                        : "未知"
+                    }}
+                  </span> -->
+                  <span style="margin-left: 10px; font-size: 0.8em">
+                    {{ form.create_time }}
+                  </span>
+                </div>
+              </div>
+            </template>
+          </el-card>
+        </el-col>
+      </el-row>
     </el-col>
   </el-row>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import { InterfaceUrl } from "@/api";
 import { useRouter } from "vue-router";
-import LZString from "lz-string";
 import dateFunction from "@/utils/Date";
-
-const router = useRouter();
+import LZString from "lz-string";
 
 const blog = ref();
 
 const categories = ref();
 
-const tagChecked = ref();
+const categoriesChecked = ref();
 
-const tagCheck = (id?: number) => {
-  tagChecked.value = id;
-  getBlogs(id);
-};
+const router = useRouter();
 
 const keyword = ref();
 
-const search = () => {
-  getBlogs(null, keyword.value);
-};
-
-const getBlogs = (
+const getBlog = (
   categoryId: number | null = null,
   keyword: string | null = null
 ) => {
@@ -145,7 +214,7 @@ const getBlogs = (
 };
 
 onMounted(() => {
-  getBlogs();
+  getBlog();
   axios
     .get(InterfaceUrl + "/blog/categories")
     .then((res) => {
@@ -154,6 +223,7 @@ onMounted(() => {
         .map((item: any) => {
           return item;
         });
+      console.log(categories.value);
     })
     .catch((error) => {
       console.log(error);
@@ -161,7 +231,11 @@ onMounted(() => {
     });
 });
 
-const doGoToBlogPage = (id: string) => {
+const search = () => {
+  getBlog(null, keyword.value);
+};
+
+const doGoToblogPage = (id: string) => {
   router.push({ name: "blogPage", params: { id } });
 };
 
@@ -171,20 +245,46 @@ const writeBlog = () => {
 </script>
 
 <style lang="scss" scoped>
-#blog {
-  .el-affix {
-    @media screen and (max-width: 768px) {
-      width: 100% !important;
-      left: 0 !important;
+.blog-container {
+  .el-carousel {
+    img {
+      width: auto;
+      height: 100%;
+      position: relative;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @media (max-width: 1000px) {
+      img {
+        width: 100%;
+        height: auto;
+      }
     }
   }
 
-  .el-check-tag {
-    display: flex;
-    width: 100px;
-    height: 50px;
+  .blog-carousel,
+  .blog-hot,
+  .blog-list {
     margin-bottom: 10px;
-    padding: 0;
+  }
+
+  :deep(.el-card__header),
+  :deep(.el-card__body),
+  :deep(.el-card__footer) {
+    padding: 10px;
+  }
+
+  @media screen and (min-width: 768px) {
+    width: 1200px;
+    margin: 0 auto !important;
+
+    .blog-carousel,
+    .blog-hot,
+    .blog-list {
+      margin: 10px;
+    }
   }
 
   .search-write {

@@ -1,156 +1,95 @@
 <template>
-  <el-row :gutter="10" class="news-container">
-    <!-- 上左轮播新闻 -->
-    <el-col :xs="24" :sm="10">
-      <div class="news-carousel" style="height: 40vh">
-        <el-carousel arrow="always" height="40vh" v-if="news">
-          <el-carousel-item
-            v-for="(form, index) in news.slice(0, 5)"
-            :key="index"
-            @click="doGoToNewsPage(form.id)"
-          >
-            <img :src="form.coverUrl" alt="" />
-          </el-carousel-item>
-        </el-carousel>
+  <div id="news">
+    <div class="news-head">
+      <div class="logo">
+        <img alt="logo" src="../../../public/icon.png" />
+        哆啦新闻
       </div>
-    </el-col>
 
-    <!-- 上右热点新闻 -->
-    <el-col :xs="24" :sm="14">
-      <div
-        class="news-hot"
-        style="
-          text-align: left;
-          background-color: rgba(242, 242, 242, 0.3);
-          height: 40vh;
-        "
-      >
-        <h3>热点新闻</h3>
-        <ul style="padding: 10px 0; list-style: none" v-if="news">
-          <li
-            v-for="(form, index) in news.slice(0, 5)"
-            :key="index"
-            style="height: 42px"
-          >
-            <h6>
-              <span
-                style="
-                  display: inline-block;
-                  width: 30px;
-                  text-align: center;
-                  transform: translateY(1px);
-                  cursor: pointer;
-                "
-              >
-                {{ index + 1 + ". " }}
-              </span>
-              <span @click="doGoToNewsPage(form.id)">
-                {{ form.title }}
-              </span>
-            </h6>
-          </li>
-        </ul>
+      <div class="search">
+        <el-input v-model="keyword" style="width: 250px" placeholder="搜索">
+          <template #suffix>
+            <el-icon class="el-input__icon" @click="search"><Search /></el-icon>
+          </template>
+        </el-input>
       </div>
-    </el-col>
+    </div>
 
-    <!-- 下方新闻列表 -->
-    <el-col :span="24">
-      <el-row class="news-list">
-        <!-- 分类、搜索 -->
-        <!-- <el-col
-          :span="24"
-          style="
-            height: 100px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
-          <div style="margin-left: 30px">分类</div>
-          <div style="margin-right: 30px">搜索</div>
-        </el-col> -->
+    <div class="news-categories">
+      <div>分类：</div>
+      <div class="categories">
+        <span @click="category(null)">全部</span>
+        <span v-for="item in categories" :key="item.id">
+          <div @click="category(item.id)">{{ item.name }}</div>
+        </span>
+      </div>
+    </div>
 
-        <el-col
-          :xs="24"
-          :sm="8"
-          v-for="(form, index) in news"
-          :key="index"
-          style="max-width: 100vw"
-        >
-          <el-card
-            style="margin: 5px 5px"
-            shadow="hover"
-            @click="doGoToNewsPage(form.id)"
-          >
-            <template #header>
-              <div style="height: 45px; text-align: center">
-                {{ form.title }}
-              </div>
-            </template>
-            <img
-              :src="form.coverUrl"
+    <div class="news-container">
+      <div class="card" v-for="item in news" :key="item.id">
+        <div style="display: flex" @click="doGoToNewsPage(item.id)">
+          <img
+            :src="item.coverUrl"
+            alt=""
+            style="height: 100px; margin-right: 20px"
+          />
+          <div style="position: relative; width: 100%">
+            <div>{{ item.title }}</div>
+            <div
               style="
-                height: 225px;
-                max-width: 100%;
-                object-fit: contain;
-                position: relative;
-                left: 50%;
-                transform: translateX(-50%);
+                display: flex;
+                position: absolute;
+                bottom: 0;
+                right: 0;
+                font-size: 14px;
               "
-              alt=""
-            />
-            <template #footer>
-              <div style="display: flex; justify-content: space-between">
-                <!-- <strong>
-                  [{{
-                    form.region === "1"
-                      ? "新闻"
-                      : form.region === "2"
-                      ? "活动"
-                      : form.region === "3"
-                      ? "公告"
-                      : "未知"
-                  }}]
-                </strong> -->
-                <div>
-                  <!-- <span style="font-size: 0.8em">
-                    {{
-                      form.publisher === "1"
-                        ? "张三"
-                        : form.publisher === "2"
-                        ? "李四"
-                        : form.publisher === "3"
-                        ? "王五"
-                        : "未知"
-                    }}
-                  </span> -->
-                  <span style="margin-left: 10px; font-size: 0.8em">
-                    {{ form.create_time }}
-                  </span>
-                </div>
+            >
+              <div style="margin-right: 20px">
+                {{ toCategory(item.category_id) }}
               </div>
-            </template>
-          </el-card>
-        </el-col>
-      </el-row>
-    </el-col>
-  </el-row>
+              <div>{{ item.create_time }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
 import { ElMessage } from "element-plus";
+import { Search } from "@element-plus/icons-vue";
 import { InterfaceUrl } from "@/api";
 import { useRouter } from "vue-router";
-import dateFunction from "@/utils/Date";
 import LZString from "lz-string";
+import dateFunction from "@/utils/Date";
+
+const router = useRouter();
 
 const news = ref();
 
 const categories = ref();
 
-const router = useRouter();
+const keyword = ref();
+
+
+
+const toCategory = (id: number) => {
+  const category = categories.value.find((item: any) => item.id === id);
+  return category ? category.name : "";
+};
+
+const search = () => {
+  getNews(null, keyword.value);
+};
+
+const category = (id: number | null) => {
+  getNews(id, null);
+};
 
 const getNews = (
   categoryId: number | null = null,
@@ -202,45 +141,67 @@ const doGoToNewsPage = (id: string) => {
 </script>
 
 <style lang="scss" scoped>
-.news-container {
-  .el-carousel {
-    img {
-      width: auto;
-      height: 100%;
-      position: relative;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-    }
 
-    @media (max-width: 1000px) {
+
+#news {
+  width: 60vw;
+  margin: 0 auto;
+
+  .news-head {
+    height: 50px;
+    margin: 20px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .logo {
+      font-size: 30px;
       img {
-        width: 100%;
-        height: auto;
+        height: 80px;
       }
     }
   }
 
-  .news-carousel,
-  .news-hot,
-  .news-list {
-    margin-bottom: 10px;
+  .news-categories {
+    display: flex;
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 10px 20px;
+    border-radius: 10px;
+
+    .categories {
+      display: flex;
+      font-size: 16px;
+      justify-content: space-between;
+      margin: 0 80px;
+
+      span {
+        width: 70px;
+        cursor: pointer;
+        padding: 5px 15px;
+        margin-left: 20px;
+        text-align: center;
+
+        &:hover {
+          background: #f5f5f5be;
+          border-radius: 5px;
+          color: rgb(98, 175, 249);
+          transition: all 0.3s ease-in-out;
+        }
+      }
+    }
   }
 
-  :deep(.el-card__header),
-  :deep(.el-card__body),
-  :deep(.el-card__footer) {
-    padding: 10px;
-  }
+  .news-container {
+    margin-top: 30px;
+    .card {
+      padding: 20px;
+      margin-bottom: 20px;
 
-  @media screen and (min-width: 768px) {
-    width: 1200px;
-    margin: 0 auto !important;
-
-    .news-carousel,
-    .news-hot,
-    .news-list {
-      margin: 10px;
+      &:hover {
+        transform: scale(1.02);
+        transition: all 0.3s ease-in-out;
+      }
     }
   }
 }

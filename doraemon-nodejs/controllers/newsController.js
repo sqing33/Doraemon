@@ -4,16 +4,13 @@ const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
 
 // 查询--条件筛选
 const getNews = (req, res, next) => {
-  let { keyword, categoryId, create_time, page, pageSize, length } = req.query;
-
-  console.log(req.query);
+  let { keyword, categoryId, create_time, page, pageSize } = req.query;
 
   page = page == null ? 1 : page;
   pageSize = pageSize == null ? null : pageSize;
   categoryId = categoryId == null ? 0 : categoryId;
   create_time = create_time == null ? "" : create_time;
   keyword = keyword == null ? "" : keyword;
-  length = length == null ? 0 : length;
 
   newsService.getNews(
     page,
@@ -21,7 +18,7 @@ const getNews = (req, res, next) => {
     categoryId,
     keyword,
     create_time,
-    length,
+
     (err, result) => {
       if (err) {
         return res.send({ state: 1, message: err });

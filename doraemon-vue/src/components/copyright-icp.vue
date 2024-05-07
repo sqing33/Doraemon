@@ -13,21 +13,16 @@ let record = "桂ICP备2024030188号-1";
 
 <style>
 .icp {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  margin: 10px 0;
-  width: 100%;
-  height: 20px;
-  white-space: pre;
   text-align: center;
   color: gray;
   z-index: 1000;
 }
+
 .icp > a {
   color: gray;
   text-decoration: none;
 }
+
 .icp > a:hover {
   color: aqua;
   text-decoration: none;

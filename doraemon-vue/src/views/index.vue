@@ -154,7 +154,10 @@
           'admin-page': AdminPage,
         }"
       >
-        <router-view></router-view>
+        <el-scrollbar>
+          <router-view style="min-height: 90vh"></router-view>
+          <CopyrightIcp />
+        </el-scrollbar>
       </el-main>
     </el-container>
   </div>
@@ -162,6 +165,8 @@
 
 <script setup>
 import { ref, reactive, watch, computed, watchEffect } from "vue";
+import CopyrightIcp from "@/components/copyright-icp.vue";
+
 import {
   ArrowDown,
   Avatar,

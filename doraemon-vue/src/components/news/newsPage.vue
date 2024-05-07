@@ -65,6 +65,43 @@
         收藏
       </div>
     </div>
+
+    <div class="comment">
+      <h4>评论</h4>
+
+      <div class="comment-list" v-for="comment in comments" :key="comment.id">
+        <div>
+          <div style="margin-bottom: 10px">
+            <strong>{{ comment.name }}</strong> 说：
+          </div>
+          <div style="margin-bottom: 10px; transform: translateX(10px)">
+            {{ comment.content }}
+          </div>
+          <div>{{ comment.create_time }}</div>
+        </div>
+        <div
+          style="position: absolute; right: 10px; bottom: 10px; display: flex"
+        >
+          <div style="height: 100%; display: flex">
+            <img
+              src="../../assets/likes.png"
+              alt=""
+              style="
+                height: 20px;
+                width: 20px;
+                border-radius: 0;
+                margin-right: 35px;
+              "
+            />
+            <div>点赞</div>
+          </div>
+          <div style="margin-left: 20px; display: flex">
+            <el-icon :size="20"><Warning /></el-icon>
+            <div>举报</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -73,7 +110,7 @@ import { defineProps, onMounted, reactive, ref } from "vue";
 import axios from "axios";
 import { InterfaceUrl } from "@/api";
 import { ElMessage } from "element-plus";
-import { Share, Star, Tickets } from "@element-plus/icons-vue";
+import { Share, Star, Tickets, Warning } from "@element-plus/icons-vue";
 import LZString from "lz-string";
 import dateFunction from "@/utils/Date";
 
@@ -83,6 +120,33 @@ const props = defineProps({
     required: true,
   },
 });
+
+const comments = [
+  {
+    id: 1,
+    name: "张三",
+    content: "这个产品真的很好！",
+    create_time: "2024-01-01",
+  },
+  {
+    id: 2,
+    name: "李四",
+    content: "我非常喜欢这个服务。",
+    create_time: "2024-01-01",
+  },
+  {
+    id: 3,
+    name: "张三",
+    content: "这个产品真的很好！",
+    create_time: "2024-01-01",
+  },
+  {
+    id: 4,
+    name: "李四",
+    content: "我非常喜欢这个服务。",
+    create_time: "2024-01-01",
+  },
+];
 
 interface NewsItem {
   title: string;
@@ -136,6 +200,22 @@ const copyToClipboard = (text: string) => {
 </script>
 
 <style lang="scss" scoped>
+.comment {
+  width: 70vw;
+  margin: 0 auto;
+
+  .comment-list {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+  }
+}
+
 .news-intro {
   margin: 20px 100px;
   padding: 20px;

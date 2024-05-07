@@ -123,12 +123,24 @@
         <img src="@/assets/12.jpg" alt="" class="beCenter img" />
       </el-col>
     </el-row>
+    <el-col
+      :span="24"
+      style="
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+      "
+    >
+      <CopyrightIcp />
+    </el-col>
   </div>
 </template>
 
 <script setup>
 import { onMounted, onUnmounted, ref, computed } from "vue";
 import { CaretBottom, CaretTop } from "@element-plus/icons-vue";
+import CopyrightIcp from "@/components/copyright-icp.vue";
 
 const carouselImgModules = import.meta.glob("@/assets/carousel/*.jpg", {
   eager: true,
