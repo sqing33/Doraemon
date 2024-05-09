@@ -2,33 +2,33 @@
   <div class="conta">
     <el-container>
       <el-header
-        v-if="!Admin"
-        style="
+          v-if="!Admin"
+          height="40px"
+          style="
           width: 100%;
           --el-menu-bg-color: transparent;
           --el-header-padding: 0;
           border-bottom: 1px solid #eee;
         "
-        height="40px"
       >
         <div style="display: flex; justify-content: space-between">
           <div class="nav" style="flex: 1; height: 40px">
             <el-menu
-              class="head"
-              mode="horizontal"
-              style="height: 40px"
-              :ellipsis="ellipsis"
+                :ellipsis="ellipsis"
+                class="head"
+                mode="horizontal"
+                style="height: 40px"
             >
               <el-menu-item>
                 <router-link style="display: flex" to="/">
                   <img
-                    alt="logo"
-                    src="../../public/icon.png"
-                    style="height: 30px; transform: translateY(13px)"
+                      alt="logo"
+                      src="../../public/icon.png"
+                      style="height: 30px; transform: translateY(13px)"
                   />
                   <div
-                    class="logo"
-                    style="
+                      class="logo"
+                      style="
                       font-size: 20px;
                       font-family: Biscuit-body, serif;
                       padding-left: 5px;
@@ -41,7 +41,7 @@
               <el-menu-item>
                 <router-link to="/author">
                   <el-icon>
-                    <EditPen />
+                    <EditPen/>
                   </el-icon>
                   作者团队
                 </router-link>
@@ -49,7 +49,7 @@
               <el-menu-item>
                 <router-link to="/character">
                   <el-icon>
-                    <User />
+                    <User/>
                   </el-icon>
                   动漫人物介绍
                 </router-link>
@@ -67,7 +67,7 @@
               <el-menu-item>
                 <router-link to="/blog">
                   <el-icon>
-                    <Connection />
+                    <Connection/>
                   </el-icon>
                   用户互动
                 </router-link>
@@ -76,7 +76,7 @@
               <el-menu-item>
                 <router-link to="/news">
                   <el-icon>
-                    <Tickets />
+                    <Tickets/>
                   </el-icon>
                   新闻活动
                 </router-link>
@@ -100,11 +100,11 @@
                     <div>
                       <div>
                         <img
-                          v-if="userInfo.avatar"
-                          :src="userInfo.avatar"
-                          alt=""
+                            v-if="userInfo.avatarUrl"
+                            :src="userInfo.avatarUrl"
+                            alt=""
                         />
-                        <img v-else src="../assets/avatar/2.jpg" alt="" />
+                        <img v-else alt="" src="../assets/avatar/2.jpg"/>
                       </div>
                       <div>
                         <span v-if="userInfo.nickname">
@@ -117,8 +117,8 @@
                   <template #dropdown>
                     <el-dropdown-menu>
                       <router-link
-                        to="/login"
-                        v-if="userInfo.isLogining === false"
+                          v-if="userInfo.isLogining === false"
+                          to="/login"
                       >
                         <el-dropdown-item>登录/注册</el-dropdown-item>
                       </router-link>
@@ -132,9 +132,9 @@
                         <el-dropdown-item divided>管理员登录</el-dropdown-item>
                       </router-link>
                       <router-link
-                        to=""
-                        v-if="userInfo.isLogining === true"
-                        @click="logout"
+                          v-if="userInfo.isLogining === true"
+                          to=""
+                          @click="logout"
                       >
                         <el-dropdown-item divided>退出登录</el-dropdown-item>
                       </router-link>
@@ -148,7 +148,7 @@
       </el-header>
 
       <el-main
-        :class="{
+          :class="{
           'home-page': HomePage,
           'other-page': OtherPage,
           'admin-page': AdminPage,
@@ -156,7 +156,7 @@
       >
         <el-scrollbar>
           <router-view style="min-height: 90vh"></router-view>
-          <CopyrightIcp />
+          <CopyrightIcp/>
         </el-scrollbar>
       </el-main>
     </el-container>
@@ -164,30 +164,20 @@
 </template>
 
 <script setup>
-import { ref, reactive, watch, computed, watchEffect } from "vue";
+import {reactive, ref, watch, watchEffect} from "vue";
 import CopyrightIcp from "@/components/copyright-icp.vue";
 
-import {
-  ArrowDown,
-  Avatar,
-  Connection,
-  EditPen,
-  Film,
-  Link,
-  Tickets,
-  User,
-  VideoPlay,
-} from "@element-plus/icons-vue";
-import { useRoute, useRouter } from "vue-router";
+import {Connection, EditPen, Tickets, User,} from "@element-plus/icons-vue";
+import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
-import { InterfaceUrl } from "@/api";
-import { useStore } from "vuex";
+import {InterfaceUrl} from "@/api";
+import {useStore} from "vuex";
 
 const store = useStore();
 
 const userInfo = reactive({
   nickname: "",
-  avatar: "",
+  avatarUrl: "",
   isLogining: false,
 });
 
@@ -220,7 +210,7 @@ watch(route, (to) => {
     ellipsis.value = false;
   }
   OtherPage.value =
-    to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
+      to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
 });
 
@@ -234,20 +224,20 @@ const goToUserInfo = async () => {
   try {
     const token = localStorage.getItem("token");
     await axios
-      .post(InterfaceUrl + "/user/info", null, {
-        headers: { Authorization: token },
-      })
-      .then((res) => {
-        if (res.data.state === 0) {
-          router.push("/userInfo");
-        } else if (res.data.state === 2) {
-          ElMessage.error("登录超时，请重新登录");
-          router.push("/login");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+        .post(InterfaceUrl + "/user/info", null, {
+          headers: {Authorization: token},
+        })
+        .then((res) => {
+          if (res.data.state === 0) {
+            router.push("/userInfo");
+          } else if (res.data.state === 2) {
+            ElMessage.error("登录超时，请重新登录");
+            router.push("/login");
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
   } catch (err) {
     console.log(err);
   }

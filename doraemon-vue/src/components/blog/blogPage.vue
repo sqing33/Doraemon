@@ -4,154 +4,205 @@
       {{ blog.title }}
     </h2>
 
-    <div
-      style="
-        position: absolute;
-        display: flex;
-        font-size: 0.9em;
-        transform: translateY(12px);
-        right: 20px;
-      "
-    >
+    <div class="news-header">
       <div>&nbsp;|&nbsp;</div>
       <div>{{ blog.create_time }}</div>
     </div>
 
-    <div style="margin-top: 40px">
+    <div class="news-content" style="margin-top: 40px">
       <div class="divider"></div>
       <div v-html="blog.content"></div>
     </div>
 
     <div class="news-footer">
-      <router-link to="/blog" style="text-decoration: none; color: black">
+      <router-link style="text-decoration: none; color: black" to="/blog">
         <el-icon>
-          <Tickets />
+          <Tickets/>
         </el-icon>
         返回帖子首页
       </router-link>
 
       <div ref="shareRef" @click="doShare">
         <el-icon>
-          <Share />
+          <Share/>
         </el-icon>
         分享
       </div>
       <el-popover
-        :virtual-ref="shareRef"
-        trigger="click"
-        title="已复制链接"
-        virtual-triggering
-        width="300"
+          :virtual-ref="shareRef"
+          title="已复制链接"
+          trigger="click"
+          virtual-triggering
+          width="300"
       >
         <span> {{ text }} </span>
       </el-popover>
 
-      <div @click="">
+      <div @click="collect">
         <el-icon>
-          <Star />
+          <Star/>
         </el-icon>
         收藏
       </div>
     </div>
 
     <div class="comment">
-      <h4>评论</h4>
-
-      <el-input
-        v-model="textarea"
-        :rows="2"
-        type="textarea"
-        placeholder="请输入评论内容"
-        :autosize="{ minRows: 8 }"
-        style="width: 100%; margin-bottom: 10px"
-      />
-
-      <div class="comment-list" v-for="comment in comments" :key="comment.id">
-        <div>
-          <div style="margin-bottom: 10px">
-            <strong>{{ comment.name }}</strong> 说：
-          </div>
-          <div style="margin-bottom: 10px; transform: translateX(10px)">
-            {{ comment.content }}
-          </div>
-          <div>{{ comment.create_time }}</div>
-        </div>
-        <div
+      <div
           style="
-            position: absolute;
-            right: 10px;
-            bottom: 10px;
-            display: flex;
-            cursor: pointer;
-          "
-        >
-          <div style="display: flex">
-            <img src="../../assets/comment/dian zan.png" alt="" />
-            <div
-              style="
-                transform: translateY(-2px);
-                width: 35px;
-                text-align: center;
-              "
-            >
-              {{ comment.like_count }}
+          border-top: #808080 1px solid;
+          width: 116%;
+          transform: translateX(-8%);
+          margin: 20px 0;
+        "
+      ></div>
+      <div style="display: flex; padding: 20px 0">
+        <h4>评论</h4>
+        <div style="padding: 3px 5px; color: #808080">
+          <div v-if="commentsLength === 0">（还没有评论，快来发表吧~）</div>
+          <div v-else>（{{ commentsLength }}）</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 10px; position: relative">
+        <RichTextEditor ref="richTextEditor" style="height: 30vh"/>
+
+        <el-button
+            plain
+            style="width: 80px; position: absolute; top: 4.5px; right: 10px"
+            type="primary"
+            @click="submitComment"
+        >发布
+        </el-button>
+      </div>
+
+      <div v-for="comment in comments" :key="comment.id" class="comment-list">
+        <div class="first-comment">
+          <div style="margin-bottom: 10px">
+            <img alt="" class="avatar" src="../../assets/avatar.png"/>
+            <strong>{{ comment.nickname }}</strong> 说：
+          </div>
+          <div style="margin-bottom: 10px; transform: translate(45px, -5px)">
+            <div v-html="comment.content"></div>
+          </div>
+          <div style="display: flex; transform: translateX(45px)">
+            {{ dateFunction(comment.create_time) }}
+            <div class="comment-operate" style="display: flex; cursor: pointer">
+              <div style="display: flex" @click="doLike(comment.id)">
+                <img alt="" src="../../assets/comment/dian zan.png"/>
+                <div
+                    style="
+                    transform: translateY(-5px);
+                    width: 35px;
+                    text-align: center;
+                  "
+                >
+                  {{ comment.like }}
+                </div>
+              </div>
+              <div style="display: flex">
+                <img alt="" src="../../assets/comment/hui fu.png"/>
+                <div
+                    style="transform: translateY(-2px); font-size: 14px"
+                    @click="
+                    pid = comment.id;
+                    pname = comment.nickname;
+                    replyCommentDialogVisible = true;
+                  "
+                >
+                  回复
+                </div>
+              </div>
+              <div style="display: flex">
+                <img alt="" src="../../assets/comment/ju bao.png"/>
+                <div style="transform: translateY(-2px); font-size: 14px">
+                  举报
+                </div>
+              </div>
             </div>
           </div>
-          <div style="display: flex">
-            <img src="../../assets/comment/hui fu.png" alt="" />
-            <div style="transform: translateY(-2px)">回复</div>
-          </div>
-          <div style="display: flex">
-            <img src="../../assets/comment/ju bao.png" alt="" />
-            <div style="transform: translateY(-2px)">举报</div>
+
+          <div
+              v-for="childrenComment in comment.children"
+              :key="childrenComment.id"
+              class="second-comment"
+              style="margin-top: 10px; position: relative; left: 50px"
+          >
+            <div style="margin-bottom: 10px; display: flex">
+              <img alt="" class="avatar" src="../../assets/avatar.png"/>
+              <div style="display: flex; padding-top: 10px">
+                <strong>{{ childrenComment.nickname }}</strong>
+                &nbsp回复&nbsp
+                <strong>{{ childrenComment.pname }}</strong>
+                &nbsp说：
+                <div v-html="childrenComment.content"></div>
+              </div>
+            </div>
+            <div style="display: flex; transform: translate(45px, -5px)">
+              {{ dateFunction(childrenComment.create_time) }}
+              <div
+                  class="comment-operate"
+                  style="display: flex; cursor: pointer"
+              >
+                <div style="display: flex" @click="doLike(childrenComment.id)">
+                  <img alt="" src="../../assets/comment/dian zan.png"/>
+                  <div
+                      style="
+                      transform: translateY(-2px);
+                      width: 35px;
+                      text-align: center;
+                    "
+                  >
+                    {{ childrenComment.like }}
+                  </div>
+                </div>
+                <div style="display: flex">
+                  <img alt="" src="../../assets/comment/hui fu.png"/>
+                  <div
+                      style="transform: translateY(-2px); font-size: 14px"
+                      @click="reply(childrenComment.nickname, comment.id)"
+                  >
+                    回复
+                  </div>
+                </div>
+                <div style="display: flex">
+                  <img alt="" src="../../assets/comment/ju bao.png"/>
+                  <div style="transform: translateY(-2px); font-size: 14px">
+                    举报
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
+
+  <el-dialog v-model="replyCommentDialogVisible" title="回复" width="700">
+    <RichTextEditor ref="richTextEditor" style="height: 30vh"/>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="replyCommentDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="submitReplyComment"> 回复</el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { defineProps, onMounted, ref } from "vue";
+import {defineProps, onMounted, ref} from "vue";
 import axios from "axios";
-import { InterfaceUrl } from "@/api";
-import { ElMessage } from "element-plus";
-import { Share, Star, Tickets, Warning } from "@element-plus/icons-vue";
-import LZString from "lz-string";
+import {InterfaceUrl} from "@/api";
+import {ElMessage} from "element-plus";
+import {Share, Star, Tickets} from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
+import {useStore} from "vuex";
+import router from "@/router";
+import RichTextEditor from "@/utils/RichTextEditor.vue";
 
-const comments = [
-  {
-    id: 1,
-    name: "张三",
-    content: "这个产品真的很好！",
-    create_time: "2024-01-01",
-    like_count: 10,
-  },
-  {
-    id: 2,
-    name: "李四",
-    content: "我非常喜欢这个服务。",
-    create_time: "2024-01-01",
-    like_count: 15,
-  },
-  {
-    id: 3,
-    name: "张三",
-    content: "这个产品真的很好！",
-    create_time: "2024-01-01",
-    like_count: 111,
-  },
-  {
-    id: 4,
-    name: "李四",
-    content: "我非常喜欢这个服务。",
-    create_time: "2024-01-01",
-    like_count: 99,
-  },
-];
+const store = useStore();
 
-const textarea = ref("");
+const comment = ref();
 
 const props = defineProps({
   id: {
@@ -178,18 +229,60 @@ const blog = ref<Blog>({
   coverUrl: "",
 });
 
+const collect = () => {
+  if (userInfo === null) {
+    ElMessage.error("请先登录");
+    router.push("/login");
+  } else {
+    axios
+        .post(InterfaceUrl + "/user/collect", {
+          bn_id: props.id,
+          userid: userInfo.id,
+          coverUrl: blog.value.coverUrl,
+          title: blog.value.title,
+          category: "blog",
+        })
+        .then((res) => {
+          ElMessage.success("收藏成功");
+        })
+        .catch((error) => {
+          console.log(error);
+          ElMessage.error("请求失败，请联系管理员。");
+        });
+  }
+};
+
+const comments = ref();
+
+const commentsLength = ref(0);
+
+const getComments = () => {
+  axios
+      .post(InterfaceUrl + "/blog/getComments?id=" + props.id)
+      .then((res) => {
+        comments.value = res.data.data.comments.sort((a: any, b: any) => {
+          return new Date(b.create_time) - new Date(a.create_time);
+        });
+        commentsLength.value = res.data.data.total;
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+};
+
 onMounted(() => {
   axios
-    .post(InterfaceUrl + "/blog/blogPage?id=" + props.id)
-    .then((res) => {
-      blog.value = res.data.data;
-      blog.value.content = blog.value.content;
-      blog.value.create_time = dateFunction(blog.value.create_time);
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
+      .post(InterfaceUrl + "/blog/blogPage?id=" + props.id)
+      .then((res) => {
+        blog.value = res.data.data;
+        blog.value.create_time = dateFunction(blog.value.create_time);
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+  getComments();
 });
 
 const shareRef = ref();
@@ -205,9 +298,91 @@ const doShare = () => {
 
 const copyToClipboard = (text: string) => {
   navigator.clipboard
-    .writeText(text)
-    .then(() => console.log("文本已复制到剪贴板"))
-    .catch((error) => console.error("复制失败", error));
+      .writeText(text)
+      .then(() => console.log("文本已复制到剪贴板"))
+      .catch((error) => console.error("复制失败", error));
+};
+
+const userInfo = store.getters.getUserInfo;
+
+const richTextEditor = ref();
+
+const submitComment = () => {
+  if (userInfo === null) {
+    ElMessage.error("请先登录");
+    router.push("/login");
+  } else {
+    comment.value = store.getters.getRichTextEditor;
+    axios
+        .post(InterfaceUrl + "/blog/postComment", {
+          content: comment.value,
+          publisher_id: userInfo.id,
+          nickname: userInfo.nickname,
+          bn_id: props.id,
+          category: "blog",
+        })
+        .then((res) => {
+          richTextEditor.value.clearEditorContent();
+          getComments();
+          ElMessage.success("评论成功");
+        })
+        .catch((error) => {
+          console.log(error);
+          ElMessage.error("请求失败，请联系管理员。");
+        });
+  }
+};
+
+const doLike = (comment_id: number) => {
+  axios
+      .post(InterfaceUrl + "/blog/like", {
+        comment_id: comment_id,
+      })
+      .then((res) => {
+        getComments();
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+};
+
+const pid = ref();
+
+const pname = ref();
+
+const reply = (a: string, b: number) => {
+  replyCommentDialogVisible.value = true;
+  pname.value = a;
+  pid.value = b;
+};
+
+const replyCommentDialogVisible = ref(false);
+
+const replyComment = ref();
+
+const submitReplyComment = () => {
+  replyComment.value = store.getters.getRichTextEditor;
+  axios
+      .post(InterfaceUrl + "/blog/postComment", {
+        content: replyComment.value,
+        publisher_id: userInfo.id,
+        nickname: userInfo.nickname,
+        bn_id: props.id,
+        pid: pid.value,
+        pname: pname.value,
+        category: "blog",
+      })
+      .then((res) => {
+        richTextEditor.value.clearEditorContent();
+        getComments();
+        replyCommentDialogVisible.value = false;
+        ElMessage.success("回复成功");
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
 };
 </script>
 
@@ -215,6 +390,14 @@ const copyToClipboard = (text: string) => {
 .comment {
   width: 70vw;
   margin: 0 auto;
+
+  .avatar {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    margin: 0;
+    left: 20px;
+  }
 
   .comment-list {
     background-color: #f9f9f9;
@@ -226,11 +409,13 @@ const copyToClipboard = (text: string) => {
     justify-content: space-between;
     position: relative;
 
-    img {
-      height: 20px;
-      width: 20px;
-      border-radius: 0;
-      margin-right: 35px;
+    .comment-operate {
+      img {
+        height: 15px;
+        width: 15px;
+        border-radius: 0;
+        margin-right: 35px;
+      }
     }
   }
 }
@@ -241,6 +426,14 @@ const copyToClipboard = (text: string) => {
   background-color: rgba(245, 245, 245, 0.6);
   border-radius: 10px;
   transform: translateX(-0.5vw);
+
+  .news-header {
+    position: absolute;
+    display: flex;
+    font-size: 0.9em;
+    transform: translateY(12px);
+    right: 20px;
+  }
 
   .divider {
     width: 100%;
@@ -304,6 +497,24 @@ const copyToClipboard = (text: string) => {
     img {
       width: 85vw !important;
     }
+  }
+}
+
+.news-content {
+  img {
+    max-width: 80% !important;
+    max-height: 800px !important;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+    display: block;
+    margin: 10px 0;
+  }
+}
+
+.comment-list {
+  img {
+    max-height: 300px;
   }
 }
 </style>

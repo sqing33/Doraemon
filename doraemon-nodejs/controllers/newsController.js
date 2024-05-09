@@ -2,6 +2,47 @@ const newsService = require("../services/newsService");
 const dateFunction = require("../utils/Date");
 const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
 
+// 新增--评论
+const insertComment = (req, res, next) => {
+  const { content, publisher_id, nickname, bn_id, pid, pname, category } =
+    req.body;
+
+  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
+  const id = snowFlakeId.NextId();
+
+  const create_time = dateFunction();
+
+  newsService.insertComment(
+    id,
+    content,
+    publisher_id,
+    nickname,
+    bn_id,
+    pid,
+    pname,
+    category,
+    create_time,
+    (err, result) => {
+      if (err) {
+        return res.send({ state: 1, message: err });
+      }
+      return res.send({ state: 0, message: "新增成功", data: result });
+    }
+  );
+};
+
+// 点赞
+const likeBlog = (req, res, next) => {
+  const { comment_id } = req.body;
+
+  newsService.likeBlog(comment_id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "点赞成功", data: result });
+  });
+};
+
 // 查询--条件筛选
 const getNews = (req, res, next) => {
   let { keyword, categoryId, create_time, page, pageSize } = req.query;
@@ -46,6 +87,17 @@ const getNewsCategories = (req, res, next) => {
       return res.send({ state: 1, message: err });
     }
     return res.send({ state: 0, message: "查询成功", data: categories });
+  });
+};
+
+// 查询--通过id查询帖子评论
+const getBlogCommentsById = (req, res, next) => {
+  const { id } = req.query;
+  newsService.getBlogCommentsById(id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "查询成功", data: result });
   });
 };
 
@@ -124,9 +176,12 @@ const upload = (req, res, next) => {
 };
 
 module.exports = {
+  insertComment,
+  likeBlog,
   getNews,
   getNewsById,
   getNewsCategories,
+  getBlogCommentsById,
   insertNews,
   deleteNews,
   updateNews,

@@ -2,7 +2,7 @@ const blogService = require("../services/blogService");
 const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
 const dateFunction = require("../utils/Date");
 
-// 新增
+// 新增--帖子
 const insertBlog = (req, res, next) => {
   const { title, content, category_id, coverUrl, publisher_id } = req.body;
 
@@ -26,6 +26,47 @@ const insertBlog = (req, res, next) => {
       return res.send({ state: 0, message: "新增成功", data: result });
     }
   );
+};
+
+// 新增--评论
+const insertComment = (req, res, next) => {
+  const { content, publisher_id, nickname, bn_id, pid, pname, category } =
+    req.body;
+
+  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
+  const id = snowFlakeId.NextId();
+
+  const create_time = dateFunction();
+
+  blogService.insertComment(
+    id,
+    content,
+    publisher_id,
+    nickname,
+    bn_id,
+    pid,
+    pname,
+    category,
+    create_time,
+    (err, result) => {
+      if (err) {
+        return res.send({ state: 1, message: err });
+      }
+      return res.send({ state: 0, message: "新增成功", data: result });
+    }
+  );
+};
+
+// 点赞
+const likeBlog = (req, res, next) => {
+  const { comment_id } = req.body;
+
+  blogService.likeBlog(comment_id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "点赞成功", data: result });
+  });
 };
 
 // 删除
@@ -86,6 +127,17 @@ const getBlogCategories = (req, res, next) => {
   });
 };
 
+// 查询--通过id查询帖子评论
+const getBlogCommentsById = (req, res, next) => {
+  const { id } = req.query;
+  blogService.getBlogCommentsById(id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "查询成功", data: result });
+  });
+};
+
 // 新增--帖子分类
 const insertBlogCategories = (req, res, next) => {
   const { name, state } = req.query;
@@ -99,9 +151,12 @@ const insertBlogCategories = (req, res, next) => {
 
 module.exports = {
   insertBlog,
+  insertComment,
+  likeBlog,
   getBlog,
   getBlogById,
   deleteBlog,
   getBlogCategories,
+  getBlogCommentsById,
   insertBlogCategories,
 };

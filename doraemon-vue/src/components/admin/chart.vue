@@ -1,53 +1,69 @@
 <template>
-  <div style="width: 500px; height: 500px; margin: 0 auto">
-    <canvas ref="myChart"></canvas>
-  </div>
+  <el-row :gutter="20" style="margin: 20px">
+    <el-col :span="12">
+      <el-card class="chart-container">
+        <div id="blog" style="width: 100%; height: 80vh;"></div>
+      </el-card>
+    </el-col>
+
+    <el-col :span="12">
+      <el-card class="chart-container">
+        <div id="123" style="width: 100%; height: 80vh;"></div>
+      </el-card>
+    </el-col>
+
+  </el-row>
 </template>
 
-<script lang="ts">
-import { ref, onMounted } from "vue";
-import Chart from "chart.js/auto";
+<script lang="ts" setup>
+import * as echarts from 'echarts';
+import {onMounted} from "vue";
+import dateFunction from "@/utils/Date";
 
-export default {
-  setup() {
-    const myChart = ref(null);
 
-    onMounted(() => {
-      const ctx = myChart.value.getContext("2d");
-      new Chart(ctx, {
-        type: "pie",
-        data: {
-          labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-          datasets: [
-            {
-              label: "# of Votes",
-              data: [12, 19, 3, 5, 2, 3],
-              backgroundColor: [
-                "rgba(255, 99, 132, 0.2)",
-                "rgba(54, 162, 235, 0.2)",
-                "rgba(255, 206, 86, 0.2)",
-                "rgba(75, 192, 192, 0.2)",
-                "rgba(153, 102, 255, 0.2)",
-                "rgba(255, 159, 64, 0.2)",
-              ],
-              borderColor: [
-                "rgba(255, 99, 132, 1)",
-                "rgba(54, 162, 235, 1)",
-                "rgba(255, 206, 86, 1)",
-                "rgba(75, 192, 192, 1)",
-                "rgba(153, 102, 255, 1)",
-                "rgba(255, 159, 64, 1)",
-              ],
-              borderWidth: 1,
-            },
-          ],
-        },
-      });
-    });
+onMounted(() => {
+  const chartDom = document.getElementById('blog');
+  const myChart = echarts.init(chartDom);
+  let option = {
+    title: {
+      text: '帖子类型统计',
+      subtext: '截至 ' + dateFunction(null, 'date'),
+      left: 'center'
+    },
+    tooltip: {
+      trigger: 'item'
+    },
+    legend: {
+      orient: 'vertical',
+      left: 'left'
+    },
+    series: [
+      {
+        name: '帖子类型统计',
+        type: 'pie',
+        radius: '50%',
+        data: [
+          {value: 1048, name: 'Search Engine'},
+          {value: 735, name: 'Direct'},
+          {value: 580, name: 'Email'},
+          {value: 484, name: 'Union Ads'},
+          {value: 300, name: 'Video Ads'}
+        ],
+        emphasis: {
+          itemStyle: {
+            shadowBlur: 10,
+            shadowOffsetX: 0,
+            shadowColor: 'rgba(0, 0, 0, 0.5)'
+          }
+        }
+      }
+    ]
+  };
+  myChart.setOption(option);
+})
 
-    return {
-      myChart,
-    };
-  },
-};
 </script>
+
+<style lang="scss" scoped>
+
+</style>

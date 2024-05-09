@@ -1,40 +1,40 @@
 <template>
   <el-row :gutter="10" class="blog-container">
     <!-- 上左轮播新闻 -->
-    <el-col :xs="24" :sm="10">
+    <el-col :sm="10" :xs="24">
       <div class="blog-carousel" style="height: 40vh">
-        <el-carousel arrow="always" height="40vh" v-if="blog">
+        <el-carousel v-if="blog" arrow="always" height="40vh">
           <el-carousel-item
-            v-for="(form, index) in blog.slice(0, 5)"
-            :key="index"
-            @click="doGoToblogPage(form.id)"
+              v-for="(form, index) in blog.slice(0, 5)"
+              :key="index"
+              @click="doGoToblogPage(form.id)"
           >
-            <img :src="form.coverUrl" alt="" />
+            <img :src="form.coverUrl" alt=""/>
           </el-carousel-item>
         </el-carousel>
       </div>
     </el-col>
 
     <!-- 上右热点新闻 -->
-    <el-col :xs="24" :sm="14">
+    <el-col :sm="14" :xs="24">
       <div
-        class="blog-hot"
-        style="
+          class="blog-hot"
+          style="
           text-align: left;
           background-color: rgba(242, 242, 242, 0.3);
           height: 40vh;
         "
       >
         <h3>热帖</h3>
-        <ul style="padding: 10px 0; list-style: none" v-if="blog">
+        <ul v-if="blog" style="padding: 10px 0; list-style: none">
           <li
-            v-for="(form, index) in blog.slice(0, 5)"
-            :key="index"
-            style="height: 42px"
+              v-for="(form, index) in blog.slice(0, 5)"
+              :key="index"
+              style="height: 42px"
           >
             <h6>
               <span
-                style="
+                  style="
                   display: inline-block;
                   width: 30px;
                   text-align: center;
@@ -58,39 +58,39 @@
       <div class="search-write">
         <div style="margin-left: 45px">
           <el-input
-            v-model="keyword"
-            style="width: 350px; margin-right: 10px"
-            placeholder="请输入搜索内容..."
-            clearable
-            size="large"
+              v-model="keyword"
+              clearable
+              placeholder="请输入搜索内容..."
+              size="large"
+              style="width: 350px; margin-right: 10px"
           />
-          <el-button type="primary" size="large" plain @click="search">
+          <el-button plain size="large" type="primary" @click="search">
             <span style="margin: 0; font-size: 1.3em">搜索</span>
           </el-button>
         </div>
 
         <el-select
-          v-model="categoriesChecked"
-          placeholder="分类"
-          style="width: 240px"
-          size="large"
-          @change="getBlog(categoriesChecked)"
+            v-model="categoriesChecked"
+            placeholder="分类"
+            size="large"
+            style="width: 240px"
+            @change="getBlog(categoriesChecked)"
         >
-          <el-option label="全部" value="" />
+          <el-option label="全部" value=""/>
           <el-option
-            v-for="item in categories"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
+              v-for="item in categories"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
           />
         </el-select>
 
         <el-button
-          type="primary"
-          size="large"
-          @click="writeBlog"
-          round
-          style="margin-right: 45px"
+            round
+            size="large"
+            style="margin-right: 45px"
+            type="primary"
+            @click="writeBlog"
         >
           <span style="margin: 0; font-size: 1.3em">发表帖子</span>
         </el-button>
@@ -101,16 +101,16 @@
     <el-col :span="24">
       <el-row class="blog-list">
         <el-col
-          :xs="24"
-          :sm="8"
-          v-for="(form, index) in blog"
-          :key="index"
-          style="max-width: 100vw"
+            v-for="(form, index) in blog"
+            :key="index"
+            :sm="8"
+            :xs="24"
+            style="max-width: 100vw"
         >
           <el-card
-            style="margin: 5px 5px"
-            shadow="hover"
-            @click="doGoToblogPage(form.id)"
+              shadow="hover"
+              style="margin: 5px 5px"
+              @click="doGoToBlogPage(form.id)"
           >
             <template #header>
               <div style="height: 45px; text-align: center">
@@ -118,8 +118,9 @@
               </div>
             </template>
             <img
-              :src="form.coverUrl"
-              style="
+                :src="form.coverUrl"
+                alt=""
+                style="
                 height: 225px;
                 max-width: 100%;
                 object-fit: contain;
@@ -127,7 +128,6 @@
                 left: 50%;
                 transform: translateX(-50%);
               "
-              alt=""
             />
             <template #footer>
               <div style="display: flex; justify-content: space-between">
@@ -168,13 +168,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, ref } from "vue";
+import {onMounted, ref} from "vue";
 import axios from "axios";
-import { ElMessage } from "element-plus";
-import { InterfaceUrl } from "@/api";
-import { useRouter } from "vue-router";
+import {ElMessage} from "element-plus";
+import {InterfaceUrl} from "@/api";
+import {useRouter} from "vue-router";
 import dateFunction from "@/utils/Date";
-import LZString from "lz-string";
 
 const blog = ref();
 
@@ -187,56 +186,56 @@ const router = useRouter();
 const keyword = ref();
 
 const getBlog = (
-  categoryId: number | null = null,
-  keyword: string | null = null
+    categoryId: number | null = null,
+    keyword: string | null = null
 ) => {
   axios
-    .post(InterfaceUrl + "/blog", null, {
-      params: {
-        page: 1,
-        pageSize: null,
-        categoryId,
-        keyword,
-        length: 99,
-      },
-    })
-    .then((res) => {
-      blog.value = res.data.data.map((item: any) => {
-        item.content = item.content;
-        item.create_time = dateFunction(item.create_time);
-        return item;
+      .post(InterfaceUrl + "/blog", null, {
+        params: {
+          page: 1,
+          pageSize: null,
+          categoryId,
+          keyword,
+          length: 99,
+        },
+      })
+      .then((res) => {
+        blog.value = res.data.data.map((item: any) => {
+          item.content = item.content;
+          item.create_time = dateFunction(item.create_time);
+          return item;
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
       });
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
 };
 
 onMounted(() => {
   getBlog();
   axios
-    .get(InterfaceUrl + "/blog/categories")
-    .then((res) => {
-      categories.value = res.data.data
-        .filter((item: any) => item.state === "true")
-        .map((item: any) => {
-          return item;
-        });
-      console.log(categories.value);
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
+      .get(InterfaceUrl + "/blog/categories")
+      .then((res) => {
+        categories.value = res.data.data
+            .filter((item: any) => item.state === "true")
+            .map((item: any) => {
+              return item;
+            });
+        console.log(categories.value);
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
 });
 
 const search = () => {
   getBlog(null, keyword.value);
 };
 
-const doGoToblogPage = (id: string) => {
-  router.push({ name: "blogPage", params: { id } });
+const doGoToBlogPage = (id: number) => {
+  router.push({name: "blogPage", params: {id}});
 };
 
 const writeBlog = () => {

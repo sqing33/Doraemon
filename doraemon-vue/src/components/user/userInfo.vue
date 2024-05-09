@@ -5,7 +5,7 @@
     <el-col :sm="4" :xs="7" class="content">
       <el-menu class="content" default-active="我的资料" @select="menuSelect">
         <h4
-          style="
+            style="
             height: 60px;
             margin: 0;
             display: flex;
@@ -22,10 +22,10 @@
       </el-menu>
     </el-col>
     <el-col
-      :sm="12"
-      :xs="17"
-      class="content"
-      style="
+        :sm="12"
+        :xs="17"
+        class="content"
+        style="
         background-image: linear-gradient(
           120deg,
           rgba(161, 196, 253, 0.8) 0%,
@@ -33,70 +33,408 @@
         );
       "
     >
-      <div class="contentInfo" v-if="menuIndex == '我的资料'">
-        <div style="padding: 35px 0">
+
+      <div v-if="menuIndex == '我的资料'" class="contentInfo">
+        <div style="padding: 35px 0; display: flex">
+
+
           <span>头像:</span>
-          <img :src="userInfo.avatar" alt="" height="100px" />
+
+          <el-upload
+              :action="InterfaceUrl + '/admin/upload'"
+              :on-success="uploadSuccess"
+              :show-file-list="false"
+              class="avatar-uploader"
+              style="padding: 0"
+          >
+            <img v-if="newUserInfo.avatarUrl" :src="newUserInfo.avatarUrl" alt="" class="avatar"/>
+            <el-icon v-else class="avatar-uploader-icon">
+              <Plus/>
+            </el-icon>
+          </el-upload>
         </div>
-        <div><span>昵称:</span> {{ userInfo.nickname }}</div>
-        <div><span>用户名:</span> {{ userInfo.username }}</div>
-        <div><span>性别:</span> {{ userInfo.gender }}</div>
+
+        <div style="position: relative">
+          <span>昵称:</span>
+          {{ newUserInfo.nickname }}
+
+          <el-button
+              style="position: absolute; top: 0; right: 40px;font-size: 16px;padding: 5px 10px"
+              @click="doUpdateUserInfo"
+          >
+            修改资料
+          </el-button>
+        </div>
+
+        <div><span>用户名:</span> {{ newUserInfo.username }}</div>
+
+        <div><span>性别:</span> {{ newUserInfo.gender ? (userInfo.gender) : "无" }}</div>
+
         <div>
           <span>生日:</span>
-          {{ userInfo.birthday ? timeConvert(userInfo.birthday) : "" }}
+          {{ newUserInfo.birthday ? dateFunction(newUserInfo.birthday, "date") : "无" }}
         </div>
+
       </div>
 
-      <div class="contentInfo" v-if="menuIndex == '账号设置'">
-        <div><span>手机号:</span> {{ userInfo.phone }}</div>
-        <div><span>邮箱:</span> {{ userInfo.email }}</div>
+      <div v-if="menuIndex == '账号设置'" class="contentInfo">
+        <div>
+          <span>手机号:</span>
+          {{ newUserInfo.phone }}
+          <el-button
+              style="position: absolute;right:150px"
+              type="text"
+              @click="doChangeAccount('手机号')"
+          >
+            修改手机号
+          </el-button>
+        </div>
+        <div>
+          <span>邮箱:</span>
+          {{ newUserInfo.email }}
+          <el-button
+              style="position: absolute;right:150px"
+              type="text"
+              @click="doChangeAccount('邮箱')"
+          >
+            修改邮箱
+          </el-button>
+        </div>
         <div>
           <span>密码:</span>
           ******
           <el-button
-            type="text"
-            style="padding-left: 10vw"
-            @click="changePassword"
+              style="position: absolute;right:150px"
+              type="text"
+              @click="doChangeAccount('密码')"
           >
             修改密码
           </el-button>
         </div>
       </div>
-      <div class="contentInfo" v-if="menuIndex == '我的收藏'">我的收藏</div>
-      <div class="contentInfo" v-if="menuIndex == '建议意见'">建议意见</div>
+
+      <div v-if="menuIndex == '我的收藏'" class="contentInfo">
+        <el-scrollbar height="68vh" style="width: 100%">
+          <div v-for="collection in collectionList" :key="collection.id"
+               style="display: flex;height:120px;margin:10px;padding:10px;background:rgba(255,255,255,0.5)"
+               @click="doGoToBlogPage(collection.bn_id)"
+          >
+            <div style="width:150px;text-align:center">
+              <img :src="collection.coverUrl" alt="" style="max-width: 150px;height:100px;">
+            </div>
+
+            <div style="margin-left: 20px;position:relative;flex: 1">
+              <h4 style="">{{ collection.title }}</h4>
+              <h6 style="position: absolute;right: 0;bottom: 0">收藏于&nbsp{{ dateFunction(collection.create_time, "date") }}</h6>
+            </div>
+          </div>
+        </el-scrollbar>
+      </div>
+
+      <div v-if="menuIndex == '建议意见'" class="contentInfo">建议意见</div>
     </el-col>
     <el-col :sm="4" class="content hidden-sm-and-down"></el-col>
   </el-row>
+
+  <el-dialog
+      v-model="updateUserInfoDialogVisible"
+      title="修改资料"
+      width="500"
+  >
+    <ElementForm v-model="form" style="width: 50%;margin: 0 auto" v-bind="formConfig">
+      <template #footer>
+        <div style="display: flex; justify-content: center">
+          <el-button size="large" style="width: 80px" type="primary" @click="submitNewUserInfo">
+            确定
+          </el-button>
+
+          <el-button size="large" style="width: 80px;margin-left: 5vw" @click="updateUserInfoDialogVisible = false">取消</el-button>
+        </div>
+      </template>
+    </ElementForm>
+  </el-dialog>
+
+
+  <el-dialog
+      v-model="changeAccountDialogVisible"
+      :title="accountSetting.title"
+      width="500">
+    <div style="display: flex">
+      <el-text style="width: 120px">新的{{ accountSetting.label }}：</el-text>
+      <el-input v-model="accountSetting.value" :placeholder="accountSetting.placeholder"></el-input>
+    </div>
+
+    <div style="display: flex; justify-content: center; margin-top: 20px">
+      <el-button size="large" style="width: 80px" type="primary" @click="changeAccountSubmit(accountSetting.label)">
+        确定
+      </el-button>
+      <el-button size="large" style="width: 80px;margin-left: 5vw" @click="changeAccountDialogVisible = false">
+        取消
+      </el-button>
+    </div>
+  </el-dialog>
+
+
+
 </template>
 
 <script lang="ts" setup>
-import { ref } from "vue";
-import { useStore } from "vuex";
+import {onMounted, reactive, ref} from "vue";
+import {useStore} from "vuex";
+import {Plus} from "@element-plus/icons-vue";
+import dateFunction from "@/utils/Date";
+import {InterfaceUrl} from "@/api";
+import axios from "axios";
+import {ElMessage} from "element-plus";
+import ElementForm from "@/utils/ElementForm.vue";
+import CryptoJS from "crypto-js";
+import {useRouter} from "vue-router";
+
+const router = useRouter();
 
 const menuIndex = ref("我的资料");
 
 const menuSelect = (index: string) => {
-  menuIndex.value = index;
+  if (index === "我的收藏") {
+    getCollectionList(index);
+  } else {
+    menuIndex.value = index;
+  }
 };
+
+onMounted(() => {
+
+
+});
 
 const store = useStore();
 
 const userInfo = store.getters.getUserInfo;
 
-// 转换时间格式
-const timeConvert = (time) => {
-  const date = new Date(time);
-  const year = date.getUTCFullYear();
-  const month = (date.getUTCMonth() + 1).toString().padStart(2, "0");
-  const day = date.getUTCDate().toString().padStart(2, "0");
-  const cstDateTime = `${year}年${month}月${day}日`;
-  return cstDateTime;
+const newUserInfo = ref(userInfo);
+
+const getNewUserInfo = () => {
+  axios
+      .post(InterfaceUrl + "/user/getUserInfo", {id: userInfo.id}
+      )
+      .then((res) => {
+        newUserInfo.value = res.data.data;
+        store.dispatch("setUserInfoFromAxios", res.data.data);
+      })
+}
+
+const avatarUrl = ref();
+
+const uploadSuccess = (res) => {
+  avatarUrl.value = res.data.url;
+  axios
+      .post(InterfaceUrl + "/user/updateAvatar", {
+        id: userInfo.id,
+        avatarUrl: avatarUrl.value,
+      })
+      .then((res) => {
+        getNewUserInfo();
+        ElMessage({
+          type: "success",
+          message: "修改头像成功!",
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
 };
+
+const updateUserInfoDialogVisible = ref(false);
+
+const doUpdateUserInfo = () => {
+  updateUserInfoDialogVisible.value = true;
+}
+
+const formItems = reactive([
+  {
+    label: "昵称",
+    type: "input",
+    placeholder: "请输入昵称",
+    prop: "nickname",
+    style: ["width: 45vw"],
+  },
+  {
+    label: "性别",
+    type: "select",
+    placeholder: "请选择性别",
+    prop: "gender",
+    style: ["width: 45vw"],
+    options: [
+      {label: "男", value: "男"},
+      {label: "女", value: "女"},
+      {label: "无", value: "无"},
+    ]
+  },
+  {
+    label: "生日",
+    type: "date",
+    placeholder: "生日",
+    prop: "birthday",
+    style: ["width: 45vw"],
+  },
+]);
+
+const formConfig = {
+  formItems,
+  labelWidth: "75px",
+};
+
+const formValues: any = {};
+
+formConfig.formItems.map((item) => {
+  formValues[item.prop] = "";
+});
+
+const form = reactive(userInfo);
+
+const submitNewUserInfo = () => {
+  updateUserInfo();
+  updateUserInfoDialogVisible.value = false;
+}
+
+const updateUserInfo = () => {
+  axios.post(InterfaceUrl + "/user/updateUserInfo", form)
+      .then((res) => {
+        getNewUserInfo();
+        ElMessage({
+          type: "success",
+          message: "资料修改成功!",
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+}
+
+const changeAccountDialogVisible = ref(false);
+
+const accountSetting = reactive({
+  title: "",
+  label: "",
+  value: "",
+  placeholder: "",
+})
+
+const account = reactive({
+  id: userInfo.id,
+  phone: userInfo.phone,
+  email: userInfo.email,
+  password: "",
+})
+
+const doChangeAccount = (type: string) => {
+  if (type === "手机号") {
+    accountSetting.title = "修改手机号";
+    accountSetting.label = "手机号";
+    accountSetting.value = account.phone;
+    accountSetting.placeholder = "请输入新的手机号";
+  } else if (type === "邮箱") {
+    accountSetting.title = "修改邮箱";
+    accountSetting.label = "邮箱";
+    accountSetting.value = account.email;
+    accountSetting.placeholder = "请输入新的邮箱";
+  } else if (type === "密码") {
+    accountSetting.title = "修改密码";
+    accountSetting.label = "密码";
+    accountSetting.value = account.password;
+    accountSetting.placeholder = "请输入新的密码";
+  }
+  changeAccountDialogVisible.value = true;
+}
+
+
+const changeAccountSubmit = (label: string) => {
+  if (label === "手机号") {
+    account.phone = accountSetting.value;
+  } else if (label === "邮箱") {
+    account.email = accountSetting.value;
+  } else if (label === "密码") {
+    account.password = CryptoJS.SHA256(accountSetting.value).toString();
+  }
+
+  axios.post(InterfaceUrl + "/user/updateAccount", account)
+      .then((res) => {
+        getNewUserInfo();
+        newUserInfo.value = res.data.data;
+        store.dispatch("setUserInfoFromAxios", res.data.data);
+        ElMessage({
+          type: "success",
+          message: "修改成功!",
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+  changeAccountDialogVisible.value = false;
+}
+
+let collectionList = reactive([]);
+
+const getCollectionList = (index: string) => {
+  axios
+      .post(InterfaceUrl + "/user/getCollectionList", {id: userInfo.id})
+      .then((res) => {
+        collectionList = res.data.data;
+        menuIndex.value = index;
+        console.log(collectionList);
+      })
+      .catch((error) => {
+        console.error(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+}
+
+const doGoToBlogPage = (id: number) => {
+  router.push({name: "blogPage", params: {id}});
+};
+
 </script>
 
 <style lang="scss" scoped>
 * {
   padding: 0;
+}
+
+.avatar-uploader,
+.avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+
+.avatar-uploader .el-upload {
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+:deep(.el-upload) {
+  display: flex;
+  border-radius: 10px;
+
+  &:hover {
+    border-color: var(--el-color-primary);
+    background-color: rgba(135, 206, 250, 0.7);
+    border-radius: 10px;
+  }
+}
+
+.el-icon.avatar-uploader-icon {
+  font-size: 28px;
+  color: #8c939d;
+  width: 178px;
+  height: 178px;
+  text-align: center;
+  border: 1px dashed #808080;
+  border-radius: 10px;
 }
 
 .head {
@@ -114,14 +452,13 @@ const timeConvert = (time) => {
 }
 
 .contentInfo {
-  width: 80%;
   position: relative;
   top: 50%;
-  transform: translate(10vw, -50%);
+  transform: translateY(-50%);
 
   div {
     margin: 0;
-    padding: 25px 0;
+
 
     span {
       display: inline-block;

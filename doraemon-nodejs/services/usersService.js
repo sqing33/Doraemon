@@ -1,81 +1,199 @@
-const { mysqlDb } = require("../db");
+const {mysqlDb} = require("../db");
 
 // 用户注册
 const registUser = (
-  id,
-  username,
-  password,
-  nickname,
-  phone,
-  email,
-  create_time,
-  callback
+    id,
+    username,
+    password,
+    nickname,
+    phone,
+    email,
+    create_time,
+    callback
 ) => {
-  const sql =
-    "INSERT INTO users (id, username, password, nickname, phone, email, create_time) VALUES (?,?,?,?,?,?,?)";
-  mysqlDb.query(
-    sql,
-    [id, username, password, nickname, phone, email, create_time],
-    (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      callback(null, result.insertId);
-    }
-  );
+    const sql =
+        "INSERT INTO users (id, username, password, nickname, phone, email, create_time) VALUES (?,?,?,?,?,?,?)";
+    mysqlDb.query(
+        sql,
+        [id, username, password, nickname, phone, email, create_time],
+        (err, result) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, result.insertId);
+        }
+    );
 };
 
 // 用户登录
 const loginUser = (user, callback) => {
-  const sql =
-    "SELECT id, username, nickname, avatar, create_time, phone, email, gender, birthday FROM users WHERE username = ? OR phone = ? OR email = ? AND password = ?";
-  mysqlDb.query(
-    sql,
-    [user.username, user.phone, user.email, user.password],
-    (err, result) => {
-      if (err) {
-        callback(err, null);
-        return;
-      }
-      if (result.length === 0) {
-        callback("用户名或密码错误", null);
-        return;
-      }
-      callback(null, result[0]);
-    }
-  );
+    const sql =
+        "SELECT id, username, nickname, avatarUrl, create_time, phone, email, gender, birthday FROM users WHERE username = ? OR phone = ? OR email = ? AND password = ?";
+    mysqlDb.query(
+        sql,
+        [user.username, user.phone, user.email, user.password],
+        (err, result) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            if (result.length === 0) {
+                callback("用户名或密码错误", null);
+                return;
+            }
+            callback(null, result[0]);
+        }
+    );
 };
 
-// 用户信息
-const getUserInfo = (username, callback) => {
-  const sql =
-    "SELECT username, nickname, avatar, create_time, phone, email, gender, birthday FROM users WHERE username = ?";
-  mysqlDb.query(sql, [username], (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
+// 进入用户信息
+const goToUserInfo = (username, callback) => {
+    const sql =
+        "SELECT username, nickname, avatarUrl, create_time, phone, email, gender, birthday FROM users WHERE username = ?";
+    mysqlDb.query(sql, [username], (err, result) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, result[0]);
+    });
+};
+
+const doCollect = (
+    id,
+    bn_id,
+    userid,
+    coverUrl,
+    title,
+    category,
+    create_time,
+    callback
+) => {
+    const sql =
+        "INSERT INTO collection (id, bn_id, userid, coverUrl, title, category, create_time) VALUES (?,?,?,?,?,?,?)";
+    mysqlDb.query(
+        sql,
+        [id, bn_id, userid, coverUrl, title, category, create_time],
+        (err, result) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, result);
+        }
+    );
+}
+
+// 获取用户信息
+const getUserInfo = (id, callback) => {
+    const sql =
+        "SELECT id, username, nickname, avatarUrl, create_time, phone, email, gender, birthday FROM users WHERE id = ?";
+    mysqlDb.query(sql, [id], (err, result) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, result[0]);
+    });
+};
+
+// 获取用户收藏列表
+const getCollectionList = (id, callback) => {
+    const sql =
+        "SELECT id, title, coverUrl, create_time, bn_id FROM collection WHERE userid = ?";
+    mysqlDb.query(sql, [id], (err, result) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, result);
+    });
+};
+
+// 修改用户头像
+const updateAvatar = (id, avatarUrl, callback) => {
+    const sql = "UPDATE users SET avatarUrl = ? WHERE id = ?";
+    mysqlDb.query(sql, [avatarUrl, id], (err, result) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, result);
+    });
+};
+
+// 修改用户信息
+const updateUserInfo = (
+    id, username, nickname, avatarUrl, phone, email, gender, birthday,
+    callback
+) => {
+    const sql =
+        "UPDATE users SET username = ?, nickname = ?, avatarUrl = ?, phone = ?, email = ?, gender = ?, birthday = ? WHERE id = ?";
+    mysqlDb.query(
+        sql,
+        [username, nickname, avatarUrl, phone, email, gender, birthday, id],
+        (err, result) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, result);
+        }
+    );
+};
+
+// 修改密码、手机号、邮箱
+const updateAccount = (id, password, phone, email, callback) => {
+    console.log(id, password, phone, email)
+
+    const sql =
+        "UPDATE users SET phone = ?, email = ? WHERE id = ?";
+    const sql2 =
+        "UPDATE users SET password = ?, phone = ?, email = ? WHERE id = ?";
+
+
+    if (password === "") {
+        mysqlDb.query(sql, [phone, email, id], (err, result) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, result);
+        });
+    } else {
+        mysqlDb.query(sql2, [password, phone, email, id], (err, result) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, result);
+        });
     }
-    callback(null, result[0]);
-  });
 };
 
 // 管理员管理
 const getUsers = (callback) => {
-  const sql =
-    "SELECT username, nickname, avatar, create_time, phone, email, gender, birthday FROM users";
-  mysqlDb.query(sql, (err, result) => {
-    if (err) {
-      callback(err, null);
-      return;
-    }
-    callback(null, result);
-  });
+    const sql =
+        "SELECT  username, nickname, avatarUrl, create_time, phone, email, gender, birthday FROM users";
+    mysqlDb.query(sql, (err, result) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, result);
+    });
 };
 
 module.exports = {
-  registUser,
-  loginUser,
-  getUserInfo,
-  getUsers,
+    registUser,
+    loginUser,
+    goToUserInfo,
+    getUserInfo,
+    doCollect,
+    getCollectionList,
+    updateAvatar,
+    updateUserInfo,
+    updateAccount,
+    getUsers,
 };

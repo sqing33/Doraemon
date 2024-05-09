@@ -99,6 +99,46 @@ const getNewsCategories = (callback) => {
   });
 };
 
+// 查询--通过id查询帖子评论
+const getBlogCommentsById = (id, callback) => {
+  const sql = "SELECT * FROM comment WHERE bn_id = ? AND category = 'news' ";
+  mysqlDb.query(sql, [id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+
+    let rootComments = result.filter((comment) => comment.pid === null);
+
+    function buildCommentTree(comments, parentId) {
+      // 筛选出所有父ID为当前ID的评论
+      let children = comments.filter((c) => c.pid === parentId);
+      // 递归地为每个筛选出的评论构建子树
+      children.forEach((child) => {
+        child.children = buildCommentTree(comments, child.id); // 递归调用自身构建子评论
+      });
+      // 返回构建好的子评论数组
+      return children;
+    }
+
+    // 假设result是你的所有评论的数组，并且每个评论都有pid和id属性
+    // 首先，构建顶级评论的树
+    rootComments.forEach((rootComment) => {
+      rootComment.children = buildCommentTree(result, rootComment.id); // 调用递归函数构建子评论
+    });
+
+    let sql2 = " SELECT count(*) FROM comment WHERE bn_id = ?";
+    mysqlDb.query(sql2, [id], (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      let total = result[0]["count(*)"];
+      callback(null, { comments: rootComments, total });
+    });
+  });
+};
+
 // 新增新闻
 const insertNews = (
   id,
@@ -123,6 +163,56 @@ const insertNews = (
       callback(null, result.insertId);
     }
   );
+};
+
+// 新增评论
+const insertComment = (
+  id,
+  content,
+  publisher_id,
+  nickname,
+  bn_id,
+  pid,
+  pname,
+  category,
+  create_time,
+  callback
+) => {
+  const sql =
+    "INSERT INTO comment SET id=?, content=?, publisher_id=?, nickname=?, bn_id=?, pid=?, pname=?, `like`=0, category=?, create_time=? ";
+  mysqlDb.query(
+    sql,
+    [
+      id,
+      content,
+      publisher_id,
+      nickname,
+      bn_id,
+      pid,
+      pname,
+      category,
+      create_time,
+    ],
+    (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      callback(null, result);
+    }
+  );
+};
+
+// 点赞
+const likeBlog = (comment_id, callback) => {
+  const sql = "UPDATE comment SET `like` = `like` + 1 WHERE id = ?;";
+  mysqlDb.query(sql, [comment_id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result);
+  });
 };
 
 // 删除新闻
@@ -167,6 +257,9 @@ module.exports = {
   getNews,
   getNewsById,
   getNewsCategories,
+  getBlogCommentsById,
+  insertComment,
+  likeBlog,
   insertNews,
   deleteNews,
   updateNews,

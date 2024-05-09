@@ -133,7 +133,7 @@ const store = useStore();
 const props = defineProps({
   formRules: {
     type: Object,
-    default: () => ({}),
+    default: () => ({}), 
   },
   formItems: {
     type: Array as () => any[],
