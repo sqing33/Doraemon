@@ -14,6 +14,8 @@ router.post("/blog", blogController.getBlog);
 router.post("/blog/categoryInsert", blogController.insertBlogCategories);
 // blog管理--查询帖子分类
 router.get("/blog/categories", blogController.getBlogCategories);
+// blog管理--查询帖子各分类数量
+router.get("/blog/categories/count", blogController.getBlogCategoriesCount);
 
 // news管理--新增新闻
 router.post("/news/insert", newsController.insertNews);
@@ -30,30 +32,29 @@ router.get("/news/categories", newsController.getNewsCategories);
 router.get("/users", usersController.getUsers);
 
 // 图片上传
-
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/images/news");
-  },
-  filename: (req, file, cb) => {
-    // 生成日期时间
-    const date = new Date(Date.now());
-    const year = date.getFullYear();
-    const month = ("0" + (date.getMonth() + 1)).slice(-2);
-    const day = ("0" + date.getDate()).slice(-2);
-    const hours = ("0" + date.getHours()).slice(-2);
-    const minutes = ("0" + date.getMinutes()).slice(-2);
-    const seconds = ("0" + date.getSeconds()).slice(-2);
-    const formattedDateTime = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-    // 生成随机字符串
-    const randomString = crypto.randomBytes(8).toString("hex");
-    // 生成新文件名
-    const newFilename = `news_${formattedDateTime}_${randomString}_${file.originalname}`;
+    destination: (req, file, cb) => {
+        cb(null, "public/images/news");
+    },
+    filename: (req, file, cb) => {
+        // 生成日期时间
+        const date = new Date(Date.now());
+        const year = date.getFullYear();
+        const month = ("0" + (date.getMonth() + 1)).slice(-2);
+        const day = ("0" + date.getDate()).slice(-2);
+        const hours = ("0" + date.getHours()).slice(-2);
+        const minutes = ("0" + date.getMinutes()).slice(-2);
+        const seconds = ("0" + date.getSeconds()).slice(-2);
+        const formattedDateTime = `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+        // 生成随机字符串
+        const randomString = crypto.randomBytes(8).toString("hex");
+        // 生成新文件名
+        const newFilename = `news_${formattedDateTime}_${randomString}_${file.originalname}`;
 
-    cb(null, newFilename);
-  },
+        cb(null, newFilename);
+    },
 });
-const upload = multer({ storage: storage });
+const upload = multer({storage: storage});
 router.post("/upload", upload.single("file"), newsController.upload);
 
 module.exports = router;

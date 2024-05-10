@@ -19,7 +19,10 @@
     "dayjs": "^1.11.10",
     "echarts": "^5.5.0",
     "element-plus": "^2.4.4",
+    "leaflet": "^1.9.4",
+    "leaflet-image": "^0.4.0",
     "lz-string": "^1.5.0",
+    "marked": "^12.0.2",
     "pako": "^2.1.0",
     "vee-validate": "^4.5.8",
     "vue": "^3.3.11",
@@ -29,6 +32,7 @@
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.10",
+    "@types/leaflet": "^1.9.12",
     "@types/node": "^20.11.30",
     "@types/pako": "^2.0.3",
     "@vitejs/plugin-vue": "^4.5.2",

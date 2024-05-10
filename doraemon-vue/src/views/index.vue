@@ -82,6 +82,15 @@
                 </router-link>
               </el-menu-item>
 
+              <el-menu-item>
+                <router-link to="/gpt">
+                  <el-icon>
+                    <QuestionFilled/>
+                  </el-icon>
+                  哆啦疑问
+                </router-link>
+              </el-menu-item>
+
               <!--  <el-menu-item>
                 <router-link to="/website">
                   <el-icon>
@@ -155,7 +164,7 @@
         }"
       >
         <el-scrollbar>
-          <router-view style="min-height: 90vh"></router-view>
+          <router-view style="min-height: 80vh"></router-view>
           <CopyrightIcp/>
         </el-scrollbar>
       </el-main>
@@ -167,7 +176,7 @@
 import {reactive, ref, watch, watchEffect} from "vue";
 import CopyrightIcp from "@/components/copyright-icp.vue";
 
-import {Connection, EditPen, Tickets, User,} from "@element-plus/icons-vue";
+import {Connection, EditPen, QuestionFilled, Tickets, User,} from "@element-plus/icons-vue";
 import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
 import {InterfaceUrl} from "@/api";
