@@ -3,10 +3,11 @@
     <el-container>
       <el-header
           v-if="!Admin"
+          :class="{'author-page': AuthorPage}"
           height="40px"
           style="
           width: 100%;
-          --el-menu-bg-color: transparent;
+          --el-menu-bg-color:transparent;
           --el-header-padding: 0;
           border-bottom: 1px solid #eee;
         "
@@ -99,6 +100,34 @@
                   相关网站
                 </router-link>
               </el-menu-item> -->
+
+              <el-menu-item>
+                <router-link to="/test">
+                  <el-icon>
+                    <QuestionFilled/>
+                  </el-icon>
+                  test
+                </router-link>
+              </el-menu-item>
+
+              <el-menu-item>
+                <router-link to="/test2">
+                  <el-icon>
+                    <QuestionFilled/>
+                  </el-icon>
+                  test2
+                </router-link>
+              </el-menu-item>
+
+              <el-menu-item>
+                <router-link to="/test3">
+                  <el-icon>
+                    <QuestionFilled/>
+                  </el-icon>
+                  test3
+                </router-link>
+              </el-menu-item>
+
             </el-menu>
           </div>
           <div class="user">
@@ -116,7 +145,7 @@
                         <img v-else alt="" src="../assets/avatar/2.jpg"/>
                       </div>
                       <div>
-                        <span v-if="userInfo.nickname">
+                        <span v-if="userInfo.nickname" :class="{'author-page': AuthorPage}">
                           {{ userInfo.nickname }}
                         </span>
                         <span v-else> 登录/注册 </span>
@@ -164,8 +193,8 @@
         }"
       >
         <el-scrollbar>
-          <router-view style="min-height: 80vh"></router-view>
-          <CopyrightIcp/>
+          <router-view></router-view>
+          <CopyrightIcp v-if="!(Admin || TheaterPage)"/>
         </el-scrollbar>
       </el-main>
     </el-container>
@@ -181,6 +210,7 @@ import {useRoute, useRouter} from "vue-router";
 import axios from "axios";
 import {InterfaceUrl} from "@/api";
 import {useStore} from "vuex";
+import {ElMessage} from "element-plus";
 
 const store = useStore();
 
@@ -209,6 +239,10 @@ const HomePage = ref(false);
 const OtherPage = ref(false);
 // 管理员页面height属性
 const AdminPage = ref(false);
+// 作者介绍页面导航栏颜色
+const AuthorPage = ref(false);
+
+const TheaterPage = ref(false);
 
 const ellipsis = ref(true);
 
@@ -221,6 +255,8 @@ watch(route, (to) => {
   OtherPage.value =
       to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
+  AuthorPage.value = to.path === "/author";
+  TheaterPage.value = to.path === "/test";
 });
 
 const logout = () => {
@@ -303,5 +339,18 @@ li {
 :deep(.admin-page) {
   height: 100vh;
   background-image: none !important;
+}
+
+.author-page {
+  --el-menu-bg-color: black !important;
+  color: white !important;
+
+  .logo {
+    color: white !important;
+  }
+
+  .el-menu-item {
+    color: white !important;
+  }
 }
 </style>

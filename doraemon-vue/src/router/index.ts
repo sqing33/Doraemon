@@ -80,6 +80,21 @@ const routes: RouteRecordRaw[] = [
         name: "gpt",
         component: defineAsyncComponent(() => import("@/components/gpt.vue")),
     },
+    {
+        path: "/test",
+        name: "test",
+        component: defineAsyncComponent(() => import("@/components/test.vue")),
+    },
+    {
+        path: "/test2",
+        name: "test2",
+        component: defineAsyncComponent(() => import("@/components/test2.vue")),
+    },
+    {
+        path: "/test3",
+        name: "test3",
+        component: defineAsyncComponent(() => import("@/components/test3.vue")),
+    }
 ];
 
 const router = createRouter({

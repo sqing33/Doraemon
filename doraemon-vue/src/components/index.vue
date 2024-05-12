@@ -1,26 +1,28 @@
 <template>
   <div
-    :class="[{ transition: transition }]"
-    style="position: relative; transition: transform 2s ease"
+      :class="[{ transition: transition }]"
+      style="position: relative; transition: transform 2s ease"
   >
+
+
     <!-- 首页第一页 -->
     <div class="onePage">
       <h1 class="title">欢迎探索哆啦A梦的奇妙世界！</h1>
 
       <div style="width: 100%">
         <el-carousel
-          :interval="4000"
-          :pause-on-hover="false"
-          :height="carouselHeight"
-          style="width: 100%"
-          :type="carouselType"
+            :height="carouselHeight"
+            :interval="4000"
+            :pause-on-hover="false"
+            :type="carouselType"
+            style="width: 100%"
         >
           <el-carousel-item v-for="item in carouselImgList" :key="item.id">
             <img
-              alt=""
-              :src="item.src"
-              class="beCenter"
-              style="
+                :src="item.src"
+                alt=""
+                class="beCenter"
+                style="
                 height: 100%;
                 width: 100%;
                 object-fit: scale-down;
@@ -32,16 +34,16 @@
       </div>
 
       <el-text
-        class="mx-1 hidden-xs-only"
-        type="primary"
-        size="large"
-        v-if="!transition"
-        @click="clickTransition"
-        style="position: fixed; bottom: 5px"
+          v-if="!transition"
+          class="mx-1 hidden-xs-only"
+          size="large"
+          style="position: fixed; bottom: 5px"
+          type="primary"
+          @click="clickTransition"
       >
         滚动进入下一页
         <el-icon>
-          <CaretBottom />
+          <CaretBottom/>
         </el-icon>
       </el-text>
     </div>
@@ -50,25 +52,25 @@
     <el-row :gutter="10">
       <el-col :span="24" style="height: 4.5vh">
         <el-text
-          class="mx-1 hidden-xs-only"
-          type="primary"
-          size="large"
-          v-if="transition"
-          @click="clickTransition"
-          style="position: relative; display: inline-block"
+            v-if="transition"
+            class="mx-1 hidden-xs-only"
+            size="large"
+            style="position: relative; display: inline-block"
+            type="primary"
+            @click="clickTransition"
         >
           滚动返回上一页
           <el-icon>
-            <CaretTop />
+            <CaretTop/>
           </el-icon>
         </el-text>
       </el-col>
       <el-col :sm="10" :xs="24" class="hidden-xs-only">
-        <img src="@/assets/6.jpg" alt="" class="beCenter img" />
+        <img alt="" class="beCenter img" src="@/assets/6.jpg"/>
       </el-col>
       <el-col :sm="14" :xs="24">
         <div
-          style="
+            style="
             display: block;
             position: relative;
             left: 50%;
@@ -79,22 +81,22 @@
             这里是一个专门为哆啦A梦粉丝打造的网站
           </h1>
           <div>
-            <img src="@/assets/skip/1.jpg" alt="" />
+            <img alt="" src="@/assets/skip/1.jpg"/>
             <span>
-              无论你是对这位蓝色小猫机器人的忠实粉丝<br />还是刚刚开始接触哆啦A梦的世界，我们都竭诚欢迎你的到来
+              无论你是对这位蓝色小猫机器人的忠实粉丝<br/>还是刚刚开始接触哆啦A梦的世界，我们都竭诚欢迎你的到来
             </span>
           </div>
           <div>
-            <img src="@/assets/skip/2.jpg" alt="" />
+            <img alt="" src="@/assets/skip/2.jpg"/>
             <span>
-              在这里，你可以深入了解哆啦A梦的作者藤子·F·不二雄先生的生平故事<br />探索哆啦A梦和其他动漫人物的丰富背景和故事
+              在这里，你可以深入了解哆啦A梦的作者藤子·F·不二雄先生的生平故事<br/>探索哆啦A梦和其他动漫人物的丰富背景和故事
             </span>
           </div>
         </div>
       </el-col>
       <el-col :sm="14" :xs="24">
         <div
-          style="
+            style="
             display: block;
             position: relative;
             left: 50%;
@@ -102,44 +104,44 @@
           "
         >
           <div>
-            <img src="@/assets/skip/4.jpg" alt="" />
+            <img alt="" src="@/assets/skip/4.jpg"/>
             <span>
-              从经典的音乐视频，到最新的新闻活动，再到用户之间的互动讨论<br />我们力求让每位访问者都能在这里找到自己感兴趣的内容
+              从经典的音乐视频，到最新的新闻活动，再到用户之间的互动讨论<br/>我们力求让每位访问者都能在这里找到自己感兴趣的内容
             </span>
           </div>
           <div>
-            <img src="@/assets/skip/5.jpg" alt="" />
+            <img alt="" src="@/assets/skip/5.jpg"/>
             <span>
-              我们邀请你加入我们，一起分享和发现关于哆啦A梦的一切<br />无论是回忆童年的美好时光，还是探索哆啦A梦带来的无限想象<br />这里都是你的乐园
+              我们邀请你加入我们，一起分享和发现关于哆啦A梦的一切<br/>无论是回忆童年的美好时光，还是探索哆啦A梦带来的无限想象<br/>这里都是你的乐园
             </span>
           </div>
           <div>
-            <img src="@/assets/skip/6.jpg" alt="" />
+            <img alt="" src="@/assets/skip/6.jpg"/>
             <span>让我们一起踏上这场奇妙的旅程吧！</span>
           </div>
         </div>
       </el-col>
       <el-col :sm="10" :xs="24">
-        <img src="@/assets/12.jpg" alt="" class="beCenter img" />
+        <img alt="" class="beCenter img" src="@/assets/12.jpg"/>
       </el-col>
     </el-row>
     <el-col
-      :span="24"
-      style="
+        :span="24"
+        style="
         position: absolute;
         bottom: 0;
         left: 50%;
         transform: translateX(-50%);
       "
     >
-      <CopyrightIcp />
+      <CopyrightIcp/>
     </el-col>
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref, computed } from "vue";
-import { CaretBottom, CaretTop } from "@element-plus/icons-vue";
+import {onMounted, onUnmounted, ref, computed} from "vue";
+import {CaretBottom, CaretTop} from "@element-plus/icons-vue";
 import CopyrightIcp from "@/components/copyright-icp.vue";
 
 const carouselImgModules = import.meta.glob("@/assets/carousel/*.jpg", {
@@ -147,10 +149,10 @@ const carouselImgModules = import.meta.glob("@/assets/carousel/*.jpg", {
 });
 
 const carouselImgList = Object.entries(carouselImgModules).map(
-  ([path, resolve], index) => ({
-    id: index,
-    src: resolve.default,
-  })
+    ([path, resolve], index) => ({
+      id: index,
+      src: resolve.default,
+    })
 );
 
 const carouselHeight = computed({
@@ -210,10 +212,10 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped lang="scss">
+<style lang="scss" scoped>
 .onePage {
   @media (min-width: 768px) {
-    height: 100vh;
+    height: 93vh;
   }
 
   .title {
@@ -221,10 +223,10 @@ onUnmounted(() => {
     text-align: center;
     font-family: BiscuitBody, serif;
     background-image: linear-gradient(
-      -225deg,
-      #625eb1 0%,
-      #1d8fe1 48%,
-      #625eb1 100%
+            -225deg,
+            #625eb1 0%,
+            #1d8fe1 48%,
+            #625eb1 100%
     );
     -webkit-background-clip: text;
     background-clip: text;
