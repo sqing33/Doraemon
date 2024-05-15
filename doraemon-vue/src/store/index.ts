@@ -12,6 +12,7 @@ interface State {
         form: any;
         categories: any;
     };
+    scroll: number;
 }
 
 const storeOptions: StoreOptions<State> = {
@@ -25,6 +26,7 @@ const storeOptions: StoreOptions<State> = {
                 form: {},
                 categories: [],
             },
+            scroll: 0,
         };
     },
     mutations: {
@@ -41,7 +43,9 @@ const storeOptions: StoreOptions<State> = {
             state.check.form = form;
             state.check.categories = categories;
         },
-
+        setScroll(state, data) {
+            state.scroll = data;
+        },
     },
     actions: {
         setUserInfoFromAxios({commit}, data) {
@@ -56,13 +60,16 @@ const storeOptions: StoreOptions<State> = {
         setCheck({commit}, {form, categories}) {
             commit("setCheck", {form, categories});
         },
-
+        setScroll({commit}, data) {
+            commit("setScroll", data);
+        },
     },
     getters: {
         getUserInfo: (state) => state.userInfo,
         getElementImageUrl: (state) => state.elementImageUrl,
         getRichTextEditor: (state) => state.richTextEditor,
         getCheck: (state) => state.check,
+        getScroll: (state) => state.scroll,
     },
     plugins: [
         new VuexPersistence({

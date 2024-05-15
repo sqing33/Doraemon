@@ -2,7 +2,7 @@
   <div class="conta">
     <el-container>
       <el-header
-          v-if="!Admin"
+          v-if="!(Admin || HomePage) || AuthorPage"
           :class="{'author-page': AuthorPage}"
           height="40px"
           style="
@@ -31,7 +31,7 @@
                       class="logo"
                       style="
                       font-size: 20px;
-                      font-family: Biscuit-body, serif;
+                      font-family: Haiyanzhishi, serif;
                       padding-left: 5px;
                     "
                   >
@@ -165,9 +165,9 @@
           'admin-page': AdminPage,
         }"
       >
-        <el-scrollbar>
+        <el-scrollbar @scroll="scroll">
           <router-view></router-view>
-          <CopyrightIcp v-if="!(Admin || TheaterPage)"/>
+          <CopyrightIcp v-if="!(Admin || AuthorPage || HomePage)"/>
         </el-scrollbar>
       </el-main>
     </el-container>
@@ -215,8 +215,6 @@ const AdminPage = ref(false);
 // 作者介绍页面导航栏颜色
 const AuthorPage = ref(false);
 
-const TheaterPage = ref(false);
-
 const ellipsis = ref(true);
 
 watch(route, (to) => {
@@ -229,7 +227,6 @@ watch(route, (to) => {
       to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
   AuthorPage.value = to.path === "/author";
-  TheaterPage.value = to.path === "/test";
 });
 
 const logout = () => {
@@ -260,6 +257,10 @@ const goToUserInfo = async () => {
     console.log(err);
   }
 };
+
+const scroll = ({scrollTop}) => {
+  store.commit("setScroll", scrollTop);
+}
 </script>
 
 <style lang="scss" scoped>
@@ -296,17 +297,12 @@ li {
   }
 }
 
-@font-face {
-  font-family: "Biscuit-body";
-  src: url("@/assets/ttf/Biscuit body.ttf");
-}
-
 :deep(.other-page) {
   height: 0;
 }
 
 :deep(.home-page) {
-  height: 100%;
+  height: 100vh;
 }
 
 :deep(.admin-page) {

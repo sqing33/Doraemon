@@ -1,5 +1,5 @@
 <template>
-  <index />
+  <index/>
 </template>
 
 <script setup>
@@ -7,6 +7,11 @@ import Index from "@/views/index.vue";
 </script>
 
 <style>
+@font-face {
+  font-family: "Haiyanzhishi";
+  src: url("@/assets/ttf/Haiyanzhishidongdong-Regular-2.ttf");
+}
+
 html {
   overflow: hidden;
 }
@@ -16,8 +21,6 @@ body {
   padding: 0;
   height: 100vh;
   width: 100vw;
-  /* background-image: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%); */
-  background-image: url(@/assets/2.jpg);
 }
 
 body::before {
