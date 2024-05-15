@@ -83,15 +83,6 @@
                 </router-link>
               </el-menu-item>
 
-              <el-menu-item>
-                <router-link to="/gpt">
-                  <el-icon>
-                    <QuestionFilled/>
-                  </el-icon>
-                  哆啦疑问
-                </router-link>
-              </el-menu-item>
-
               <!--  <el-menu-item>
                 <router-link to="/website">
                   <el-icon>
@@ -107,24 +98,6 @@
                     <QuestionFilled/>
                   </el-icon>
                   test
-                </router-link>
-              </el-menu-item>
-
-              <el-menu-item>
-                <router-link to="/test2">
-                  <el-icon>
-                    <QuestionFilled/>
-                  </el-icon>
-                  test2
-                </router-link>
-              </el-menu-item>
-
-              <el-menu-item>
-                <router-link to="/test3">
-                  <el-icon>
-                    <QuestionFilled/>
-                  </el-icon>
-                  test3
                 </router-link>
               </el-menu-item>
 

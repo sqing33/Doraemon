@@ -1,219 +1,262 @@
 <template>
-  <div class="homelist">
-    <div :style="{ height: `${windowHeight - 17}px` }" class="tailer">
-      <div :style="{ height: `${windowHeight * 0.9}px` }" class="left">
-        <div id="characters">
-          <button
-            v-for="character in characters"
-            :key="character.name"
-            class="character"
-            @click="selectCharacter(character.name)"
-          >
-            {{ character.name }}
-          </button>
-        </div>
+  <div>
+    <div id="map" style="width:100vw;height:95vh;"></div>
+
+    <div :class="{cloudTransition: cloudTransition,_cloudTransition: _cloudTransition}" class="cloud">
+      <img alt="" src="@/assets/map/cloud.png" style="width:230vw;height:230vh">
+    </div>
+
+    <div v-if="characterVisible" :style="{background: 'url(' + character.img + ') no-repeat center bottom / cover'}" class="character">
+      <el-button type="primary" @click="_back();character.value = ''">返回</el-button>
+
+      <div class="intro-text">
+        <h2>{{ chickIntro.name }}<span v-if="chickIntro.realname" style="font-size: 18px">(全名{{ chickIntro.realname }})</span></h2>
+        <p v-if="chickIntro.birthday">生日是{{ chickIntro.birthday }}<span v-if="chickIntro.age">,动漫中目前大约{{ chickIntro.age }}</span></p>
+        <p v-if="chickIntro.height">{{ chickIntro.height }},{{ chickIntro.weight }}</p>
+        <p>{{ chickIntro.nature }}</p>
+        <p v-if="chickIntro.favorite">喜欢{{ chickIntro.favorite }}</p>
+        <p v-if="chickIntro.fear">不喜欢{{ chickIntro.fear }}</p>
       </div>
-      <div class="right">
-        <div id="introduce">
-          <div id="title">人物介绍</div>
-          <img :src="currentCharacter.img" alt="人物图片" />
-          <ul>
-            <li v-for="info in characterInfo" :key="info.label">
-              <span>{{ info.label }}：</span
-              ><span
-                style="font-family: 'jam font', serif"
-                v-html="formatValue(info.value)"
-              ></span>
-            </li>
-          </ul>
-        </div>
+
+      <div class="intro">
+        <img v-for="(item, index) in intro" :key="index" :src="item.img" :style="{height: '300px'}" alt="" @click="handleClick(index)">
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from "vue";
-import { useStore } from "vuex";
+import {onMounted, reactive, ref} from "vue";
+import {useStore} from "vuex";
+
+import address from "@/assets/map/address.png";
+
+import Nobita from "@/assets/map/character/Nobita/home.jpg";
+import Giant from "@/assets/map/character/Giant/home.jpg";
+
+import Shizuka from "@/assets/map/character/Shizuka.jpg";
+import Suneo from "@/assets/map/character/Suneo.jpg";
+import Teacher from "@/assets/map/character/Teacher.jpg";
+
 
 const store = useStore();
 
-// 访问state中的属性
+const character = ref();
+
+const characterVisible = ref(false);
+
+const cloudTransition = ref(false);
+
+const _cloudTransition = ref(false);
+
+const _back = () => {
+  _cloudTransition.value = true;
+
+  setTimeout(() => {
+    characterVisible.value = false;
+  }, 800);
+
+  setTimeout(() => {
+    _cloudTransition.value = false;
+  }, 1500);
+}
+
 const CharactIntro = store.state.CharactIntro;
 
-const windowHeight = ref(0);
+const intro = ref(CharactIntro.Nobita);
+
+const chickIntro = ref(intro.value[1]);
 
 onMounted(() => {
-  const updateWindowSize = () => {
-    windowHeight.value = window.innerHeight - 17;
-  };
-  // 初始化窗口尺寸
-  updateWindowSize();
-  // 监听窗口尺寸变化
-  window.addEventListener("resize", updateWindowSize);
-});
+  const tileLayer = new BMap.TileLayer();
+  tileLayer.getTilesUrl = function (tileCoord, zoom) {
+    var x = tileCoord.x;
+    var y = tileCoord.y;
+    return 'http://localhost:5173/src/assets/map/tiles/' + zoom + '/tile-' + x + '_' + y + '.png';
+  }
+  const MyMap = new BMap.MapType('MyMap', tileLayer, {minZoom: 4, maxZoom: 5});
+  const map = new BMap.Map('map', {mapType: MyMap});
+  map.addControl(new BMap.NavigationControl());
 
-const characters = Object.values(CharactIntro);
-const selectedCharacter = ref(characters[0].name);
 
-// 根据选中的角色名称获取当前角色
-const currentCharacter = computed(() => {
-  return (
-    characters.find(
-      (character) => character.name === selectedCharacter.value
-    ) || {}
-  );
-});
+  // 定义中心经纬度
+  map.centerAndZoom(new BMap.Point(0, 0), 4);
 
-// 选择角色
-const selectCharacter = (name) => {
-  selectedCharacter.value = name;
-};
+  // 启用双指缩放地图
+  map.enablePinchToZoom(true)
 
-//将字符串中的\n替换为<br>标签,通过v-html使<br>生效
-const formatValue = (value) => {
-  return value.replace(/\n/g, "<br>");
-};
+  // 开启鼠标滚轮缩放
+  map.enableScrollWheelZoom(true);
 
-const characterInfo = computed(() => {
-  const character = currentCharacter.value;
-  const info = [
-    { label: "本名", value: character.realname },
-    { label: "生日", value: character.birthday },
-    { label: "星座", value: character.constellation },
-    { label: "身高", value: character.height },
-    { label: "体重", value: character.weight },
-    { label: "特点", value: character.nature },
-    { label: "喜欢", value: character.favorite },
-    { label: "讨厌", value: character.fear },
-    { label: "梦想", value: character.dream },
-    { label: "未来", value: character.future },
-    {
-      label: "其他",
-      value:
-        character.other1 +
-        "\n" +
-        character.other2 +
-        "\n" +
-        character.other3 +
-        "\n" +
-        character.other4 +
-        "\n" +
-        character.other5,
-    },
+
+  const swPoint = new BMap.Point(-105, -60);
+  const nePoint = new BMap.Point(105, 60);
+
+  const bounds = new BMap.Bounds(swPoint, nePoint);
+
+
+  let position = [
+    {id: 1, name: '大雄家', engName: 'Nobita', lng: 27, lat: -51, img: Nobita},
+    {id: 2, name: '静香家', engName: 'Shizuka', lng: -49, lat: 27, img: Shizuka},
+    {id: 3, name: '胖虎家', engName: 'Giant', lng: 12.5, lat: 24.5, img: Giant},
+    {id: 4, name: '小夫家', engName: 'Suneo', lng: 0, lat: 11, img: Suneo},
+    {id: 5, name: '出木衫家', engName: 'Teacher', lng: -100, lat: 27, img: Teacher},
+    {id: 6, name: '老师家', engName: 'Teacher', lng: 84.5, lat: 20, img: Teacher},
+    {id: 7, name: '神成家', engName: 'Teacher', lng: -9, lat: -37, img: Teacher},
+    {id: 8, name: '空地', engName: 'Teacher', lng: -7, lat: -29, img: Teacher}
   ];
-  return info.filter((info) => info.value !== "");
-});
+
+  for (let i = 0; i < position.length; i++) {
+    const point = new BMap.Point(position[i].lng, position[i].lat);
+    const marker = new BMap.Marker(point);
+
+    marker.setTitle(position[i].name);
+
+    marker.setIcon(new BMap.Icon(address, new BMap.Size(50, 50), {
+      imageSize: new BMap.Size(50, 50),
+      imageOffset: new BMap.Size(0, 0)
+    }));
+
+    map.addEventListener("zoomend", function (e) {
+      let zoomValue = map.getZoom();
+
+      console.log(zoomValue);
+
+      let zoom = 50;
+
+      if (zoomValue === 4) {
+        zoom = 50;
+      } else if (zoomValue === 5) {
+        zoom = 120;
+      }
+
+
+      marker.setIcon(new BMap.Icon(address, new BMap.Size(zoom, zoom), {
+        imageSize: new BMap.Size(zoom, zoom),
+        imageOffset: new BMap.Size(0, 0)
+      }));
+    });
+
+    marker.addEventListener("click", () => {
+
+      if (map.getZoom() === 4) {
+        map.setZoom(5);
+        map.setCenter(point);
+        return;
+      }
+
+      character.value = position[i];
+
+      intro.value = CharactIntro[character.value.engName];
+
+      chickIntro.value = intro.value[1];
+
+      cloudTransition.value = true;
+
+      setTimeout(() => {
+        characterVisible.value = true;
+      }, 700);
+
+      setTimeout(() => {
+        cloudTransition.value = false;
+      }, 1500);
+
+
+    });
+
+    map.addOverlay(marker);
+  }
+
+
+})
+
+const handleClick = (value) => {
+  chickIntro.value = intro.value[value];
+}
 </script>
 
-<style lang="scss" scoped>
-.tailer {
-  position: fixed;
-  width: 100%;
-  top: 34px;
-  height: 100%;
-  display: flex;
-  align-items: center;
+<style>
+.BMap_cpyCtrl,
+.BMap_stdMpCtrl,
+.anchorBL {
+  display: none !important;
+}
 
-  .left {
-    position: relative;
-    height: 500px;
-    width: 150px;
-    margin: 25px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border-radius: 10px;
+.cloud {
+  z-index: -99999;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate(-220vw, -79vh);
+}
 
-    #characters {
-      height: 100%;
-      padding: 10px 0;
-      display: flex;
-      flex-direction: column;
-      text-align: center;
-      overflow: auto;
+.cloudTransition {
+  animation: cloud 1.5s ease-in-out;
+}
 
-      &::-webkit-scrollbar {
-        width: 6px;
-      }
-
-      &::-webkit-scrollbar-track {
-        background-color: transparent;
-      }
-
-      &::-webkit-scrollbar-thumb {
-        background-color: rgba(0, 0, 0, 0.3);
-        border-radius: 3px;
-      }
-
-      &::-webkit-scrollbar-thumb:hover {
-        background-color: rgba(0, 0, 0, 0.5);
-      }
-
-      .character {
-        display: inline-block;
-        margin: 10px;
-        padding: 10px;
-        background-color: rgb(87, 185, 234);
-        border-radius: 5px;
-        cursor: pointer;
-        text-decoration: none;
-        color: black;
-        transition: 0.5s;
-
-        &:hover {
-          background-color: rgb(27, 160, 225);
-        }
-      }
-    }
+@keyframes cloud {
+  0% {
+    transform: translate(-220vw, -79vh);
+    z-index: 99999;
   }
-
-  .right {
-    width: 100%;
-    height: 100%;
-
-    #introduce {
-      width: 95%;
-      height: 90%;
-      transform: translate(0%, 2.5%);
-      background-color: rgba(255, 255, 255, 0.8);
-      padding: 20px;
-
-      #title {
-        font-size: 45px;
-        text-align: center;
-        padding-bottom: 15px;
-      }
-
-      img {
-        position: absolute;
-        right: 5%;
-        height: 600px;
-      }
-
-      ul {
-        position: relative;
-        top: 5%;
-        left: 5%;
-      }
-
-      li {
-        list-style-type: none;
-        margin-bottom: 10px;
-
-        span {
-          color: rgb(27, 160, 225);
-          font-size: 22px;
-          display: inline-block;
-          vertical-align: top;
-
-          &:first-child {
-            width: 85px;
-            font-weight: bold;
-            color: rgb(27, 160, 225);
-          }
-        }
-      }
-    }
+  100% {
+    transform: translate(65vw, -79vh);
+    z-index: 99999;
   }
 }
+
+._cloudTransition {
+  animation: _cloud 1.5s ease-in-out;
+}
+
+@keyframes _cloud {
+  0% {
+    transform: translate(65vw, -79vh) scaleX(-1);
+    z-index: 99999;
+  }
+  100% {
+    transform: translate(-220vw, -79vh) scaleX(-1);
+    z-index: 99999;
+  }
+}
+
+.character {
+  position: absolute;
+  width: 100vw;
+  height: 95vh;
+  top: 0;
+  left: 0;
+
+  .intro-text {
+    position: absolute;
+    top: 100px;
+    width: 500px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    background-color: rgba(255, 255, 255, 0.8);
+
+
+  }
+
+  .intro {
+    display: flex;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    align-items: end;
+
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+
+    }
+
+
+  }
+}
+
 </style>
-../store/CharactIntro.js

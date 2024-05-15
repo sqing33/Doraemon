@@ -1,33 +1,25 @@
 <template>
-  <!--  <div style="height: 100vh; width: 100vw; position: relative; z-index: 1">
-      <img
-        src="@/assets/author/0.jpg"
-        alt=""
-        style="
-          height: 40vh;
-          border-radius: 30px;
-          position: absolute;
-          top: 36%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-        "
-      />
+  <div class="author-intro">
 
-      <div class="bubble" style="transform: translate(-26vw, -40vh)">
-        <img src="@/assets/author/1.png" alt="" />
-        <span style="transform: translateX(-2vw)">
-          {{ intro.a }}<br />{{ intro.b }}
-        </span>
-      </div>
+    <div class="author-search">
+      <a href="https://zh.wikipedia.org/wiki/藤子·F·不二雄" target="_blank">
+        <el-text>去维基百科搜索<br></br>藤子·F·不二雄</el-text>
+      </a>
+      <br><br>
+      <a href="https://baike.baidu.com/item/藤子·F·不二雄" target="_blank">
+        <el-text>去百度百科搜索<br></br>藤子·F·不二雄</el-text>
+      </a>
+    </div>
 
-      <div class="bubble" style="transform: translate(23vw, -40vh)">
-        <img src="@/assets/author/2.png" alt="" />
-        <span style="transform: translateY(-1.5vh)">
-          {{ intro.c }}<br />{{ intro.d }}<br />{{ intro.e }}
-        </span>
+    <div class="author-content">
+      <div class="left">
+        <span v-html="_content_1"></span>
       </div>
-    </div>-->
-  <div class="author-intro">>
+      <div class="right">
+        <span v-html="_content_2"></span>
+      </div>
+    </div>
+
     <div class="author-img">
       藤子·F·不二雄（本名：藤本弘，1933年12月1日－1996年9月23日）是日本著名的漫画家，与安孫子素雄以藤子不二雄的名义发表作品。他创作了大量深受儿童和成人喜爱的漫画作品，对日本漫画界产生了深远的影响。藤子·F·不二雄出生于日本富山县，小时候就对绘画产生了浓厚的兴趣。他的家庭并不富裕，但他的父母一直支持他的绘画梦想。在中学时期，他开始向杂志投稿漫画作品。1951年，他进入富山新闻社工作，开始了他的职业漫画生涯。1954年，藤子·F·不二雄与安孫子素雄相识，两人开始了长达数十年的合作。他们共同创作了许多受欢迎的漫画作品，如《怪物小王子》、《怪物小公主》、《怪物小天使》等。这些作品以其独特的幽默、温馨的故事情节和富有想象力的角色而受到广泛喜爱。1964年，藤子·F·不二雄与安孫子素雄以“藤子不二雄”的名义获得了日本漫画家协会奖。此后，他们的作品在日本乃至世界范围内越来越受欢迎。1970年，他们的代表作《哆啦A梦》（Doraemon）开始连载，这部作品讲述了一只来自未来的机器猫帮助一个小学生解决各种问题的故事，深受读者喜爱，成为了日本国民级的经典漫画。
       《哆啦A梦》的成功使藤子·F·不二雄成为了日本漫画界的巨星。他的作品不仅在日本国内广受欢迎，还被翻译成多种语言，在世界范围内传播。此外，《哆啦A梦》还被改编成动画、电影等多种形式，成为了日本文化的代表之一。除了《哆啦A梦》，藤子·F·不二雄还创作了许多其他优秀的漫画作品。如《宇宙小毛球》、《小叮当》、《小飞侠》等。这些作品同样以其幽默、温馨的故事情节和富有想象力的角色而受到广泛喜爱。藤子·F·不二雄的漫画作品具有很高的艺术价值和教育意义。他的作品不仅娱乐性强，还能启发读者的思考，传递出许多积极的人生观念。例如，《哆啦A梦》中的主人翁野比世修，虽然经常遇到困难，但他总是勇敢面对，不断努力，最终克服困难。这种积极向上的精神对读者产生了很好的教育作用。藤子·F·不二雄的漫画作品在中国也有很大的影响力。许多中国读者从小就接触到了他的作品，如《哆啦A梦》、《小叮当》等。这些作品陪伴了一代又一代的中国孩子成长，给他们带来了无尽的欢乐。同时，这些作品也为中国漫画家提供了很好的借鉴和学习对象，对中国漫画事业的发展产生了积极的推动作用。
@@ -81,14 +73,48 @@
 
 </template>
 
-<script setup>
-/*const intro = {
-  a: "你们好，我是藤子·F·不二雄，是一名漫画家",
-  b: "本名是藤本弘，于1933年12月1日出生在日本富山县",
-  c: "《哆啦A梦》无疑是我最著名的作品，它讲述了一只来自未来的",
-  d: "机器猫哆啦A梦和一个小男孩野比大雄的故事",
-  e: "这部作品深受读者的喜爱，成为了跨越年龄和国界的经典",
-};*/
+<script lang="ts" setup>
+import {onMounted, ref} from "vue";
+
+const content_1 = '       ' + '藤子·F·不二雄（ふじこ·F·ふじお）（1933年12月1日—1996年9月23日），原名藤本弘，又名藤子不二雄F。\n' +
+    '       ' + '日本男性漫画家，出生于日本富山县的高冈市，毕业于富山县立高冈工艺高等学校电气科。小学馆的代表漫画家之一，代表作《哆啦A梦》' +
+    '《小鬼Q太郎》《小超人帕门》《超能力魔美》。\n曾经长期与另一位著名日本漫画家安孙子素雄（笔名藤子不二雄A）以藤子不二雄作为共用的笔名，' +
+    '       ' + '先后在艰难的生存环境下画了十多年，并未造成太大热潮，直至实际上可以算是两个人最后的合作《Q太郎》。';
+
+const content_2 = '       ' + '1947年受到漫画大师手冢治虫的启发，立志成为儿童漫画家。\n' +
+    '       ' + '1964年凭《Q太郎》一炮走红，从此奠定了他在日本漫画界的重要地位，而他的代表作《哆啦A梦》更掀起了无法抵挡的旋风，\n' +
+    '       ' + '成为了成千上万儿童心目中永恒的经典，《哆啦A梦》为藤本弘的单人作品。\n' +
+    '       ' + '1993年，为了纪念藤本弘的成就，在日本的高冈市建成了“哆啦A梦散步道”。\n' +
+    '       ' + '1996年9月23日凌晨02：10，藤本弘因肝衰竭逝世，享年63岁。';
+
+const _content_1 = ref('');
+
+const _content_2 = ref('');
+
+onMounted(() => {
+  leftContent();
+  rightContent();
+})
+
+const leftContent = () => {
+  let index = 0;
+  setInterval(() => {
+    if (index < content_1.length) {
+      _content_1.value += content_1[index];
+      index++;
+    }
+  }, 50)
+}
+
+const rightContent = () => {
+  let index = 0;
+  setInterval(() => {
+    if (index < content_2.length) {
+      _content_2.value += content_2[index];
+      index++;
+    }
+  }, 50)
+}
 
 
 </script>
@@ -100,6 +126,76 @@ body {
 
 .author-intro {
   background: black;
+  position: relative;
+
+  .author-search {
+    position: absolute;
+    z-index: 10;
+    bottom: 30vh;
+    left: 10vw;
+    text-align: center;
+
+    a:first-child:hover {
+      span:first-child {
+        color: #f0f0f0;
+      }
+    }
+
+    a:last-child:hover {
+      span:last-child {
+        color: #f0f0f0;
+      }
+    }
+  }
+
+  .author-content {
+    width: 100vw;
+    height: 95vh;
+    position: absolute;
+    white-space: pre-wrap;
+    z-index: 9;
+
+    div {
+      width: 300px;
+    }
+
+    .left {
+      position: absolute;
+      top: 5vh;
+      left: 5vw;
+    }
+
+    .right {
+      position: absolute;
+      top: 5vh;
+      right: 5vw;
+    }
+
+    span {
+      position: relative;
+      color: white;
+
+
+      &:after {
+        content: '';
+        position: absolute;
+        right: 0;
+        width: 2px;
+        height: 22px;
+        transform: translateX(5px);
+        animation: animation 1.1s infinite;
+      }
+
+      @keyframes animation {
+        0%, 100% {
+          background: transparent;
+        }
+        50% {
+          background-color: #f0f0f0;
+        }
+      }
+    }
+  }
 
   .author-img {
     height: 100vh;
@@ -120,25 +216,3 @@ body {
 
 
 </style>
-
-<!--<style lang="scss" scoped>
-.bubble {
-  position: absolute;
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  img {
-    height: 20vh;
-    width: 35vw;
-  }
-
-  span {
-    position: absolute;
-    text-align: center;
-    font-size: 1.15vw;
-  }
-}
-</style>-->

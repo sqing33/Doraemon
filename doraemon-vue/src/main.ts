@@ -18,6 +18,7 @@ app.use(store);
 app.use(router);
 app.use(ElementPlus);
 app.use(BaiduMap, {
-    ak: 'PlhFWpA02aoURjAOpnWcRGqw7AI8EEyO'
+    ak: 'MihguGkuPLXUwhC7Wm4Hf7RtOMvdCczs',
+    type: 'WebGL'
 });
 app.mount("#app");
