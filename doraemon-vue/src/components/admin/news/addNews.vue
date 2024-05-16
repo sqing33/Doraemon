@@ -1,8 +1,8 @@
 <template>
   <h1
-    style="
-      margin-top: 2vh;
-      margin-bottom: 3vh;
+      style="
+      margin-top: 10px;
+      margin-bottom: 10px;
       text-align: center;
       font: 5vh sans-serif;
     "
@@ -10,11 +10,12 @@
     发布新闻
   </h1>
   <div style="width: 75%; margin: 20px auto">
-    <ElementForm v-bind="formConfig" v-model="form">
+    <ElementForm v-model="form" v-bind="formConfig">
       <template #footer>
         <div style="display: flex; justify-content: center">
           <el-button size="large" type="primary" @click="onSubmit"
-            >发布</el-button
+          >发布
+          </el-button
           >
           <el-button size="large" style="margin-left: 5vw">取消</el-button>
         </div>
@@ -24,13 +25,13 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive } from "vue";
-import { InterfaceUrl } from "@/api";
-import { ElMessage } from "element-plus";
+import {reactive} from "vue";
+import {InterfaceUrl} from "@/api";
+import {ElMessage} from "element-plus";
 import axios from "axios";
 import LZString from "lz-string";
 import ElementForm from "@/utils/ElementForm.vue";
-import { useStore } from "vuex";
+import {useStore} from "vuex";
 
 const store = useStore();
 
@@ -48,7 +49,7 @@ const formItems = reactive([
     type: "textarea",
     placeholder: "请输入新闻内容",
     prop: "content",
-    style: ["height: 40vh"],
+    style: ["height: 25vh"],
   },
   {
     label: "封面",
@@ -64,9 +65,9 @@ const formItems = reactive([
     prop: "region",
     style: ["width: 15vw"],
     options: [
-      { label: "新闻", value: "1" },
-      { label: "活动", value: "2" },
-      { label: "公告", value: "3" },
+      {label: "新闻", value: "1"},
+      {label: "活动", value: "2"},
+      {label: "公告", value: "3"},
     ],
   },
   {
@@ -99,16 +100,16 @@ const onSubmit = () => {
   }
 
   axios
-    .post(InterfaceUrl + "/admin/news/insert", form)
-    .then((res) => {
-      ElMessage({
-        type: "success",
-        message: "发布成功!",
+      .post(InterfaceUrl + "/admin/news/insert", form)
+      .then((res) => {
+        ElMessage({
+          type: "success",
+          message: "发布成功!",
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+        ElMessage.error("请求失败，请联系管理员。");
       });
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
 };
 </script>

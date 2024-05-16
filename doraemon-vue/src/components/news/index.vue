@@ -2,41 +2,48 @@
   <div id="news">
     <div class="news-head">
       <div class="logo">
-        <img alt="logo" src="../../../public/icon.png" />
-        哆啦新闻
+        <img alt="logo" src="../../../public/icon.png"/>
+        <span>哆啦新闻</span>
       </div>
 
       <div class="search">
-        <el-input v-model="keyword" style="width: 250px" placeholder="搜索">
+        <el-input v-model="keyword" placeholder="搜索" style="width: 250px">
           <template #suffix>
-            <el-icon class="el-input__icon" @click="search"><Search /></el-icon>
+            <el-icon class="el-input__icon" @click="search">
+              <Search/>
+            </el-icon>
           </template>
         </el-input>
       </div>
     </div>
 
     <div class="news-categories">
-      <div>分类：</div>
+      <div>
+        <span style="width: 100px;display: inline-block;transform: translateY(-3px)">
+          分类：
+      </span>
+      </div>
+
       <div class="categories">
         <span @click="category(null)">全部</span>
         <span v-for="item in categories" :key="item.id">
-          <div @click="category(item.id)">{{ item.name }}</div>
+          <span @click="category(item.id)">{{ item.name }}</span>
         </span>
       </div>
     </div>
 
     <div class="news-container">
-      <div class="card" v-for="item in news" :key="item.id">
+      <div v-for="item in news" :key="item.id" class="card">
         <div style="display: flex" @click="doGoToNewsPage(item.id)">
           <img
-            :src="item.coverUrl"
-            alt=""
-            style="height: 100px; margin-right: 20px"
+              :src="item.coverUrl"
+              alt=""
+              style="height: 100px; margin-right: 20px"
           />
           <div style="position: relative; width: 100%">
             <div>{{ item.title }}</div>
             <div
-              style="
+                style="
                 display: flex;
                 position: absolute;
                 bottom: 0;
@@ -54,17 +61,17 @@
       </div>
     </div>
 
-    
+
   </div>
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import {ref, onMounted} from "vue";
 import axios from "axios";
-import { ElMessage } from "element-plus";
-import { Search } from "@element-plus/icons-vue";
-import { InterfaceUrl } from "@/api";
-import { useRouter } from "vue-router";
+import {ElMessage} from "element-plus";
+import {Search} from "@element-plus/icons-vue";
+import {InterfaceUrl} from "@/api";
+import {useRouter} from "vue-router";
 import LZString from "lz-string";
 import dateFunction from "@/utils/Date";
 
@@ -75,7 +82,6 @@ const news = ref();
 const categories = ref();
 
 const keyword = ref();
-
 
 
 const toCategory = (id: number) => {
@@ -92,57 +98,55 @@ const category = (id: number | null) => {
 };
 
 const getNews = (
-  categoryId: number | null = null,
-  keyword: string | null = null
+    categoryId: number | null = null,
+    keyword: string | null = null
 ) => {
   axios
-    .post(InterfaceUrl + "/news", null, {
-      params: {
-        page: 1,
-        pageSize: null,
-        categoryId,
-        keyword,
-        length: 99,
-      },
-    })
-    .then((res) => {
-      news.value = res.data.data.map((item: any) => {
-        item.content = item.content;
-        item.create_time = dateFunction(item.create_time);
-        return item;
+      .post(InterfaceUrl + "/news", null, {
+        params: {
+          page: 1,
+          pageSize: null,
+          categoryId,
+          keyword,
+          length: 99,
+        },
+      })
+      .then((res) => {
+        news.value = res.data.data.map((item: any) => {
+          item.content = item.content;
+          item.create_time = dateFunction(item.create_time);
+          return item;
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
       });
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
 };
 
 onMounted(() => {
   getNews();
   axios
-    .get(InterfaceUrl + "/news/categories")
-    .then((res) => {
-      categories.value = res.data.data
-        .filter((item: any) => item.state === "true")
-        .map((item: any) => {
-          return item;
-        });
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
+      .get(InterfaceUrl + "/news/categories")
+      .then((res) => {
+        categories.value = res.data.data
+            .filter((item: any) => item.state === "true")
+            .map((item: any) => {
+              return item;
+            });
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
 });
 
 const doGoToNewsPage = (id: string) => {
-  router.push({ name: "newsPage", params: { id } });
+  router.push({name: "newsPage", params: {id}});
 };
 </script>
 
 <style lang="scss" scoped>
-
-
 #news {
   width: 60vw;
   margin: 0 auto;
@@ -156,8 +160,15 @@ const doGoToNewsPage = (id: string) => {
 
     .logo {
       font-size: 30px;
+      display: flex;
+
       img {
         height: 80px;
+      }
+
+      span {
+        display: inline-block;
+        margin: auto 10px;
       }
     }
   }
@@ -171,12 +182,11 @@ const doGoToNewsPage = (id: string) => {
 
     .categories {
       display: flex;
+      flex: 1;
       font-size: 16px;
-      justify-content: space-between;
-      margin: 0 80px;
+      justify-content: space-around;
 
       span {
-        width: 70px;
         cursor: pointer;
         padding: 5px 15px;
         margin-left: 20px;
@@ -194,9 +204,12 @@ const doGoToNewsPage = (id: string) => {
 
   .news-container {
     margin-top: 30px;
+
     .card {
       padding: 20px;
       margin-bottom: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 10px;
 
       &:hover {
         transform: scale(1.02);

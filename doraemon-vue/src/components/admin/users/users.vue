@@ -1,62 +1,63 @@
 <template>
-  <h1 style="margin-top: 3vh; text-align: center; font: 5vh sans-serif">
-    用户列表
-  </h1>
+  <div style="height: calc(100vh - 90px);">
+    <h1 style="margin-top: 3vh; text-align: center; font: 5vh sans-serif">
+      用户列表
+    </h1>
 
-  <el-table
-    :data="form"
-    border
-    height="82vh"
-    style="margin: 0 auto; font: 0.85em sans-serif"
-    :row-class-name="tableRowClassName"
-    :header-cell-style="{ textAlign: 'center' }"
-    :cell-style="{ textAlign: 'center' }"
-    :row-style="{ height: '125px' }"
-  >
-    <el-table-column type="index" label="序号" width="50" />
-    <el-table-column prop="nickname" label="昵称" width="150" />
-    <el-table-column prop="username" label="用户名" width="150" />
-    <el-table-column prop="avatar" label="头像" width="125">
-      <template #default="scope">
-        <img
-          :src="scope.row.avatar"
-          style="height: auto; max-width: 100px"
-          alt=""
-        />
-      </template>
-    </el-table-column>
-    <el-table-column prop="create_time" label="注册时间">
-      <template #default="scope">
-        <span>{{ timeConvert(scope.row.create_time) }}</span>
-      </template>
-    </el-table-column>
-    <el-table-column prop="phone" label="手机号" width="175" />
-    <el-table-column prop="email" label="邮箱" width="200" />
-    <el-table-column align="center" label="操作" width="150">
-      <template #default="scope">
-        <div style="display: flex; flex-direction: column; padding: 0 30px">
-          <el-button type="primary" @click="doEdit(scope.row.id)">
-            编辑
-          </el-button>
-          <el-button
-            style="margin: 5px 0 0 0"
-            type="danger"
-            @click="doDelete(scope.row.id)"
-          >
-            删除
-          </el-button>
-        </div>
-      </template>
-    </el-table-column>
-  </el-table>
+    <el-table
+        :cell-style="{ textAlign: 'center' }"
+        :data="form"
+        :header-cell-style="{ textAlign: 'center' }"
+        :row-class-name="tableRowClassName"
+        :row-style="{ height: '125px' }"
+        border
+        style="margin: 0 auto; font: 0.85em sans-serif;height: calc(100vh - 200px);"
+    >
+      <el-table-column label="序号" type="index" width="50"/>
+      <el-table-column label="昵称" prop="nickname" width="150"/>
+      <el-table-column label="用户名" prop="username" width="150"/>
+      <el-table-column label="头像" prop="avatar" width="125">
+        <template #default="scope">
+          <img
+              :src="scope.row.avatar"
+              alt=""
+              style="height: auto; max-width: 100px"
+          />
+        </template>
+      </el-table-column>
+      <el-table-column label="注册时间" prop="create_time">
+        <template #default="scope">
+          <span>{{ timeConvert(scope.row.create_time) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="手机号" prop="phone" width="175"/>
+      <el-table-column label="邮箱" prop="email" width="200"/>
+      <el-table-column align="center" label="操作" width="150">
+        <template #default="scope">
+          <div style="display: flex; flex-direction: column; padding: 0 30px">
+            <el-button type="primary" @click="doEdit(scope.row.id)">
+              编辑
+            </el-button>
+            <el-button
+                style="margin: 5px 0 0 0"
+                type="danger"
+                @click="doDelete(scope.row.id)"
+            >
+              删除
+            </el-button>
+          </div>
+        </template>
+      </el-table-column>
+    </el-table>
+  </div>
 </template>
 
 <script lang="ts" setup>
 import axios from "axios";
-import { ElMessage } from "element-plus";
-import { useRouter } from "vue-router";
-import { onMounted, reactive, ref } from "vue";
-import { InterfaceUrl } from "@/api";
+import {ElMessage} from "element-plus";
+import {useRouter} from "vue-router";
+import {onMounted, reactive, ref} from "vue";
+import {InterfaceUrl} from "@/api";
 
 const router = useRouter();
 
@@ -84,18 +85,18 @@ const total = ref();
 
 onMounted(() => {
   axios
-    .get(InterfaceUrl + "/admin/users")
-    .then((response) => {
-      const data = response.data;
-      if (data.state === 0) {
-        form.value = data.data;
-      } else {
-        console.error(data.message);
-      }
-    })
-    .catch((error) => {
-      ElMessage.error("请求失败，请联系管理员。");
-    });
+      .get(InterfaceUrl + "/admin/users")
+      .then((response) => {
+        const data = response.data;
+        if (data.state === 0) {
+          form.value = data.data;
+        } else {
+          console.error(data.message);
+        }
+      })
+      .catch((error) => {
+        ElMessage.error("请求失败，请联系管理员。");
+      });
 });
 
 /*const doEdit = (id) => {

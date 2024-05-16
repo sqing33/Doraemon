@@ -3,7 +3,7 @@
     <el-container>
       <el-header
           v-if="!(Admin || HomePage) || AuthorPage"
-          :class="{'author-page': AuthorPage}"
+          :class="{'author-page': AuthorPage, 'character-page':CharacterPage}"
           height="40px"
           style="
           width: 100%;
@@ -30,7 +30,7 @@
                   <div
                       class="logo"
                       style="
-                      font-size: 20px;
+                      font-size: 18px;
                       font-family: Haiyanzhishi, serif;
                       padding-left: 5px;
                     "
@@ -44,7 +44,7 @@
                   <el-icon>
                     <EditPen/>
                   </el-icon>
-                  作者团队
+                  作者介绍
                 </router-link>
               </el-menu-item>
               <el-menu-item>
@@ -52,7 +52,7 @@
                   <el-icon>
                     <User/>
                   </el-icon>
-                  动漫人物介绍
+                  动漫人物
                 </router-link>
               </el-menu-item>
 
@@ -107,7 +107,7 @@
             <el-menu :ellipsis="false" mode="horizontal" style="height: 40px">
               <el-menu-item>
                 <el-dropdown>
-                  <span class="el-dropdown-link" style="outline: none">
+                  <div class="el-dropdown-link" style="outline: none">
                     <div>
                       <div>
                         <img
@@ -115,16 +115,16 @@
                             :src="userInfo.avatarUrl"
                             alt=""
                         />
-                        <img v-else alt="" src="../assets/avatar/2.jpg"/>
+                        <img v-else alt="" src="../assets/avatar.png"/>
                       </div>
                       <div>
                         <span v-if="userInfo.nickname" :class="{'author-page': AuthorPage}">
                           {{ userInfo.nickname }}
                         </span>
-                        <span v-else> 登录/注册 </span>
+                        <span v-else style="color: #000"> 登录/注册 </span>
                       </div>
                     </div>
-                  </span>
+                  </div>
                   <template #dropdown>
                     <el-dropdown-menu>
                       <router-link
@@ -164,6 +164,7 @@
           'other-page': OtherPage,
           'admin-page': AdminPage,
         }"
+          style=""
       >
         <el-scrollbar @scroll="scroll">
           <router-view></router-view>
@@ -215,6 +216,8 @@ const AdminPage = ref(false);
 // 作者介绍页面导航栏颜色
 const AuthorPage = ref(false);
 
+const CharacterPage = ref(false);
+
 const ellipsis = ref(true);
 
 watch(route, (to) => {
@@ -227,6 +230,7 @@ watch(route, (to) => {
       to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
   AuthorPage.value = to.path === "/author";
+  CharacterPage.value = to.path === "/character";
 });
 
 const logout = () => {
@@ -321,5 +325,9 @@ li {
   .el-menu-item {
     color: white !important;
   }
+}
+
+.character-page {
+  --el-menu-bg-color: rgb(243, 241, 236) !important;
 }
 </style>

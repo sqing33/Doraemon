@@ -1,38 +1,41 @@
 <template>
-  <el-row :gutter="10" class="blog-container">
-    <!-- 上左轮播新闻 -->
-    <el-col :sm="10" :xs="24">
-      <div class="blog-carousel" style="height: 40vh">
-        <el-carousel v-if="blog" arrow="always" height="40vh">
-          <el-carousel-item
-              v-for="(form, index) in blog.slice(0, 5)"
-              :key="index"
-              @click="doGoToblogPage(form.id)"
-          >
-            <img :src="form.coverUrl" alt=""/>
-          </el-carousel-item>
-        </el-carousel>
-      </div>
-    </el-col>
+  <div class="blog">
+    <el-row :gutter="10" class="blog-container">
 
-    <!-- 上右热点新闻 -->
-    <el-col :sm="14" :xs="24">
-      <div
-          class="blog-hot"
-          style="
+      <!-- 上左轮播新闻 -->
+      <el-col :sm="10" :xs="24">
+        <div class="blog-carousel" style="height: 40vh">
+          <el-carousel v-if="blog" arrow="always" height="40vh">
+            <el-carousel-item
+                v-for="(form, index) in hotBlog"
+                :key="index"
+                style="cursor: pointer;"
+                @click="doGoToBlogPage(form.id)"
+            >
+              <img :src="form.coverUrl" alt=""/>
+            </el-carousel-item>
+          </el-carousel>
+        </div>
+      </el-col>
+
+      <!-- 上右热点新闻 -->
+      <el-col :sm="14" :xs="24">
+        <div
+            class="blog-hot"
+            style="
           text-align: left;
-          background-color: rgba(242, 242, 242, 0.3);
+          background-color: rgba(242, 242, 242, 0.8);
+          border-radius: 10px;
           height: 40vh;
+          padding: 10px;
+          display: flex;
+          flex-direction: column;
         "
-      >
-        <h3>热帖</h3>
-        <ul v-if="blog" style="padding: 10px 0; list-style: none">
-          <li
-              v-for="(form, index) in blog.slice(0, 5)"
-              :key="index"
-              style="height: 42px"
-          >
-            <h6>
+        >
+          <h3 style="margin: 0; font-size: 1.8em">热帖</h3>
+          <ul v-if="blog" style="list-style: none;flex:1;padding: 0;margin: 10px 0 20px 0;overflow: hidden;display: flex;flex-direction: column; justify-content: space-between;">
+            <li v-for="(form, index) in hotBlog" :key="index" style="cursor: pointer;font-size: 2.5vmin">
+            <span>
               <span
                   style="
                   display: inline-block;
@@ -44,83 +47,85 @@
               >
                 {{ index + 1 + ". " }}
               </span>
-              <span @click="doGoToblogPage(form.id)">
+              <span @click="doGoToBlogPage(form.id)">
                 {{ form.title }}
               </span>
-            </h6>
-          </li>
-        </ul>
-      </div>
-    </el-col>
-
-    <!-- 下方筛选搜索 -->
-    <el-col :span="24">
-      <div class="search-write">
-        <div style="margin-left: 45px">
-          <el-input
-              v-model="keyword"
-              clearable
-              placeholder="请输入搜索内容..."
-              size="large"
-              style="width: 350px; margin-right: 10px"
-          />
-          <el-button plain size="large" type="primary" @click="search">
-            <span style="margin: 0; font-size: 1.3em">搜索</span>
-          </el-button>
+            </span>
+            </li>
+          </ul>
         </div>
+      </el-col>
 
-        <el-select
-            v-model="categoriesChecked"
-            placeholder="分类"
-            size="large"
-            style="width: 240px"
-            @change="getBlog(categoriesChecked)"
-        >
-          <el-option label="全部" value=""/>
-          <el-option
-              v-for="item in categories"
-              :key="item.id"
-              :label="item.name"
-              :value="item.id"
-          />
-        </el-select>
+      <!-- 下方筛选搜索 -->
+      <el-col :span="24">
+        <el-row class="search-write">
+          <el-col :sm="12" :xs="24" style="display: flex; justify-content: center">
+            <el-input
+                v-model="keyword"
+                clearable
+                placeholder="请输入搜索内容..."
+                size="large"
+                style="width: 25vw; margin-right: 10px"
+            />
+            <el-button plain size="large" type="primary" @click="search">
+              <span style="margin: 0; font-size: 1.3em">搜索</span>
+            </el-button>
+          </el-col>
 
-        <el-button
-            round
-            size="large"
-            style="margin-right: 45px"
-            type="primary"
-            @click="writeBlog"
-        >
-          <span style="margin: 0; font-size: 1.3em">发表帖子</span>
-        </el-button>
-      </div>
-    </el-col>
+          <el-col :sm="12" :xs="24" style="display: flex; justify-content: space-around">
+            <el-select
+                v-model="categoriesChecked"
+                placeholder="分类"
+                size="large"
+                style="width: 100px"
+                @change="getBlog(categoriesChecked)"
+            >
+              <el-option label="全部" value=""/>
+              <el-option
+                  v-for="item in categories"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+              />
+            </el-select>
 
-    <!-- 下方新闻列表 -->
-    <el-col :span="24">
-      <el-row class="blog-list">
-        <el-col
-            v-for="(form, index) in blog"
-            :key="index"
-            :sm="8"
-            :xs="24"
-            style="max-width: 100vw"
-        >
-          <el-card
-              shadow="hover"
-              style="margin: 5px 5px"
-              @click="doGoToBlogPage(form.id)"
+            <el-button
+                round
+                size="large"
+                style="margin-right: 45px"
+                type="primary"
+                @click="writeBlog"
+            >
+              <span style="margin: 0; font-size: 1.3em">发表帖子</span>
+            </el-button>
+          </el-col>
+        </el-row>
+      </el-col>
+
+      <!-- 下方新闻列表 -->
+      <el-col :span="24">
+        <el-row class="blog-list">
+          <el-col
+              v-for="(form, index) in blog"
+              :key="index"
+              :sm="8"
+              :xs="24"
+              style="max-width: 100vw"
           >
-            <template #header>
-              <div style="height: 45px; text-align: center">
-                {{ form.title }}
-              </div>
-            </template>
-            <img
-                :src="form.coverUrl"
-                alt=""
-                style="
+            <el-card
+                shadow="hover"
+                style="margin: 5px 5px"
+                @click="doGoToBlogPage(form.id)"
+            >
+              <template #header>
+                <div style="height: 45px; text-align: center">
+                  {{ form.title }}
+                </div>
+              </template>
+              <img
+                  :src="form.coverUrl"
+                  alt=""
+                  style="
                 height: 225px;
                 max-width: 100%;
                 object-fit: contain;
@@ -128,43 +133,44 @@
                 left: 50%;
                 transform: translateX(-50%);
               "
-            />
-            <template #footer>
-              <div style="display: flex; justify-content: space-between">
-                <!-- <strong>
-                  [{{
-                    form.region === "1"
-                      ? "新闻"
-                      : form.region === "2"
-                      ? "活动"
-                      : form.region === "3"
-                      ? "公告"
-                      : "未知"
-                  }}]
-                </strong> -->
-                <div>
-                  <!-- <span style="font-size: 0.8em">
-                    {{
-                      form.publisher === "1"
-                        ? "张三"
-                        : form.publisher === "2"
-                        ? "李四"
-                        : form.publisher === "3"
-                        ? "王五"
+              />
+              <template #footer>
+                <div style="display: flex; justify-content: space-between">
+                  <!-- <strong>
+                    [{{
+                      form.region === "1"
+                        ? "新闻"
+                        : form.region === "2"
+                        ? "活动"
+                        : form.region === "3"
+                        ? "公告"
                         : "未知"
-                    }}
-                  </span> -->
-                  <span style="margin-left: 10px; font-size: 0.8em">
+                    }}]
+                  </strong> -->
+                  <div>
+                    <!-- <span style="font-size: 0.8em">
+                      {{
+                        form.publisher === "1"
+                          ? "张三"
+                          : form.publisher === "2"
+                          ? "李四"
+                          : form.publisher === "3"
+                          ? "王五"
+                          : "未知"
+                      }}
+                    </span> -->
+                    <span style="margin-left: 10px; font-size: 0.8em">
                     {{ form.create_time }}
                   </span>
+                  </div>
                 </div>
-              </div>
-            </template>
-          </el-card>
-        </el-col>
-      </el-row>
-    </el-col>
-  </el-row>
+              </template>
+            </el-card>
+          </el-col>
+        </el-row>
+      </el-col>
+    </el-row>
+  </div>
 </template>
 
 <script lang="ts" setup>
@@ -176,6 +182,8 @@ import {useRouter} from "vue-router";
 import dateFunction from "@/utils/Date";
 
 const blog = ref();
+
+const hotBlog = ref();
 
 const categories = ref();
 
@@ -201,10 +209,13 @@ const getBlog = (
       })
       .then((res) => {
         blog.value = res.data.data.map((item: any) => {
-          item.content = item.content;
           item.create_time = dateFunction(item.create_time);
           return item;
         });
+
+        if (categoryId === null && keyword === null) {
+          hotBlog.value = res.data.data.slice(0, 5);
+        }
       })
       .catch((error) => {
         console.log(error);
@@ -244,6 +255,10 @@ const writeBlog = () => {
 </script>
 
 <style lang="scss" scoped>
+.blog {
+  width: 100vw;
+}
+
 .blog-container {
   .el-carousel {
     img {
@@ -276,9 +291,8 @@ const writeBlog = () => {
   }
 
   @media screen and (min-width: 768px) {
-    width: 1200px;
     margin: 0 auto !important;
-
+    width: 80%;
     .blog-carousel,
     .blog-hot,
     .blog-list {
@@ -300,8 +314,9 @@ const writeBlog = () => {
         margin-left: 0 !important;
 
         .el-input {
-          width: 40vw !important;
+          width: 60vw !important;
           margin-right: 0 !important;
+          margin-bottom: 10px !important;
         }
       }
 

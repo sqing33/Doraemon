@@ -78,8 +78,8 @@ import {onMounted, ref} from "vue";
 
 const content_1 = '       ' + '藤子·F·不二雄（ふじこ·F·ふじお）（1933年12月1日—1996年9月23日），原名藤本弘，又名藤子不二雄F。\n' +
     '       ' + '日本男性漫画家，出生于日本富山县的高冈市，毕业于富山县立高冈工艺高等学校电气科。小学馆的代表漫画家之一，代表作《哆啦A梦》' +
-    '《小鬼Q太郎》《小超人帕门》《超能力魔美》。\n曾经长期与另一位著名日本漫画家安孙子素雄（笔名藤子不二雄A）以藤子不二雄作为共用的笔名，' +
-    '       ' + '先后在艰难的生存环境下画了十多年，并未造成太大热潮，直至实际上可以算是两个人最后的合作《Q太郎》。';
+    '《小鬼Q太郎》《小超人帕门》《超能力魔美》。\n' + '       ' + '曾经长期与另一位著名日本漫画家安孙子素雄（笔名藤子不二雄A）以藤子不二雄作为共用的笔名，' +
+    '先后在艰难的生存环境下画了十多年，并未造成太大热潮，直至实际上可以算是两个人最后的合作《Q太郎》。';
 
 const content_2 = '       ' + '1947年受到漫画大师手冢治虫的启发，立志成为儿童漫画家。\n' +
     '       ' + '1964年凭《Q太郎》一炮走红，从此奠定了他在日本漫画界的重要地位，而他的代表作《哆啦A梦》更掀起了无法抵挡的旋风，\n' +
@@ -153,10 +153,11 @@ body {
     height: 95vh;
     position: absolute;
     white-space: pre-wrap;
+    font-size: 2.1vmin;
     z-index: 9;
 
     div {
-      width: 300px;
+      width: 25vw;
     }
 
     .left {
@@ -181,8 +182,8 @@ body {
         position: absolute;
         right: 0;
         width: 2px;
-        height: 22px;
-        transform: translateX(5px);
+        height: 3vmin;
+        transform: translate(5px, 0.5vmin);
         animation: animation 1.1s infinite;
       }
 
@@ -201,17 +202,17 @@ body {
     height: 100vh;
     overflow: hidden;
     font-size: 1em;
+    font-family: Arial, sans-serif;
     letter-spacing: -0.01em;
     line-height: 0.4em;
     color: transparent;
-    background-image: url("@/assets/author/author.png"), url("@/assets/author/author.png");
+    background-image: url("@/assets/author.png"), url("@/assets/author.png");
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
     background-blend-mode: soft-light;
     -webkit-background-clip: text;
   }
-
 }
 
 

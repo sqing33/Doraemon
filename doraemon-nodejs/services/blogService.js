@@ -242,6 +242,30 @@ const insertBlogCategories = (name, state, callback) => {
     });
 };
 
+// 删除--帖子分类
+const deleteBlogCategories = (id, callback) => {
+    const sql = "DELETE FROM blog_categories WHERE id = ? ";
+    mysqlDb.query(sql, [id], (err, result) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, result);
+    });
+};
+
+// 修改--帖子分类
+const updateBlogCategories = (id, name, state, callback) => {
+    const sql = "UPDATE blog_categories SET name=?, state=? WHERE id = ? ";
+    mysqlDb.query(sql, [name, state, id], (err, result) => {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        callback(null, result);
+    });
+};
+
 // 查询帖子各分类数量
 const getBlogCategoriesCount = (callback) => {
     const sql = "SELECT category_id, COUNT(*) AS count FROM blog GROUP BY category_id";
@@ -264,5 +288,7 @@ module.exports = {
     getBlogCategories,
     getBlogCommentsById,
     insertBlogCategories,
+    deleteBlogCategories,
+    updateBlogCategories,
     getBlogCategoriesCount,
 };

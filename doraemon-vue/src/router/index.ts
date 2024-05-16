@@ -44,7 +44,7 @@ const routes: RouteRecordRaw[] = [
                 component: defineAsyncComponent(
                     () => import("@/components/blog/postBlog.vue")
                 ),
-                beforeEnter: (to, from, next) => {
+                beforeEnter: (_to, _from, next) => {
                     const store = useStore();
                     if (store.getters.getUserInfo) {
                         next();

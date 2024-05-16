@@ -12,6 +12,10 @@ router.post("/blog/delete", blogController.deleteBlog);
 router.post("/blog", blogController.getBlog);
 // blog管理--新增帖子分类
 router.post("/blog/categoryInsert", blogController.insertBlogCategories);
+// blog管理--删除帖子分类
+router.post("/blog/categoryDelete", blogController.deleteBlogCategories);
+// blog管理--修改帖子分类
+router.post("/blog/categoryUpdate", blogController.updateBlogCategories);
 // blog管理--查询帖子分类
 router.get("/blog/categories", blogController.getBlogCategories);
 // blog管理--查询帖子各分类数量

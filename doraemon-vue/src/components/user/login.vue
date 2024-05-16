@@ -5,28 +5,30 @@
         <img alt="" src="../../assets/regist.gif">
       </div>
       <div :style="{ transform: isChange ? 'rotateY(180deg)' : '' }" class="div-form">
-        <el-form ref="formRef" :class="{ disappear: isChange }" :model="loginForm" :rules="loginRules" class="form-login">
+
+        <el-form ref="loginFormRef" :class="{ disappear: isChange }" :model="loginForm" :rules="loginRules" class="form-login">
           <h1>登录</h1>
           <el-form-item label="用户名" prop="username">
-            <el-input v-model="loginForm.username" placeholder="请输入用户名、手机号或邮箱"></el-input>
+            <el-input v-model="loginForm.username" placeholder="请输入用户名、手机号或邮箱" @keyup.enter="login"></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
-            <el-input v-model="loginForm.password" placeholder="请输入密码" style="margin-left: 15px" type="password"></el-input>
+            <el-input v-model="loginForm.password" placeholder="请输入密码" style="margin-left: 15px" type="password" @keyup.enter="login"></el-input>
           </el-form-item>
 
-          <el-button style="margin-top: 50px" @click="login">登录</el-button>
+          <el-button style="margin-top: 50px" @click="login(loginFormRef)">登录</el-button>
           <div class="control">
             <span>没有帐号？<a href="#" @click="change">注册</a></span>
           </div>
         </el-form>
 
-        <el-form ref="formRef" :class="{ disappear: !isChange }" :model="registForm" :rules="registRules"
+        <el-form ref="registFormRef" :class="{ disappear: !isChange }" :model="registForm" :rules="registRules"
                  action="" class="form-register">
-          <h1>注册</h1>
+          <h1 style="margin:0 0 10px 0">注册</h1>
           <el-form-item label="用户名:" prop="username">
             <el-input
                 v-model="registForm.username"
                 placeholder="请输入用户名"
+                @keyup.enter="login"
             ></el-input>
           </el-form-item>
           <el-form-item label="密码:" prop="password">
@@ -34,6 +36,7 @@
                 v-model="registForm.password"
                 placeholder="请输入密码"
                 type="password"
+                @keyup.enter="login"
             ></el-input>
           </el-form-item>
           <el-form-item label="确认密码:" prop="confirmPassword">
@@ -41,18 +44,23 @@
                 v-model="registForm.confirmPassword"
                 placeholder="请再次输入密码"
                 type="password"
+                @keyup.enter="login"
             ></el-input>
           </el-form-item>
           <el-form-item label="昵称:" prop="nickname">
-            <el-input v-model="registForm.nickname" placeholder="请输入昵称"></el-input>
+            <el-input v-model="registForm.nickname" placeholder="请输入昵称" @keyup.enter="login"></el-input>
+          </el-form-item>
+          <el-form-item label="手机号:" prop="phone">
+            <el-input v-model="registForm.phone" placeholder="请输入手机号" @keyup.enter="login"></el-input>
           </el-form-item>
           <el-form-item label="邮箱:" prop="email">
-            <el-input v-model="registForm.email" placeholder="请输入邮箱"></el-input>
+            <el-input v-model="registForm.email" placeholder="请输入邮箱" @keyup.enter="login"></el-input>
           </el-form-item>
           <el-form-item class="code-item" label="验证码:" prop="code">
             <el-input
                 v-model="registForm.code"
-                placeholder="请输入验证码"
+                placeholder="请输入邮箱验证码"
+                @keyup.enter="login"
             >
               <template #append>
                 <el-text @click="postCode">
@@ -61,7 +69,7 @@
               </template>
             </el-input>
           </el-form-item>
-          <el-button @click="regist">注册</el-button>
+          <el-button style="margin:10px" @click="regist(registFormRef)">注册</el-button>
           <div class="control">
             <span>已有帐号？<a href="#" @click="change">登录</a></span>
           </div>
@@ -75,15 +83,18 @@
 </template>
 
 <script lang="ts" setup>
-import {ref} from "vue";
+import {reactive, ref} from "vue";
 import axios from "axios";
-import {ElMessage, FormInstance} from "element-plus";
+import {ElMessage} from "element-plus";
+import type {FormInstance, FormRules} from 'element-plus'
 import {useRouter} from "vue-router";
 import {InterfaceUrl} from "@/api";
 import CryptoJS from "crypto-js";
 import {useStore} from "vuex";
 
-const form = ref<FormInstance>();
+const loginFormRef = ref<FormInstance>();
+
+const registFormRef = ref<FormInstance>();
 
 const store = useStore();
 
@@ -100,7 +111,7 @@ const loginForm = ref({
   password: "",
 });
 
-const loginRules = {
+const loginRules = reactive<FormRules<typeof loginForm>>({
   username: [
     {
       required: true,
@@ -123,31 +134,38 @@ const loginRules = {
     },
   ],
   password: [{required: true, message: "请输入密码", trigger: "blur"}],
-};
+});
 
-const login = () => {
-// 密码加密 (前端SHA256 后端bcrypt)
-  const hash = CryptoJS.SHA256(loginForm.value.password).toString();
-  loginForm.value.password = hash;
-  axios
-      .post(InterfaceUrl + "/user/login", null, {
-        params: loginForm,
-      })
-      .then((res) => {
-        if (res.data.state === 1) {
-          ElMessage.error("用户名或密码错误");
-        } else {
-          ElMessage.success("登录成功!");
-          store.dispatch("setUserInfoFromAxios", res.data.data);
-          // 保存token到localStorage
-          localStorage.setItem("token", res.data.token);
-          router.push("/");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
+const login = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return;
+  await formEl.validate((valid) => {
+    if (valid) {
+      // 密码加密 (前端SHA256 后端bcrypt)
+      const hash = CryptoJS.SHA256(loginForm.value.password).toString();
+      loginForm.value.password = hash;
+      axios
+          .post(InterfaceUrl + "/user/login", null, {
+            params: loginForm,
+          })
+          .then((res) => {
+            if (res.data.state === 1) {
+              ElMessage.error("用户名或密码错误");
+            } else {
+              ElMessage.success("登录成功!");
+              store.dispatch("setUserInfoFromAxios", res.data.data);
+              // 保存token到localStorage
+              localStorage.setItem("token", res.data.token);
+              router.go(-1);
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            ElMessage.error("请求失败，请联系管理员。");
+          });
+    } else {
+      ElMessage.error("请检查输入是否正确!");
+    }
+  })
 };
 
 const postCode = async () => {
@@ -172,10 +190,11 @@ const registForm = ref({
   confirmPassword: "",
   nickname: "",
   email: "",
+  phone: "",
   code: "",
 });
 
-const registRules = {
+const registRules = reactive<FormRules<typeof registForm>>({
   username: [
     {required: true, message: "请输入用户名", trigger: "blur"},
     {
@@ -199,7 +218,7 @@ const registRules = {
       validator: (rule, value, callback) => {
         if (value === "") {
           callback(new Error("请再次输入密码"));
-        } else if (value !== form.value.password) {
+        } else if (value !== registForm.value.password) {
           callback(new Error("两次输入密码不一致"));
         } else {
           callback();
@@ -217,14 +236,6 @@ const registRules = {
       trigger: "blur",
     },
   ],
-  phone: [
-    {
-      required: true,
-      message: "请输入手机号",
-      trigger: "blur",
-    },
-    {pattern: /^1\d{10}$/, message: "手机号格式不正确", trigger: "blur"},
-  ],
   email: [
     {
       required: true,
@@ -233,9 +244,16 @@ const registRules = {
       trigger: "blur",
     },
   ],
+  phone: [
+    {
+      required: true,
+      pattern: /^1[3-9]\d{9}$/,
+      message: "请输入正确的手机号",
+      trigger: "blur",
+    },
+  ],
   code: [{required: true, message: "请输入邮箱验证码", trigger: "blur"}],
-};
-
+});
 
 const regist = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;
@@ -288,7 +306,7 @@ const regist = async (formEl: FormInstance | undefined) => {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.75);
   border-radius: 5px 0 0 5px;
   transform: translateZ(-1px);
 }

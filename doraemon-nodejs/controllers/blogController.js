@@ -149,6 +149,28 @@ const insertBlogCategories = (req, res, next) => {
     });
 };
 
+// 删除--帖子分类
+const deleteBlogCategories = (req, res, next) => {
+    const {id} = req.body;
+    blogService.deleteBlogCategories(id, (err, result) => {
+        if (err) {
+            return res.send({state: 1, message: err});
+        }
+        return res.send({state: 0, message: "删除成功"});
+    });
+};
+
+// 修改--帖子分类
+const updateBlogCategories = (req, res, next) => {
+    const {id, name, state} = req.query;
+    blogService.updateBlogCategories(id, name, state, (err, result) => {
+        if (err) {
+            return res.send({state: 1, message: err});
+        }
+        return res.send({state: 0, message: "更新成功"});
+    });
+};
+
 // 查询帖子各分类数量
 const getBlogCategoriesCount = (req, res, next) => {
     blogService.getBlogCategoriesCount((err, result) => {
@@ -169,5 +191,7 @@ module.exports = {
     getBlogCategories,
     getBlogCommentsById,
     insertBlogCategories,
+    deleteBlogCategories,
+    updateBlogCategories,
     getBlogCategoriesCount,
 };

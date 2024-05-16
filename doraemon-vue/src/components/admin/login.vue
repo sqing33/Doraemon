@@ -3,23 +3,25 @@
     <el-card class="login-card">
       <h2 class="login-title">管理员登录</h2>
       <el-form
-        ref="loginForm"
-        :model="form"
-        :rules="rules"
-        class="login-form"
-        label-width="100px"
+          ref="loginForm"
+          :model="form"
+          :rules="rules"
+          class="login-form"
+          label-width="100px"
       >
         <el-form-item label="用户名" prop="username">
           <el-input
-            v-model="form.username"
-            placeholder="请输入用户名"
+              v-model="form.username"
+              placeholder="请输入用户名"
+              @keyup.enter="login"
           ></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="password">
           <el-input
-            v-model="form.password"
-            placeholder="请输入密码"
-            type="password"
+              v-model="form.password"
+              placeholder="请输入密码"
+              type="password"
+              @keyup.enter="login"
           ></el-input>
         </el-form-item>
         <el-form-item style="transform: translateX(18px)">
@@ -32,17 +34,17 @@
 </template>
 
 <script setup>
-import { reactive } from "vue";
+import {reactive} from "vue";
 import router from "@/router";
 
 const form = reactive({
-  username: "",
-  password: "",
+  username: "admin",
+  password: "admin",
 });
 
 const rules = {
-  username: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  username: [{required: true, message: "请输入用户名", trigger: "blur"}],
+  password: [{required: true, message: "请输入密码", trigger: "blur"}],
 };
 
 const login = () => {

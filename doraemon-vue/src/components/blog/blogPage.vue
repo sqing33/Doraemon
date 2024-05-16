@@ -159,7 +159,7 @@
                   <img alt="" src="../../assets/comment/hui fu.png"/>
                   <div
                       style="transform: translateY(-2px); font-size: 14px"
-                      @click="reply(childrenComment.nickname, comment.id)"
+                      @click="reply(childrenComment.nickname, comment.id ? comment.id : 0)"
                   >
                     回复
                   </div>
@@ -264,6 +264,8 @@ const getComments = () => {
           return new Date(b.create_time) - new Date(a.create_time);
         });
         commentsLength.value = res.data.data.total;
+
+        console.log(comments.value);
       })
       .catch((error) => {
         console.log(error);
@@ -362,27 +364,32 @@ const replyCommentDialogVisible = ref(false);
 const replyComment = ref();
 
 const submitReplyComment = () => {
-  replyComment.value = store.getters.getRichTextEditor;
-  axios
-      .post(InterfaceUrl + "/blog/postComment", {
-        content: replyComment.value,
-        publisher_id: userInfo.id,
-        nickname: userInfo.nickname,
-        bn_id: props.id,
-        pid: pid.value,
-        pname: pname.value,
-        category: "blog",
-      })
-      .then((res) => {
-        richTextEditor.value.clearEditorContent();
-        getComments();
-        replyCommentDialogVisible.value = false;
-        ElMessage.success("回复成功");
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
+  if (userInfo === null) {
+    ElMessage.error("请先登录");
+    router.push("/login");
+  } else {
+    replyComment.value = store.getters.getRichTextEditor;
+    axios
+        .post(InterfaceUrl + "/blog/postComment", {
+          content: replyComment.value,
+          publisher_id: userInfo.id,
+          nickname: userInfo.nickname,
+          bn_id: props.id,
+          pid: pid.value,
+          pname: pname.value,
+          category: "blog",
+        })
+        .then((res) => {
+          richTextEditor.value.clearEditorContent();
+          getComments();
+          replyCommentDialogVisible.value = false;
+          ElMessage.success("回复成功");
+        })
+        .catch((error) => {
+          console.log(error);
+          ElMessage.error("请求失败，请联系管理员。");
+        });
+  }
 };
 </script>
 

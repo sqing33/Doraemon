@@ -22,10 +22,11 @@
 
     <section id="img-footer" class="img">
       <h1>让我们一起踏上这场奇妙的旅程吧！</h1>
+      <CopyrightIcp style="position: absolute; bottom: 10px; right: 0;left: 0;"/>
     </section>
 
-    <div class="navigation">
-      <div class="navigation-text">
+    <div class="navigation" @click="click">
+      <div :class="{'navigation-text-click': navigation_text_click}" class="navigation-text">
         <a v-for="(item,index) in href" :key="index" :href="item.href">
           <el-text :class="{'el-text-2':textColor}">{{ item.title }}</el-text>
         </a>
@@ -36,6 +37,7 @@
 </template>
 
 <script lang="ts" setup>
+import CopyrightIcp from "@/components/copyright-icp.vue";
 import {useStore} from "vuex";
 import {onMounted, ref, watch} from "vue";
 
@@ -45,37 +47,49 @@ const content = [
   {
     title: '这里是一个为哆啦A梦粉丝打造的世界！',
     desc: '无论你是对这位蓝色小猫机器人的忠实粉丝，还是刚刚开始接触哆啦A梦的世界\n我们都竭诚欢迎你的到来！',
-    img: new URL("@/assets/skip/1.jpg", import.meta.url).href
+    img: new URL("@/assets/index/skip/1.jpg", import.meta.url).href
   },
   {
     title: '在这里，你可以深入了解这部动漫作品！',
     desc: '你可以深入了解哆啦A梦的作者藤子·F·不二雄先生的生平故事\n探索哆啦A梦和其他动漫人物的丰富背景和故事！',
-    img: new URL("@/assets/skip/2.jpg", import.meta.url).href
+    img: new URL("@/assets/index/skip/2.jpg", import.meta.url).href
   },
   {
     title: '这里有更新颖的内容展现方式！',
     desc: '从作者团队介绍，到动漫角色信息的展示\n让你有更独特的体验！',
-    img: new URL("@/assets/skip/3.jpg", import.meta.url).href
+    img: new URL("@/assets/index/skip/3.jpg", import.meta.url).href
   },
   {
     title: '这是一个互动讨论的好地方！',
     desc: '从用户之间的互动讨论，到最新的新闻活动\n我们力求让每位访问者都能在这里找到自己感兴趣的内容！',
-    img: new URL("@/assets/skip/4.jpg", import.meta.url).href
+    img: new URL("@/assets/index/skip/4.jpg", import.meta.url).href
   },
   {
     title: '我们邀请你加入我们这个大家庭！',
     desc: '一起分享和发现关于哆啦A梦的一切\n无论是回忆童年的美好时光，还是探索哆啦A梦带来的无限想象\n这里都是你的乐园',
-    img: new URL("@/assets/skip/5.jpg", import.meta.url).href
+    img: new URL("@/assets/index/skip/5.jpg", import.meta.url).href
   }
 ];
 
+const user = {
+  title: '用户中心',
+  href: '/userInfo'
+};
+
+const userInfo = store.getters.getUserInfo;
+
+if (userInfo === null) {
+  user.title = '登录/注册';
+  user.href = '/login';
+}
+
 const href = [
   {
-    title: '作者团队',
+    title: '作者介绍',
     href: '/author'
   },
   {
-    title: '动漫人物介绍',
+    title: '动漫人物',
     href: '/character'
   },
   {
@@ -90,6 +104,11 @@ const href = [
     title: 'test',
     href: '/test'
   },
+  user,
+  {
+    title: '管理员',
+    href: '/adminLogin'
+  }
 ];
 
 const navigationImg = ref(new URL("@/assets/index/navigation.png", import.meta.url).href);
@@ -116,6 +135,11 @@ watch(() => [store.getters.getScroll, windowHeight.value], ([getScroll, getWindo
   }
 });
 
+const navigation_text_click = ref(false);
+
+const click = () => {
+  navigation_text_click.value = !navigation_text_click.value;
+};
 
 </script>
 
@@ -129,7 +153,6 @@ watch(() => [store.getters.getScroll, windowHeight.value], ([getScroll, getWindo
 section {
   height: 100vh;
   position: relative;
-  color: rgba(0, 110, 188, 0.5);
   display: flex;
   justify-content: center;
 
@@ -139,15 +162,28 @@ section {
 
   h1 {
     font-size: 10vmin;
-    background: url('@/assets/index/0.gif') repeat;
+    /*background: url('@/assets/index/0.gif') repeat;
     background-size: 80vw 80vh;
+    background: linear-gradient(135deg, rgb(212, 194, 162), rgb(152, 85, 53), rgb(212, 194, 162));*/
+    background: linear-gradient(90deg, rgb(7, 114, 185), rgb(96, 149, 183), rgb(227, 227, 227), rgb(96, 149, 183), rgb(7, 114, 185));
     color: white;
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
     background-clip: text;
     white-space: nowrap;
     margin: 1vw 0 5vw 0;
+    animation: text 4s linear infinite;
   }
+
+  @keyframes text {
+    0% {
+      background-position: 0;
+    }
+    100% {
+      background-position: 100vw;
+    }
+  }
+
 
   .mouse {
     position: absolute;
@@ -314,8 +350,12 @@ section {
     }
 
     .navigation-text {
-      width: 450px;
+      width: 600px;
     }
+  }
+
+  .navigation-text-click {
+    width: 600px;
   }
 }
 </style>
