@@ -5,7 +5,7 @@
     <el-col :sm="4" :xs="7" class="content">
       <el-menu class="content" default-active="我的资料" @select="menuSelect">
         <h4
-            style="
+          style="
             height: 60px;
             margin: 0;
             display: flex;
@@ -22,10 +22,10 @@
       </el-menu>
     </el-col>
     <el-col
-        :sm="12"
-        :xs="17"
-        class="content"
-        style="
+      :sm="12"
+      :xs="17"
+      class="content"
+      style="
         background-image: linear-gradient(
           120deg,
           rgba(161, 196, 253, 0.8) 0%,
@@ -33,23 +33,25 @@
         );
       "
     >
-
       <div v-if="menuIndex == '我的资料'" class="contentInfo">
         <div style="padding: 35px 0; display: flex">
-
-
           <span>头像:</span>
 
           <el-upload
-              :action="InterfaceUrl + '/admin/upload'"
-              :on-success="uploadSuccess"
-              :show-file-list="false"
-              class="avatar-uploader"
-              style="padding: 0"
+            :action="InterfaceUrl + '/admin/upload'"
+            :on-success="uploadSuccess"
+            :show-file-list="false"
+            class="avatar-uploader"
+            style="padding: 0"
           >
-            <img v-if="newUserInfo.avatarUrl" :src="newUserInfo.avatarUrl" alt="" class="avatar"/>
+            <img
+              v-if="newUserInfo.avatarUrl"
+              :src="newUserInfo.avatarUrl"
+              alt=""
+              class="avatar"
+            />
             <el-icon v-else class="avatar-uploader-icon">
-              <Plus/>
+              <Plus />
             </el-icon>
           </el-upload>
         </div>
@@ -59,8 +61,14 @@
           {{ newUserInfo.nickname }}
 
           <el-button
-              style="position: absolute; top: 0; right: 40px;font-size: 16px;padding: 5px 10px"
-              @click="doUpdateUserInfo"
+            style="
+              position: absolute;
+              top: 0;
+              right: 40px;
+              font-size: 16px;
+              padding: 5px 10px;
+            "
+            @click="doUpdateUserInfo"
           >
             修改资料
           </el-button>
@@ -68,13 +76,18 @@
 
         <div><span>用户名:</span> {{ newUserInfo.username }}</div>
 
-        <div><span>性别:</span> {{ newUserInfo.gender ? (userInfo.gender) : "无" }}</div>
+        <div>
+          <span>性别:</span> {{ newUserInfo.gender ? userInfo.gender : "无" }}
+        </div>
 
         <div>
           <span>生日:</span>
-          {{ newUserInfo.birthday ? dateFunction(newUserInfo.birthday, "date") : "无" }}
+          {{
+            newUserInfo.birthday
+              ? dateFunction(newUserInfo.birthday, "date")
+              : "无"
+          }}
         </div>
-
       </div>
 
       <div v-if="menuIndex == '账号设置'" class="contentInfo">
@@ -82,9 +95,9 @@
           <span>手机号:</span>
           {{ newUserInfo.phone }}
           <el-button
-              style="position: absolute;right:150px"
-              type="text"
-              @click="doChangeAccount('手机号')"
+            style="position: absolute; right: 150px"
+            type="text"
+            @click="doChangeAccount('手机号')"
           >
             修改手机号
           </el-button>
@@ -93,9 +106,9 @@
           <span>邮箱:</span>
           {{ newUserInfo.email }}
           <el-button
-              style="position: absolute;right:150px"
-              type="text"
-              @click="doChangeAccount('邮箱')"
+            style="position: absolute; right: 150px"
+            type="text"
+            @click="doChangeAccount('邮箱')"
           >
             修改邮箱
           </el-button>
@@ -104,9 +117,9 @@
           <span>密码:</span>
           ******
           <el-button
-              style="position: absolute;right:150px"
-              type="text"
-              @click="doChangeAccount('密码')"
+            style="position: absolute; right: 150px"
+            type="text"
+            @click="doChangeAccount('密码')"
           >
             修改密码
           </el-button>
@@ -115,17 +128,33 @@
 
       <div v-if="menuIndex == '我的收藏'" class="contentInfo">
         <el-scrollbar height="68vh" style="width: 100%">
-          <div v-for="collection in collectionList" :key="collection.id"
-               style="display: flex;height:120px;margin:10px;padding:10px;background:rgba(255,255,255,0.5)"
-               @click="doGoToBlogPage(collection.bn_id)"
+          <div
+            v-for="collection in collectionList"
+            :key="collection.id"
+            style="
+              display: flex;
+              height: 120px;
+              margin: 10px;
+              padding: 10px;
+              background: rgba(255, 255, 255, 0.5);
+            "
+            @click="doGoToBlogPage(collection.bn_id)"
           >
-            <div style="width:150px;text-align:center">
-              <img :src="collection.coverUrl" alt="" style="max-width: 150px;height:100px;">
+            <div style="width: 150px; text-align: center">
+              <img
+                :src="collection.coverUrl"
+                alt=""
+                style="max-width: 150px; height: 100px"
+              />
             </div>
 
-            <div style="margin-left: 20px;position:relative;flex: 1">
+            <div style="margin-left: 20px; position: relative; flex: 1">
               <h4 style="">{{ collection.title }}</h4>
-              <h6 style="position: absolute;right: 0;bottom: 0">收藏于&nbsp{{ dateFunction(collection.create_time, "date") }}</h6>
+              <h6 style="position: absolute; right: 0; bottom: 0">
+                收藏于&nbsp{{
+                  dateFunction(collection.collection_time, "date")
+                }}
+              </h6>
             </div>
           </div>
         </el-scrollbar>
@@ -136,59 +165,78 @@
     <el-col :sm="4" class="content hidden-sm-and-down"></el-col>
   </el-row>
 
-  <el-dialog
-      v-model="updateUserInfoDialogVisible"
-      title="修改资料"
-      width="500"
-  >
-    <ElementForm v-model="form" style="width: 50%;margin: 0 auto" v-bind="formConfig">
+  <el-dialog v-model="updateUserInfoDialogVisible" title="修改资料" width="500">
+    <ElementForm
+      v-model="form"
+      style="width: 50%; margin: 0 auto"
+      v-bind="formConfig"
+    >
       <template #footer>
         <div style="display: flex; justify-content: center">
-          <el-button size="large" style="width: 80px" type="primary" @click="submitNewUserInfo">
+          <el-button
+            size="large"
+            style="width: 80px"
+            type="primary"
+            @click="submitNewUserInfo"
+          >
             确定
           </el-button>
 
-          <el-button size="large" style="width: 80px;margin-left: 5vw" @click="updateUserInfoDialogVisible = false">取消</el-button>
+          <el-button
+            size="large"
+            style="width: 80px; margin-left: 5vw"
+            @click="updateUserInfoDialogVisible = false"
+            >取消</el-button
+          >
         </div>
       </template>
     </ElementForm>
   </el-dialog>
 
-
   <el-dialog
-      v-model="changeAccountDialogVisible"
-      :title="accountSetting.title"
-      width="500">
+    v-model="changeAccountDialogVisible"
+    :title="accountSetting.title"
+    width="500"
+  >
     <div style="display: flex">
       <el-text style="width: 120px">新的{{ accountSetting.label }}：</el-text>
-      <el-input v-model="accountSetting.value" :placeholder="accountSetting.placeholder"></el-input>
+      <el-input
+        v-model="accountSetting.value"
+        :placeholder="accountSetting.placeholder"
+      ></el-input>
     </div>
 
     <div style="display: flex; justify-content: center; margin-top: 20px">
-      <el-button size="large" style="width: 80px" type="primary" @click="changeAccountSubmit(accountSetting.label)">
+      <el-button
+        size="large"
+        style="width: 80px"
+        type="primary"
+        @click="changeAccountSubmit(accountSetting.label)"
+      >
         确定
       </el-button>
-      <el-button size="large" style="width: 80px;margin-left: 5vw" @click="changeAccountDialogVisible = false">
+      <el-button
+        size="large"
+        style="width: 80px; margin-left: 5vw"
+        @click="changeAccountDialogVisible = false"
+      >
         取消
       </el-button>
     </div>
   </el-dialog>
-
-
-
 </template>
 
 <script lang="ts" setup>
-import {onMounted, reactive, ref} from "vue";
-import {useStore} from "vuex";
-import {Plus} from "@element-plus/icons-vue";
+import { onMounted, reactive, ref } from "vue";
+import { useStore } from "vuex";
+import { Plus } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
-import {InterfaceUrl} from "@/api";
+import { InterfaceUrl } from "@/api";
 import axios from "axios";
-import {ElMessage} from "element-plus";
+import { ElMessage } from "element-plus";
 import ElementForm from "@/utils/ElementForm.vue";
 import CryptoJS from "crypto-js";
-import {useRouter} from "vue-router";
+import { useRouter } from "vue-router";
 
 const router = useRouter();
 
@@ -202,10 +250,7 @@ const menuSelect = (index: string) => {
   }
 };
 
-onMounted(() => {
-
-
-});
+onMounted(() => {});
 
 const store = useStore();
 
@@ -215,41 +260,40 @@ const newUserInfo = ref(userInfo);
 
 const getNewUserInfo = () => {
   axios
-      .post(InterfaceUrl + "/user/getUserInfo", {id: userInfo.id}
-      )
-      .then((res) => {
-        newUserInfo.value = res.data.data;
-        store.dispatch("setUserInfoFromAxios", res.data.data);
-      })
-}
+    .post(InterfaceUrl + "/user/getUserInfo", { id: userInfo.id })
+    .then((res) => {
+      newUserInfo.value = res.data.data;
+      store.dispatch("setUserInfoFromAxios", res.data.data);
+    });
+};
 
 const avatarUrl = ref();
 
 const uploadSuccess = (res) => {
   avatarUrl.value = res.data.url;
   axios
-      .post(InterfaceUrl + "/user/updateAvatar", {
-        id: userInfo.id,
-        avatarUrl: avatarUrl.value,
-      })
-      .then((res) => {
-        getNewUserInfo();
-        ElMessage({
-          type: "success",
-          message: "修改头像成功!",
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        ElMessage.error("请求失败，请联系管理员。");
+    .post(InterfaceUrl + "/user/updateAvatar", {
+      id: userInfo.id,
+      avatarUrl: avatarUrl.value,
+    })
+    .then((res) => {
+      getNewUserInfo();
+      ElMessage({
+        type: "success",
+        message: "修改头像成功!",
       });
+    })
+    .catch((error) => {
+      console.error(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
 };
 
 const updateUserInfoDialogVisible = ref(false);
 
 const doUpdateUserInfo = () => {
   updateUserInfoDialogVisible.value = true;
-}
+};
 
 const formItems = reactive([
   {
@@ -266,10 +310,10 @@ const formItems = reactive([
     prop: "gender",
     style: ["width: 45vw"],
     options: [
-      {label: "男", value: "男"},
-      {label: "女", value: "女"},
-      {label: "无", value: "无"},
-    ]
+      { label: "男", value: "男" },
+      { label: "女", value: "女" },
+      { label: "无", value: "无" },
+    ],
   },
   {
     label: "生日",
@@ -296,22 +340,23 @@ const form = reactive(userInfo);
 const submitNewUserInfo = () => {
   updateUserInfo();
   updateUserInfoDialogVisible.value = false;
-}
+};
 
 const updateUserInfo = () => {
-  axios.post(InterfaceUrl + "/user/updateUserInfo", form)
-      .then((res) => {
-        getNewUserInfo();
-        ElMessage({
-          type: "success",
-          message: "资料修改成功!",
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        ElMessage.error("请求失败，请联系管理员。");
+  axios
+    .post(InterfaceUrl + "/user/updateUserInfo", form)
+    .then((res) => {
+      getNewUserInfo();
+      ElMessage({
+        type: "success",
+        message: "资料修改成功!",
       });
-}
+    })
+    .catch((error) => {
+      console.error(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
+};
 
 const changeAccountDialogVisible = ref(false);
 
@@ -320,14 +365,14 @@ const accountSetting = reactive({
   label: "",
   value: "",
   placeholder: "",
-})
+});
 
 const account = reactive({
   id: userInfo.id,
   phone: userInfo.phone,
   email: userInfo.email,
   password: "",
-})
+});
 
 const doChangeAccount = (type: string) => {
   if (type === "手机号") {
@@ -347,8 +392,7 @@ const doChangeAccount = (type: string) => {
     accountSetting.placeholder = "请输入新的密码";
   }
   changeAccountDialogVisible.value = true;
-}
-
+};
 
 const changeAccountSubmit = (label: string) => {
   if (label === "手机号") {
@@ -359,43 +403,45 @@ const changeAccountSubmit = (label: string) => {
     account.password = CryptoJS.SHA256(accountSetting.value).toString();
   }
 
-  axios.post(InterfaceUrl + "/user/updateAccount", account)
-      .then((res) => {
-        getNewUserInfo();
-        newUserInfo.value = res.data.data;
-        store.dispatch("setUserInfoFromAxios", res.data.data);
-        ElMessage({
-          type: "success",
-          message: "修改成功!",
-        });
-      })
-      .catch((error) => {
-        console.error(error);
-        ElMessage.error("请求失败，请联系管理员。");
+  axios
+    .post(InterfaceUrl + "/user/updateAccount", account)
+    .then((res) => {
+      getNewUserInfo();
+      newUserInfo.value = res.data.data;
+      store.dispatch("setUserInfoFromAxios", res.data.data);
+      ElMessage({
+        type: "success",
+        message: "修改成功!",
       });
+    })
+    .catch((error) => {
+      console.error(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
   changeAccountDialogVisible.value = false;
-}
+};
 
 let collectionList = reactive([]);
 
 const getCollectionList = (index: string) => {
   axios
-      .post(InterfaceUrl + "/user/getCollectionList", {id: userInfo.id})
-      .then((res) => {
-        collectionList = res.data.data;
-        menuIndex.value = index;
-        console.log(collectionList);
-      })
-      .catch((error) => {
-        console.error(error);
-        ElMessage.error("请求失败，请联系管理员。");
+    .post(InterfaceUrl + "/user/getCollectionList", { id: userInfo.id })
+    .then((res) => {
+      collectionList = res.data.data.sort(function (a, b) {
+        return b.collection_time - a.collection_time;
       });
-}
 
-const doGoToBlogPage = (id: number) => {
-  router.push({name: "blogPage", params: {id}});
+      menuIndex.value = index;
+    })
+    .catch((error) => {
+      console.error(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
 };
 
+const doGoToBlogPage = (id: number) => {
+  router.push({ name: "blogPage", params: { id } });
+};
 </script>
 
 <style lang="scss" scoped>
@@ -458,7 +504,6 @@ const doGoToBlogPage = (id: number) => {
 
   div {
     margin: 0;
-
 
     span {
       display: inline-block;

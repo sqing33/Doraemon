@@ -2,7 +2,7 @@
   <div id="news">
     <div class="news-head">
       <div class="logo">
-        <img alt="logo" src="../../../public/icon.png"/>
+        <img alt="logo" src="../../../public/icon.png" />
         <span>哆啦新闻</span>
       </div>
 
@@ -10,7 +10,7 @@
         <el-input v-model="keyword" placeholder="搜索" style="width: 250px">
           <template #suffix>
             <el-icon class="el-input__icon" @click="search">
-              <Search/>
+              <Search />
             </el-icon>
           </template>
         </el-input>
@@ -19,15 +19,21 @@
 
     <div class="news-categories">
       <div>
-        <span style="width: 100px;display: inline-block;transform: translateY(-3px)">
+        <span
+          style="
+            width: 100px;
+            display: inline-block;
+            transform: translateY(-3px);
+          "
+        >
           分类：
-      </span>
+        </span>
       </div>
 
       <div class="categories">
         <span @click="category(null)">全部</span>
-        <span v-for="item in categories" :key="item.id">
-          <span @click="category(item.id)">{{ item.name }}</span>
+        <span v-for="(item, index) in categories" :key="index">
+          <span @click="category(item.value)">{{ item.label }}</span>
         </span>
       </div>
     </div>
@@ -36,14 +42,14 @@
       <div v-for="item in news" :key="item.id" class="card">
         <div style="display: flex" @click="doGoToNewsPage(item.id)">
           <img
-              :src="item.coverUrl"
-              alt=""
-              style="height: 100px; margin-right: 20px"
+            :src="item.coverUrl"
+            alt=""
+            style="height: 100px; margin-right: 20px"
           />
           <div style="position: relative; width: 100%">
             <div>{{ item.title }}</div>
             <div
-                style="
+              style="
                 display: flex;
                 position: absolute;
                 bottom: 0;
@@ -52,7 +58,7 @@
               "
             >
               <div style="margin-right: 20px">
-                {{ toCategory(item.category_id) }}
+                {{ item.categor }}
               </div>
               <div>{{ item.create_time }}</div>
             </div>
@@ -60,18 +66,16 @@
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
 
 <script lang="ts" setup>
-import {ref, onMounted} from "vue";
+import { ref, onMounted } from "vue";
 import axios from "axios";
-import {ElMessage} from "element-plus";
-import {Search} from "@element-plus/icons-vue";
-import {InterfaceUrl} from "@/api";
-import {useRouter} from "vue-router";
+import { ElMessage } from "element-plus";
+import { Search } from "@element-plus/icons-vue";
+import { InterfaceUrl } from "@/api";
+import { useRouter } from "vue-router";
 import LZString from "lz-string";
 import dateFunction from "@/utils/Date";
 
@@ -79,70 +83,64 @@ const router = useRouter();
 
 const news = ref();
 
-const categories = ref();
+const categories = ref([
+  {
+    label: "新闻",
+    value: "新闻",
+  },
+  {
+    label: "娱乐",
+    value: "娱乐",
+  },
+  {
+    label: "公告",
+    value: "公告",
+  },
+]);
 
 const keyword = ref();
-
-
-const toCategory = (id: number) => {
-  const category = categories.value.find((item: any) => item.id === id);
-  return category ? category.name : "";
-};
 
 const search = () => {
   getNews(null, keyword.value);
 };
 
-const category = (id: number | null) => {
-  getNews(id, null);
+const category = (value: string | null) => {
+  getNews(value, null);
 };
 
 const getNews = (
-    categoryId: number | null = null,
-    keyword: string | null = null
+  category: string | null = null,
+  keyword: string | null = null
 ) => {
   axios
-      .post(InterfaceUrl + "/news", null, {
-        params: {
-          page: 1,
-          pageSize: null,
-          categoryId,
-          keyword,
-          length: 99,
-        },
-      })
-      .then((res) => {
-        news.value = res.data.data.map((item: any) => {
-          item.content = item.content;
-          item.create_time = dateFunction(item.create_time);
-          return item;
-        });
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
+    .post(InterfaceUrl + "/news", null, {
+      params: {
+        page: 1,
+        pageSize: null,
+        category,
+        keyword,
+        length: 99,
+      },
+    })
+    .then((res) => {
+      news.value = res.data.data.map((item: any) => {
+        item.content = item.content;
+        item.create_time = dateFunction(item.create_time);
+        return item;
       });
+    })
+    .catch((error) => {
+      console.log(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
 };
 
 onMounted(() => {
   getNews();
-  axios
-      .get(InterfaceUrl + "/news/categories")
-      .then((res) => {
-        categories.value = res.data.data
-            .filter((item: any) => item.state === "true")
-            .map((item: any) => {
-              return item;
-            });
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
 });
 
 const doGoToNewsPage = (id: string) => {
-  router.push({name: "newsPage", params: {id}});
+  router.push({ name: "newsPage", params: { id } });
 };
 </script>
 

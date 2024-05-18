@@ -56,9 +56,22 @@ const formItems = reactive([
     label: "类型",
     type: "select",
     placeholder: "请选择类型",
-    prop: "category_id",
+    prop: "category",
     style: ["width: 15vw"],
-    options: categories,
+    options: [
+      {
+        label: "分享",
+        value: "分享",
+      },
+      {
+        label: "娱乐",
+        value: "娱乐",
+      },
+      {
+        label: "杂谈",
+        value: "杂谈",
+      },
+    ],
   },
   {
     label: "内容",
@@ -96,29 +109,10 @@ formConfig.formItems.map((item) => {
 
 const form = reactive(formValues);
 
-onMounted(() => {
-  axios
-    .get(InterfaceUrl + "/blog/categories")
-    .then((res) => {
-      categories.value = res.data.data
-        .filter((item: any) => item.state === "true")
-        .map((item: any) => {
-          return {
-            label: item.name,
-            value: item.id,
-          };
-        });
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
-});
-
 const onSubmit = () => {
   form.coverUrl = store.getters.getElementImageUrl;
   form.content = store.getters.getRichTextEditor;
-  form.publisher_id = store.getters.getUserInfo.id;
+  form.user_id = store.getters.getUserInfo.id;
 
   console.log(form);
 

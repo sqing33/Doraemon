@@ -27,31 +27,15 @@ const adminRoutes: RouteRecordRaw[] = [
           title: "用户管理",
         },
       },
+
       {
         path: "blog",
+        component: defineAsyncComponent(
+          () => import("@/components/admin/blog/blogList.vue")
+        ),
         meta: {
-          title: "论坛管理",
+          title: "帖子管理",
         },
-        children: [
-          {
-            path: "categories",
-            component: defineAsyncComponent(
-              () => import("@/components/admin/blog/categories.vue")
-            ),
-            meta: {
-              title: "帖子分类",
-            },
-          },
-          {
-            path: "blogList",
-            component: defineAsyncComponent(
-              () => import("@/components/admin/blog/blogList.vue")
-            ),
-            meta: {
-              title: "帖子管理",
-            },
-          },
-        ],
       },
       {
         path: "news",
@@ -65,7 +49,7 @@ const adminRoutes: RouteRecordRaw[] = [
               () => import("@/components/admin/news/addNews.vue")
             ),
             meta: {
-              title: "添加新闻",
+              title: "发布新闻",
             },
           },
           {

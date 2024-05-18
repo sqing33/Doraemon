@@ -4,20 +4,13 @@ const dateFunction = require("../utils/Date");
 const LZString = require("lz-string");
 
 // 查询--条件筛选
-const getNews = (
-  page,
-  pageSize,
-  categoryId,
-  keyword,
-  create_time,
-  callback
-) => {
+const getNews = (page, pageSize, category, keyword, create_time, callback) => {
   let sqlParams = [];
   let sqlCondition = [];
 
-  if (categoryId != 0) {
-    sqlCondition.push(" category_id = ? ");
-    sqlParams.push(categoryId);
+  if (category != 0) {
+    sqlCondition.push(" category = ? ");
+    sqlParams.push(category);
   }
 
   if (keyword != "") {

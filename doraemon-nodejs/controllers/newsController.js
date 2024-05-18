@@ -45,18 +45,18 @@ const likeBlog = (req, res, next) => {
 
 // 查询--条件筛选
 const getNews = (req, res, next) => {
-  let { keyword, categoryId, create_time, page, pageSize } = req.query;
+  let { keyword, category, create_time, page, pageSize } = req.query;
 
   page = page == null ? 1 : page;
   pageSize = pageSize == null ? null : pageSize;
-  categoryId = categoryId == null ? 0 : categoryId;
+  category = category == null ? 0 : category;
   create_time = create_time == null ? "" : create_time;
   keyword = keyword == null ? "" : keyword;
 
   newsService.getNews(
     page,
     pageSize,
-    categoryId,
+    category,
     keyword,
     create_time,
 

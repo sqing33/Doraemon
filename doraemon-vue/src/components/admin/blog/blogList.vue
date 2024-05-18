@@ -1,6 +1,6 @@
 <template>
   <div
-      style="
+    style="
       height: 50px;
       display: flex;
       align-items: center;
@@ -12,10 +12,10 @@
       <ElementForm v-model="searchValues" v-bind="formConfig">
         <template #footer>
           <el-button
-              plain
-              style="margin-left: 10px; margin-top: 8px"
-              type="primary"
-              @click="search"
+            plain
+            style="margin-left: 10px; margin-top: 8px"
+            type="primary"
+            @click="search"
           >
             <span style="margin: 0">筛选</span>
           </el-button>
@@ -25,32 +25,37 @@
   </div>
 
   <el-table
-      :cell-style="{ textAlign: 'center' }"
-      :data="blog"
-      :header-cell-style="{ textAlign: 'center' }"
-      :row-style="{ height: '115px' }"
-      border
-      style="margin: 0 auto; font: 0.85em sans-serif;height: calc(100vh - 200px);max-height:615px"
+    :cell-style="{ textAlign: 'center' }"
+    :data="blog"
+    :header-cell-style="{ textAlign: 'center' }"
+    :row-style="{ height: '115px' }"
+    border
+    style="
+      margin: 0 auto;
+      font: 0.85em sans-serif;
+      height: calc(100vh - 200px);
+      max-height: 615px;
+    "
   >
     <el-table-column label="序号" width="75">
       <template #default="{ $index }">
         {{ (pagination.page - 1) * pagination.size + $index + 1 }}
       </template>
     </el-table-column>
-    <el-table-column label="ID" prop="id" width="150"/>
-    <el-table-column label="标题" prop="title" width="auto"/>
+    <el-table-column label="ID" prop="id" width="150" />
+    <el-table-column label="标题" prop="title" width="auto" />
     <el-table-column label="封面" prop="coverUrl" width="200">
       <template #default="scope">
         <img
-            :src="scope.row.coverUrl"
-            alt=""
-            style="width: auto; max-height: 90px"
+          :src="scope.row.coverUrl"
+          alt=""
+          style="width: auto; max-height: 90px"
         />
       </template>
     </el-table-column>
     <el-table-column label="类型" prop="category_id" width="100">
       <template #default="scope">
-        <el-tag>{{ getCategoryLabel(scope.row.category_id) }}</el-tag>
+        <el-tag>{{ scope.row.category }}</el-tag>
       </template>
     </el-table-column>
     <el-table-column label="发布者ID" prop="publisher_id" width="100">
@@ -65,13 +70,13 @@
       <template #default="scope">
         <div style="display: flex; flex-direction: column; padding: 0 30px">
           <el-button type="primary" @click="doCheck(scope.row.id)"
-          >查看
+            >查看
           </el-button>
           <el-button
-              style="margin: 5px 0 0 0"
-              type="danger"
-              @click="doDelete(scope.row.id, scope.row.title)"
-          >删除
+            style="margin: 5px 0 0 0"
+            type="danger"
+            @click="doDelete(scope.row.id, scope.row.title)"
+            >删除
           </el-button>
         </div>
       </template>
@@ -79,29 +84,29 @@
   </el-table>
 
   <el-pagination
-      :page-size="pagination.size"
-      :pager-count="11"
-      :total="total"
-      background
-      layout="prev, pager, next, jumper,"
-      style="margin: auto; width: 80vw; height: 8vh"
-      @current-change="currentChange"
+    :page-size="pagination.size"
+    :pager-count="11"
+    :total="total"
+    background
+    layout="prev, pager, next, jumper,"
+    style="margin: auto; width: 80vw; height: 8vh"
+    @current-change="currentChange"
   ></el-pagination>
 
   <el-dialog
-      v-model="dialogVisible"
-      center
-      destroy-on-close
-      title="查看帖子"
-      top="20px"
-      width="60vw"
+    v-model="dialogVisible"
+    center
+    destroy-on-close
+    title="查看帖子"
+    top="20px"
+    width="60vw"
   >
     <checkBlog></checkBlog>
     <template #footer>
       <el-button @click="dialogVisible = false">关闭</el-button>
       <el-button
-          type="danger"
-          @click="
+        type="danger"
+        @click="
           doDelete(
             store.getters.getCheck.form.id,
             store.getters.getCheck.form.title
@@ -116,13 +121,13 @@
 
 <script lang="ts" setup>
 import axios from "axios";
-import {ElMessage, ElMessageBox} from "element-plus";
-import {onMounted, reactive, ref} from "vue";
-import {InterfaceUrl} from "@/api";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { onMounted, reactive, ref } from "vue";
+import { InterfaceUrl } from "@/api";
 import dateFunction from "@/utils/Date";
 import ElementForm from "@/utils/ElementForm.vue";
 import checkBlog from "./checkBlog.vue";
-import {useStore} from "vuex";
+import { useStore } from "vuex";
 
 const store = useStore();
 
@@ -144,7 +149,20 @@ const formItems = reactive([
     placeholder: "请选择类型",
     prop: "category",
     style: ["width: 13vw", "margin-right: 20px"],
-    options: searchCategories,
+    options: [
+      {
+        label: "分享",
+        value: "分享",
+      },
+      {
+        label: "娱乐",
+        value: "娱乐",
+      },
+      {
+        label: "杂谈",
+        value: "杂谈",
+      },
+    ],
   },
   {
     label: "发布时间",
@@ -175,41 +193,8 @@ const pagination = ref({
 });
 
 onMounted(() => {
-  axios
-      .get(InterfaceUrl + "/blog/categories")
-      .then((res) => {
-        categories.value = res.data.data.map((item: any) => {
-          return {
-            label: item.name,
-            value: item.id,
-          };
-        });
-        searchCategories.value = [
-          {
-            label: "所有",
-            value: null,
-          },
-          ...res.data.data.map((item: any) => {
-            return {
-              label: item.name,
-              value: item.id,
-            };
-          }),
-        ];
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
   getBlogs();
 });
-
-const getCategoryLabel = (categoryId: any) => {
-  const category = categories.value.find(
-      (item: any) => item.value === categoryId
-  );
-  return category ? category.label : "";
-};
 
 const currentChange = (currentPage: number) => {
   pagination.value.page = currentPage;
@@ -222,7 +207,7 @@ const search = () => {
   if (searchValues.date) {
     const date = new Date(searchValues.date);
     searchValues.date = `${date.getFullYear()}-${
-        date.getMonth() + 1
+      date.getMonth() + 1
     }-${date.getDate()}`;
   }
   getBlogs(searchValues.keyword, searchValues.category, searchValues.date);
@@ -230,35 +215,35 @@ const search = () => {
 };
 
 const getBlogs = (
-    keyword?: string,
-    categoryId?: number,
-    create_time?: string
+  keyword?: string,
+  category?: number,
+  create_time?: string
 ) => {
   axios
-      .post(InterfaceUrl + "/blog", null, {
-        params: {
-          page: pagination.value.page,
-          pageSize: pagination.value.size,
-          keyword,
-          categoryId,
-          create_time,
-        },
-      })
-      .then((res) => {
-        blog.value = res.data.data.blogArr;
-        total.value = res.data.data.total;
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
+    .post(InterfaceUrl + "/blog", null, {
+      params: {
+        page: pagination.value.page,
+        pageSize: pagination.value.size,
+        keyword,
+        category,
+        create_time,
+      },
+    })
+    .then((res) => {
+      blog.value = res.data.data.blogArr;
+      total.value = res.data.data.total;
+    })
+    .catch((error) => {
+      console.log(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
 };
 
 const dialogVisible = ref(false);
 
 const doCheck = (id: number) => {
   const checkForm = blog.value.find((item: any) => item.id === id);
-  store.dispatch("setCheck", {form: checkForm, categories});
+  store.dispatch("setCheck", { form: checkForm, categories });
   dialogVisible.value = true;
 };
 
@@ -269,16 +254,16 @@ const doDelete = (id: number, title: string) => {
     type: "warning",
   }).then(() => {
     axios
-        .post(InterfaceUrl + "/admin/blog/delete", {id})
-        .then((res) => {
-          ElMessage.success("删除成功！");
-          getBlogs();
-          dialogVisible.value = false;
-        })
-        .catch((error) => {
-          console.log(error);
-          ElMessage.error("请求失败，请联系管理员。");
-        });
+      .post(InterfaceUrl + "/admin/blog/delete", { id })
+      .then((res) => {
+        ElMessage.success("删除成功！");
+        getBlogs();
+        dialogVisible.value = false;
+      })
+      .catch((error) => {
+        console.log(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
   });
 };
 </script>

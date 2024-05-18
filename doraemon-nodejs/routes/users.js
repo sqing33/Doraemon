@@ -20,6 +20,9 @@ router.post("/collect", userController.doCollect);
 // 获取用户信息
 router.post("/getUserInfo", userController.getUserInfo);
 
+// 获取用户博客列表
+router.post("/getUserBlogList", userController.getUserBlogList);
+
 // 获取用户收藏列表
 router.post("/getCollectionList", userController.getCollectionList);
 
