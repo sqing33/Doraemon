@@ -138,16 +138,16 @@ const insertNews = (
   title,
   content,
   coverUrl,
-  category_id,
+  category,
   create_time,
   state,
   callback
 ) => {
   const sql =
-    "INSERT INTO news (id, title, content, coverUrl, category_id, create_time, state) VALUES (?,?,?,?,?,?,?)";
+    "INSERT INTO news (id, title, content, coverUrl, category, create_time, state) VALUES (?,?,?,?,?,?,?)";
   mysqlDb.query(
     sql,
-    [id, title, content, coverUrl, category_id, create_time, state],
+    [id, title, content, coverUrl, category, create_time, state],
     (err, result) => {
       if (err) {
         callback(err, null);

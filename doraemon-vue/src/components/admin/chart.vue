@@ -12,7 +12,27 @@
         <div id="blog" style="width: 100%; height: 35vh"></div>
       </el-card>
       <el-card class="chart-container" style="margin-top: 5vh">
-        <div id="1234" style="width: 100%; height: 35vh"></div>
+        <div style="width: 100%; height: 35vh">
+          <div
+            style="
+              display: inline-block;
+              position: relative;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+            "
+          >
+            <p style="text-align: center; margin-top: 20vh">
+              平台共有用户 {{ users_count }} 人
+            </p>
+            <p style="text-align: center; margin-top: 10vh">
+              共有发帖 {{ blog_count }} 篇
+            </p>
+            <p style="text-align: center; margin-top: 10vh">
+              共收到反馈 {{ feedback_count }} 条
+            </p>
+          </div>
+        </div>
       </el-card>
     </el-col>
   </el-row>
@@ -263,8 +283,36 @@ const userAgeChart = () => {
   chart.setOption(option);
 };
 
+const blog = ref();
+
 onMounted(() => {
-  blogChart();
+  axios
+    .post(InterfaceUrl + "/blog")
+
+    .then((res) => {
+      if (res.data.state === 0) {
+        const categoryCounts = res.data.data.reduce((acc, item) => {
+          if (!acc[item.category]) {
+            acc[item.category] = 0;
+          }
+          acc[item.category] += 1;
+          return acc;
+        }, {});
+
+        blog.value = Object.keys(categoryCounts).map((category) => ({
+          category: category,
+          value: categoryCounts[category],
+        }));
+
+        blogChart();
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
 });
 
 const blogChart = () => {
@@ -279,14 +327,14 @@ const blogChart = () => {
     },
     xAxis: {
       type: "category",
-      data: ["文章", "视频", "音乐", "相册", "其他"],
+      data: blog.value.map((item) => item.category),
     },
     yAxis: {
       type: "value",
     },
     series: [
       {
-        data: [1, 2, 3, 4, 5],
+        data: blog.value.map((item) => item.value),
         type: "bar",
       },
     ],
@@ -294,6 +342,34 @@ const blogChart = () => {
 
   chart.setOption(option);
 };
+
+const users_count = ref();
+
+const blog_count = ref();
+
+const feedback_count = ref();
+
+onMounted(() => {
+  axios
+    .get(InterfaceUrl + "/admin/platform")
+    .then((res) => {
+      if (res.data.state === 0) {
+        users_count.value = res.data.data.usercount;
+        blog_count.value = res.data.data.blogcount;
+        feedback_count.value = res.data.data.feedbackcount;
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
+    })
+    .catch((error) => {
+      console.log(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
+});
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+p {
+  margin: 20px !important;
+}
+</style>

@@ -40,6 +40,13 @@
           用户管理
         </el-menu-item>
 
+        <el-menu-item index="/admin/feedback">
+          <el-icon>
+            <EditPen />
+          </el-icon>
+          用户反馈
+        </el-menu-item>
+
         <el-menu-item index="/admin/blog">
           <template #title>
             <el-icon>
@@ -150,6 +157,7 @@ import {
   ChatLineSquare,
   Tickets,
   User,
+  EditPen,
   PieChart,
 } from "@element-plus/icons-vue";
 import { computed, ref } from "vue";

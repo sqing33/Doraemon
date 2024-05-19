@@ -18,6 +18,12 @@ const usersRoutes: RouteRecordRaw[] = [
     path: "/myBlogs",
     component: defineAsyncComponent(() => import("@/components/user/blog.vue")),
   },
+  {
+    path: "/feedback",
+    component: defineAsyncComponent(
+      () => import("@/components/user/feedback.vue")
+    ),
+  },
 ];
 
 export default usersRoutes;

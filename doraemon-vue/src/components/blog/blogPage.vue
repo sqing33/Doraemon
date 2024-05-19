@@ -5,6 +5,7 @@
     </h2>
 
     <div class="news-header">
+      <div>{{ blog.nickname }}</div>
       <div>&nbsp;|&nbsp;</div>
       <div>{{ blog.create_time }}</div>
     </div>
@@ -432,7 +433,7 @@ const submitReplyComment = () => {
 .news-intro {
   margin: 20px 100px;
   padding: 20px;
-  background-color: rgba(245, 245, 245, 0.6);
+  background-color: rgba(245, 245, 245, 0.75);
   border-radius: 10px;
   transform: translateX(-0.5vw);
 

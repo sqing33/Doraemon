@@ -58,9 +58,9 @@
         <el-tag>{{ scope.row.category }}</el-tag>
       </template>
     </el-table-column>
-    <el-table-column label="发布者ID" prop="publisher_id" width="100">
+    <el-table-column label="发布者ID" prop="user_id" width="150">
     </el-table-column>
-    <el-table-column label="发布日期" prop="create_time">
+    <el-table-column label="发布日期" prop="create_time" width="150">
       <template #default="scope">
         <span>{{ dateFunction(scope.row.create_time) }}</span>
       </template>
@@ -131,9 +131,20 @@ import { useStore } from "vuex";
 
 const store = useStore();
 
-const categories = ref();
-
-const searchCategories = ref();
+const categories = ref([
+  {
+    label: "分享",
+    value: "分享",
+  },
+  {
+    label: "娱乐",
+    value: "娱乐",
+  },
+  {
+    label: "杂谈",
+    value: "杂谈",
+  },
+]);
 
 const formItems = reactive([
   {
@@ -151,17 +162,10 @@ const formItems = reactive([
     style: ["width: 13vw", "margin-right: 20px"],
     options: [
       {
-        label: "分享",
-        value: "分享",
+        label: "全部",
+        value: "",
       },
-      {
-        label: "娱乐",
-        value: "娱乐",
-      },
-      {
-        label: "杂谈",
-        value: "杂谈",
-      },
+      ...categories.value,
     ],
   },
   {
@@ -230,8 +234,12 @@ const getBlogs = (
       },
     })
     .then((res) => {
-      blog.value = res.data.data.blogArr;
-      total.value = res.data.data.total;
+      if (res.data.state === 0) {
+        blog.value = res.data.data.blogArr;
+        total.value = res.data.data.total;
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -243,7 +251,7 @@ const dialogVisible = ref(false);
 
 const doCheck = (id: number) => {
   const checkForm = blog.value.find((item: any) => item.id === id);
-  store.dispatch("setCheck", { form: checkForm, categories });
+  store.dispatch("setCheck", checkForm);
   dialogVisible.value = true;
 };
 
@@ -256,9 +264,13 @@ const doDelete = (id: number, title: string) => {
     axios
       .post(InterfaceUrl + "/admin/blog/delete", { id })
       .then((res) => {
-        ElMessage.success("删除成功！");
-        getBlogs();
-        dialogVisible.value = false;
+        if (res.data.state === 0) {
+          ElMessage.success("删除成功！");
+          getBlogs();
+          dialogVisible.value = false;
+        } else {
+          ElMessage.error("请求失败，请联系管理员。");
+        }
       })
       .catch((error) => {
         console.log(error);

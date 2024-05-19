@@ -103,7 +103,7 @@ const getBlogCommentsById = (req, res, next) => {
 
 // 新增新闻
 const insertNews = (req, res, next) => {
-  const { title, content, coverUrl, category_id, state } = req.body;
+  const { title, content, coverUrl, category, state } = req.body;
 
   const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
   const id = snowFlakeId.NextId();
@@ -115,7 +115,7 @@ const insertNews = (req, res, next) => {
     title,
     content,
     coverUrl,
-    category_id,
+    category,
     date,
     state,
     (err, result) => {

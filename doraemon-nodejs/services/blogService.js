@@ -127,11 +127,17 @@ const getBlog = (page, pageSize, category, keyword, create_time, callback) => {
   }
 
   let sql;
+  const baseQuery = `
+  SELECT b.*, u.id AS user_id, u.username, u.nickname
+  FROM blog b
+  JOIN user_blog ub ON b.id = ub.blog_id
+  JOIN users u ON ub.user_id = u.id
+`;
 
   if (pageSize !== null) {
-    sql = " SELECT * FROM blog " + whereSqlStr + " LIMIT ?,? ";
+    sql = baseQuery + whereSqlStr + " LIMIT ?, ?";
   } else if (page == 1 && pageSize == null) {
-    sql = " SELECT * FROM blog " + whereSqlStr;
+    sql = baseQuery + whereSqlStr;
   }
 
   let params = sqlParams.concat([(page - 1) * pageSize, parseInt(pageSize)]);
@@ -166,7 +172,13 @@ const getBlog = (page, pageSize, category, keyword, create_time, callback) => {
 
 // 查询--通过id
 const getBlogById = (id, callback) => {
-  const sql = "SELECT * FROM blog WHERE id = ? ";
+  const sql =
+    "SELECT b.*, users.id AS user_id, users.username, users.nickname" +
+    " FROM blog b" +
+    " JOIN user_blog ON b.id = user_blog.blog_id" +
+    " JOIN users ON user_blog.user_id = users.id" +
+    " WHERE b.id = ?";
+
   mysqlDb.query(sql, [id], (err, result) => {
     if (err) {
       callback(err, null);

@@ -35,4 +35,13 @@ router.post("/updateUserInfo", userController.updateUserInfo);
 // 修改密码、手机号、邮箱
 router.post("/updateAccount", userController.updateAccount);
 
+// 用户反馈
+router.post("/feedback", userController.feedback);
+
+// 获取用户反馈列表
+router.post("/getFeedbackList", userController.getFeedbackList);
+
+// 删除用户反馈
+router.post("/deleteFeedback", userController.deleteFeedback);
+
 module.exports = router;

@@ -177,8 +177,8 @@ const getUserBlogList = (req, res, next) => {
 
 // 获取用户收藏列表
 const getCollectionList = (req, res, next) => {
-  const { id } = req.body;
-  usersService.getCollectionList(id, (err, result) => {
+  const { user_id } = req.body;
+  usersService.getCollectionList(user_id, (err, result) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
@@ -240,13 +240,86 @@ const updateAccount = (req, res, next) => {
   });
 };
 
-// 管理员管理用户信息
+// 用户反馈
+const feedback = (req, res, next) => {
+  const { content, user_id } = req.body;
+
+  const create_time = dateFunction();
+
+  const snowFlakeId = new SnowFlakeId({ WorkerId: 1 });
+  const id = snowFlakeId.NextId();
+
+  usersService.feedback(id, content, user_id, create_time, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "反馈成功", data: result });
+  });
+};
+
+// 获取用户反馈列表
+const getFeedbackList = (req, res, next) => {
+  const { user_id } = req.body;
+  usersService.getFeedbackList(user_id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "查询成功", data: result });
+  });
+};
+
+// 删除用户反馈
+const deleteFeedback = (req, res, next) => {
+  const { id } = req.body;
+  usersService.deleteFeedback(id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "删除成功", data: result });
+  });
+};
+
+// 管理员获取用户列表
 const getUsers = (req, res, next) => {
-  usersService.getUsers((err, usersArr) => {
+  const { keyword } = req.query;
+
+  usersService.getUsers(keyword, (err, usersArr) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
     return res.send({ state: 0, message: "查询成功", data: usersArr });
+  });
+};
+
+// 管理员获取用户反馈列表
+const getFeedback = (req, res, next) => {
+  const { page, pageSize } = req.body;
+  usersService.getFeedback(page, pageSize, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "查询成功", data: result });
+  });
+};
+
+// 管理员删除用户
+const deleteUser = (req, res, next) => {
+  const { id } = req.body;
+  usersService.deleteUser(id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "删除成功", data: result });
+  });
+};
+
+// 获取平台数据
+const getPlatformData = (req, res, next) => {
+  usersService.getPlatformData((err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "查询成功", data: result });
   });
 };
 
@@ -262,5 +335,11 @@ module.exports = {
   updateAvatar,
   updateUserInfo,
   updateAccount,
+  feedback,
+  getFeedbackList,
+  deleteFeedback,
   getUsers,
+  getFeedback,
+  deleteUser,
+  getPlatformData,
 };

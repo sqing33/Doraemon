@@ -21,13 +21,18 @@ const adminRoutes: RouteRecordRaw[] = [
       {
         path: "users",
         component: defineAsyncComponent(
-          () => import("@/components/admin/users/users.vue")
+          () => import("@/components/admin/users.vue")
         ),
         meta: {
           title: "用户管理",
         },
       },
-
+      {
+        path: "feedback",
+        component: defineAsyncComponent(
+          () => import("@/components/admin/feedback.vue")
+        ),
+      },
       {
         path: "blog",
         component: defineAsyncComponent(

@@ -4,16 +4,21 @@
       <h1>欢迎探索哆啦A梦的奇妙世界！</h1>
       <div class="mouse">
         <div class="moving-line"></div>
-        <img alt="" src="@/assets/index/mouse.png">
+        <img alt="" src="@/assets/index/mouse.png" />
       </div>
     </section>
 
-    <section v-for="(item,index) in content" :key="index" :class="`content-${index+1}`" class="content">
+    <section
+      v-for="(item, index) in content"
+      :key="index"
+      :class="`content-${index + 1}`"
+      class="content"
+    >
       <div class="content-box">
         <div class="content-text">
           <div class="content-item">
             <h2>{{ item.title }}</h2>
-            <img :src="item.img" alt=""/>
+            <img :src="item.img" alt="" />
           </div>
           <span style="white-space: pre">{{ item.desc }}</span>
         </div>
@@ -22,96 +27,109 @@
 
     <section id="img-footer" class="img">
       <h1>让我们一起踏上这场奇妙的旅程吧！</h1>
-      <CopyrightIcp style="position: absolute; bottom: 10px; right: 0;left: 0;"/>
+      <CopyrightIcp
+        style="position: absolute; bottom: 10px; right: 0; left: 0"
+      />
     </section>
 
     <div class="navigation" @click="click">
-      <div :class="{'navigation-text-click': navigation_text_click}" class="navigation-text">
-        <a v-for="(item,index) in href" :key="index" :href="item.href">
-          <el-text :class="{'el-text-2':textColor}">{{ item.title }}</el-text>
+      <div
+        :class="{ 'navigation-text-click': navigation_text_click }"
+        class="navigation-text"
+      >
+        <a v-for="(item, index) in href" :key="index" :href="item.href">
+          <el-text :class="{ 'el-text-2': textColor }">{{
+            item.title
+          }}</el-text>
         </a>
       </div>
-      <img :src="navigationImg" alt="">
+      <img :src="navigationImg" alt="" />
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
 import CopyrightIcp from "@/components/copyright-icp.vue";
-import {useStore} from "vuex";
-import {onMounted, ref, watch} from "vue";
+import { useStore } from "vuex";
+import { onMounted, ref, watch } from "vue";
 
 const store = useStore();
 
 const content = [
   {
-    title: '这里是一个为哆啦A梦粉丝打造的世界！',
-    desc: '无论你是对这位蓝色小猫机器人的忠实粉丝，还是刚刚开始接触哆啦A梦的世界\n我们都竭诚欢迎你的到来！',
-    img: new URL("@/assets/index/skip/1.jpg", import.meta.url).href
+    title: "这里是一个为哆啦A梦粉丝打造的世界！",
+    desc: "无论你是对这位蓝色小猫机器人的忠实粉丝，还是刚刚开始接触哆啦A梦的世界\n我们都竭诚欢迎你的到来！",
+    img: new URL("@/assets/index/skip/1.jpg", import.meta.url).href,
   },
   {
-    title: '在这里，你可以深入了解这部动漫作品！',
-    desc: '你可以深入了解哆啦A梦的作者藤子·F·不二雄先生的生平故事\n探索哆啦A梦和其他动漫人物的丰富背景和故事！',
-    img: new URL("@/assets/index/skip/2.jpg", import.meta.url).href
+    title: "在这里，你可以深入了解这部动漫作品！",
+    desc: "你可以深入了解哆啦A梦的作者藤子·F·不二雄先生的生平故事\n探索哆啦A梦和其他动漫人物的丰富背景和故事！",
+    img: new URL("@/assets/index/skip/2.jpg", import.meta.url).href,
   },
   {
-    title: '这里有更新颖的内容展现方式！',
-    desc: '从作者团队介绍，到动漫角色信息的展示\n让你有更独特的体验！',
-    img: new URL("@/assets/index/skip/3.jpg", import.meta.url).href
+    title: "这里有更新颖的内容展现方式！",
+    desc: "从作者团队介绍，到动漫角色信息的展示\n让你有更独特的体验！",
+    img: new URL("@/assets/index/skip/3.jpg", import.meta.url).href,
   },
   {
-    title: '这是一个互动讨论的好地方！',
-    desc: '从用户之间的互动讨论，到最新的新闻活动\n我们力求让每位访问者都能在这里找到自己感兴趣的内容！',
-    img: new URL("@/assets/index/skip/4.jpg", import.meta.url).href
+    title: "这是一个互动讨论的好地方！",
+    desc: "从用户之间的互动讨论，到最新的新闻活动\n我们力求让每位访问者都能在这里找到自己感兴趣的内容！",
+    img: new URL("@/assets/index/skip/4.jpg", import.meta.url).href,
   },
   {
-    title: '我们邀请你加入我们这个大家庭！',
-    desc: '一起分享和发现关于哆啦A梦的一切\n无论是回忆童年的美好时光，还是探索哆啦A梦带来的无限想象\n这里都是你的乐园',
-    img: new URL("@/assets/index/skip/5.jpg", import.meta.url).href
-  }
+    title: "我们邀请你加入我们这个大家庭！",
+    desc: "一起分享和发现关于哆啦A梦的一切\n无论是回忆童年的美好时光，还是探索哆啦A梦带来的无限想象\n这里都是你的乐园",
+    img: new URL("@/assets/index/skip/5.jpg", import.meta.url).href,
+  },
 ];
 
 const user = {
-  title: '用户中心',
-  href: '/userInfo'
+  title: "用户中心",
+  href: "/userInfo",
 };
 
 const userInfo = store.getters.getUserInfo;
 
 if (userInfo === null) {
-  user.title = '登录/注册';
-  user.href = '/login';
+  user.title = "登录/注册";
+  user.href = "/login";
 }
 
 const href = [
   {
-    title: '作者介绍',
-    href: '/author'
+    title: "作者介绍",
+    href: "/author",
   },
   {
-    title: '动漫人物',
-    href: '/character'
+    title: "动漫人物",
+    href: "/character",
   },
   {
-    title: '用户互动',
-    href: '/blog'
+    title: "用户互动",
+    href: "/blog",
   },
   {
-    title: '新闻活动',
-    href: '/news'
+    title: "新闻活动",
+    href: "/news",
   },
   {
-    title: 'test',
-    href: '/test'
+    title: "相关网站",
+    href: "/test",
   },
   user,
   {
-    title: '管理员',
-    href: '/adminLogin'
-  }
+    title: "反馈",
+    href: "/feedback",
+  },
+  {
+    title: "后台管理",
+    href: "/adminLogin",
+  },
 ];
 
-const navigationImg = ref(new URL("@/assets/index/navigation.png", import.meta.url).href);
+const navigationImg = ref(
+  new URL("@/assets/index/navigation.png", import.meta.url).href
+);
 
 const textColor = ref(false);
 
@@ -121,33 +139,41 @@ onMounted(() => {
   const handleResize = () => {
     windowHeight.value = window.innerHeight;
   };
-  window.addEventListener('resize', handleResize);
+  window.addEventListener("resize", handleResize);
   handleResize();
 });
 
-watch(() => [store.getters.getScroll, windowHeight.value], ([getScroll, getWindowHeight]) => {
-  if (getScroll > getWindowHeight) {
-    navigationImg.value = new URL("@/assets/index/navigation2.png", import.meta.url).href;
-    textColor.value = true;
-  } else {
-    navigationImg.value = new URL("@/assets/index/navigation.png", import.meta.url).href;
-    textColor.value = false;
+watch(
+  () => [store.getters.getScroll, windowHeight.value],
+  ([getScroll, getWindowHeight]) => {
+    if (getScroll > getWindowHeight) {
+      navigationImg.value = new URL(
+        "@/assets/index/navigation2.png",
+        import.meta.url
+      ).href;
+      textColor.value = true;
+    } else {
+      navigationImg.value = new URL(
+        "@/assets/index/navigation.png",
+        import.meta.url
+      ).href;
+      textColor.value = false;
+    }
   }
-});
+);
 
 const navigation_text_click = ref(false);
 
 const click = () => {
   navigation_text_click.value = !navigation_text_click.value;
 };
-
 </script>
 
 <style lang="scss" scoped>
 .container {
   width: 100vw;
   height: auto;
-  font-family: 'Haiyanzhishi', sans-serif;
+  font-family: "Haiyanzhishi", sans-serif;
 }
 
 section {
@@ -165,7 +191,14 @@ section {
     /*background: url('@/assets/index/0.gif') repeat;
     background-size: 80vw 80vh;
     background: linear-gradient(135deg, rgb(212, 194, 162), rgb(152, 85, 53), rgb(212, 194, 162));*/
-    background: linear-gradient(90deg, rgb(7, 114, 185), rgb(96, 149, 183), rgb(227, 227, 227), rgb(96, 149, 183), rgb(7, 114, 185));
+    background: linear-gradient(
+      90deg,
+      rgb(7, 114, 185),
+      rgb(96, 149, 183),
+      rgb(227, 227, 227),
+      rgb(96, 149, 183),
+      rgb(7, 114, 185)
+    );
     color: white;
     -webkit-text-fill-color: transparent;
     -webkit-background-clip: text;
@@ -184,7 +217,6 @@ section {
     }
   }
 
-
   .mouse {
     position: absolute;
     z-index: 10;
@@ -194,7 +226,6 @@ section {
     img {
       width: 30px;
     }
-
   }
 
   .moving-line {
@@ -263,7 +294,7 @@ section {
   position: absolute;
   bottom: 25%;
   text-align: center;
-  background-color: rgba(0, 0, 0, .3);
+  background-color: rgba(0, 0, 0, 0.3);
   transform-origin: center bottom;
   transform: skew(0, -8deg);
 
@@ -305,7 +336,6 @@ section {
     }
   }
 }
-
 
 .navigation {
   position: absolute;
@@ -350,12 +380,12 @@ section {
     }
 
     .navigation-text {
-      width: 600px;
+      width: 670px;
     }
   }
 
   .navigation-text-click {
-    width: 600px;
+    width: 670px;
   }
 }
 </style>

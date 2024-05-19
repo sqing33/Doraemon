@@ -83,23 +83,23 @@
                 </router-link>
               </el-menu-item>
 
-              <!--  <el-menu-item>
+              <el-menu-item>
                 <router-link to="/website">
                   <el-icon>
                     <Link />
                   </el-icon>
                   相关网站
                 </router-link>
-              </el-menu-item> -->
+              </el-menu-item>
 
-              <el-menu-item>
+              <!--   <el-menu-item>
                 <router-link to="/test">
                   <el-icon>
                     <QuestionFilled />
                   </el-icon>
                   test
                 </router-link>
-              </el-menu-item>
+              </el-menu-item>-->
             </el-menu>
           </div>
           <div class="user">
@@ -141,11 +141,11 @@
                       <router-link to="/myBlogs">
                         <el-dropdown-item divided>我的发帖</el-dropdown-item>
                       </router-link>
-                      <router-link to="/">
-                        <el-dropdown-item divided>建议/意见</el-dropdown-item>
+                      <router-link to="/feedback">
+                        <el-dropdown-item divided>反馈</el-dropdown-item>
                       </router-link>
                       <router-link to="/adminLogin">
-                        <el-dropdown-item divided>管理员登录</el-dropdown-item>
+                        <el-dropdown-item divided>后台管理</el-dropdown-item>
                       </router-link>
                       <router-link
                         v-if="userInfo.isLogining === true"
@@ -189,7 +189,7 @@ import {
   EditPen,
   QuestionFilled,
   Tickets,
-  User,
+  User,Link
 } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";

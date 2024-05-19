@@ -1,34 +1,46 @@
 <template>
-  <index/>
+  <index />
 </template>
 
 <script setup>
 import Index from "@/views/index.vue";
-import {onMounted, ref, watch} from "vue";
-import {useRoute} from "vue-router";
+import { onMounted, ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
 const route = useRoute();
 
 watch(route, (to) => {
   const isBlogRoute = /^\/blog(?:\/|$)/.test(to.path);
   const isNewsRoute = /^\/news(?:\/|$)/.test(to.path);
-  const isAdminRoute = /^\/admin\/[^\/]+(?:\/[^\/]+)*$/.test(to.path);
+  const isAdminRoute = /^\/admin(?:\/|$)/.test(to.path);
+  const isAdminRoutes = /^\/admin\/[^\/]+(?:\/[^\/]+)*$/.test(to.path);
 
   if (isBlogRoute) {
-    document.documentElement.style.setProperty('--background', "url('/src/assets/background/1.jpg')");
+    document.documentElement.style.setProperty(
+      "--background",
+      "url('/src/assets/background/1.jpg')"
+    );
   } else if (isNewsRoute) {
-    document.documentElement.style.setProperty('--background', "url('/src/assets/background/6.jpg')");
-  } else if ('/login') {
-    document.documentElement.style.setProperty('--background', "url('/src/assets/background/2.jpg')");
+    document.documentElement.style.setProperty(
+      "--background",
+      "url('/src/assets/background/6.jpg')"
+    );
+  } else if ("/login") {
+    document.documentElement.style.setProperty(
+      "--background",
+      "url('/src/assets/background/2.jpg')"
+    );
   } else {
-    document.documentElement.style.setProperty('--background', "white");
+    document.documentElement.style.setProperty("--background", "white");
   }
 
-  if (isAdminRoute) {
-    document.documentElement.style.setProperty('--font-family', "Arial, sans-serif");
+  if (isAdminRoute || isAdminRoutes) {
+    document.documentElement.style.setProperty(
+      "--font-family",
+      "Arial, sans-serif"
+    );
   }
 });
-
 </script>
 
 <style>

@@ -102,13 +102,13 @@ const getUserBlogList = (id, callback) => {
 };
 
 // 获取用户收藏列表
-const getCollectionList = (id, callback) => {
+const getCollectionList = (user_id, callback) => {
   const sql =
     "SELECT b.title, b.coverUrl, ubc.collection_time" +
     " FROM blog b" +
     " JOIN user_blog_collection ubc ON b.id = ubc.blog_id" +
     " WHERE ubc.user_id = ?";
-  mysqlDb.query(sql, [id], (err, result) => {
+  mysqlDb.query(sql, [user_id], (err, result) => {
     if (err) {
       callback(err, null);
       return;
@@ -183,16 +183,152 @@ const updateAccount = (id, password, phone, email, callback) => {
   }
 };
 
-// 管理员管理
-const getUsers = (callback) => {
+// 用户反馈
+const feedback = (id, content, user_id, create_time, callback) => {
   const sql =
-    "SELECT  username, nickname, avatarUrl, create_time, phone, email, gender, birthday FROM users";
-  mysqlDb.query(sql, (err, result) => {
+    "INSERT INTO feedback (id,user_id, content, create_time) VALUES (?,?,?,?)";
+  mysqlDb.query(sql, [id, user_id, content, create_time], (err, result) => {
     if (err) {
       callback(err, null);
       return;
     }
     callback(null, result);
+  });
+};
+
+// 获取用户反馈列表
+const getFeedbackList = (user_id, callback) => {
+  const sql =
+    "SELECT id, user_id, content, create_time FROM feedback WHERE user_id = ?";
+  mysqlDb.query(sql, [user_id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result);
+  });
+};
+
+// 删除用户反馈
+const deleteFeedback = (id, callback) => {
+  const sql = "DELETE FROM feedback WHERE id = ?";
+  mysqlDb.query(sql, [id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result);
+  });
+};
+
+// 管理员管理
+const getUsers = (keyword, callback) => {
+  console.log(keyword);
+  if (!keyword) {
+    const sql = "SELECT * FROM users";
+    mysqlDb.query(sql, (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      callback(null, result);
+    });
+  } else {
+    const sql =
+      "SELECT * FROM users WHERE id=? OR username LIKE ? OR nickname LIKE ? OR phone LIKE ? OR email LIKE ?";
+    const keywordPattern = `%${keyword}%`;
+    mysqlDb.query(
+      sql,
+      [keyword, keywordPattern, keywordPattern, keywordPattern, keywordPattern],
+      (err, result) => {
+        if (err) {
+          callback(err, null);
+          return;
+        }
+        callback(null, result);
+      }
+    );
+  }
+};
+
+// 管理员获取用户反馈列表
+const getFeedback = (page, pageSize, callback) => {
+  const sql =
+    "SELECT feedback.*, users.id, users.username, users.nickname" +
+    " FROM feedback" +
+    " JOIN users ON feedback.user_id = users.id" +
+    " LIMIT ?,?";
+
+  const sql2 = "SELECT COUNT(*) as total FROM feedback";
+
+  let feedbackArr = [];
+  let total;
+
+  const offset = (page - 1) * pageSize;
+
+  mysqlDb.query(sql, [offset, pageSize], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    feedbackArr = result;
+
+    mysqlDb.query(sql2, (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      total = result[0].total;
+
+      callback(null, { feedbackArr, total });
+    });
+  });
+};
+
+// 管理员删除用户
+const deleteUser = (id, callback) => {
+  const sql = "DELETE FROM users WHERE id = ?";
+  mysqlDb.query(sql, [id], (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    callback(null, result);
+  });
+};
+
+// 获取平台数据
+const getPlatformData = (callback) => {
+  const sql_usercount = "SELECT COUNT(*) as total FROM users";
+  const sql_blogcount = "SELECT COUNT(*) as total FROM blog";
+  const sql_feedbackcount = "SELECT COUNT(*) as total FROM feedback";
+
+  let usercount, blogcount, feedbackcount;
+
+  mysqlDb.query(sql_usercount, (err, result) => {
+    if (err) {
+      callback(err, null);
+      return;
+    }
+    usercount = result[0].total;
+
+    mysqlDb.query(sql_blogcount, (err, result) => {
+      if (err) {
+        callback(err, null);
+        return;
+      }
+      blogcount = result[0].total;
+
+      mysqlDb.query(sql_feedbackcount, (err, result) => {
+        if (err) {
+          callback(err, null);
+          return;
+        }
+        feedbackcount = result[0].total;
+
+        callback(null, { usercount, blogcount, feedbackcount });
+      });
+    });
   });
 };
 
@@ -207,5 +343,11 @@ module.exports = {
   updateAvatar,
   updateUserInfo,
   updateAccount,
+  feedback,
+  getFeedbackList,
+  deleteFeedback,
   getUsers,
+  getFeedback,
+  deleteUser,
+  getPlatformData,
 };

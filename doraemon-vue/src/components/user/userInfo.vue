@@ -17,8 +17,9 @@
         </h4>
         <el-menu-item index="我的资料">我的资料</el-menu-item>
         <el-menu-item index="账号设置">账号设置</el-menu-item>
+        <el-menu-item index="我的发帖">我的发帖</el-menu-item>
         <el-menu-item index="我的收藏">我的收藏</el-menu-item>
-        <el-menu-item index="建议意见">建议意见</el-menu-item>
+        <el-menu-item index="我的反馈">我的反馈</el-menu-item>
       </el-menu>
     </el-col>
     <el-col
@@ -33,7 +34,11 @@
         );
       "
     >
-      <div v-if="menuIndex == '我的资料'" class="contentInfo">
+      <div
+        v-if="menuIndex == '我的资料'"
+        class="contentInfo"
+        style="padding-left: 10vw"
+      >
         <div style="padding: 35px 0; display: flex">
           <span>头像:</span>
 
@@ -90,7 +95,11 @@
         </div>
       </div>
 
-      <div v-if="menuIndex == '账号设置'" class="contentInfo">
+      <div
+        v-if="menuIndex == '账号设置'"
+        class="contentInfo"
+        style="padding-left: 10vw"
+      >
         <div>
           <span>手机号:</span>
           {{ newUserInfo.phone }}
@@ -160,7 +169,36 @@
         </el-scrollbar>
       </div>
 
-      <div v-if="menuIndex == '建议意见'" class="contentInfo">建议意见</div>
+      <div v-if="menuIndex == '我的反馈'" class="contentInfo">
+        <el-scrollbar height="68vh" style="width: 100%">
+          <div
+            v-for="(item, index) in feedbackList"
+            :key="index"
+            style="
+              display: flex;
+              flex-direction: column;
+              min-height: 120px;
+              margin: 10px;
+              padding: 10px;
+              background: rgba(255, 255, 255, 0.5);
+            "
+          >
+            <div style="display: flex; position: relative">
+              <div>{{ index + 1 }}.</div>
+              <div>{{ dateFunction(item.create_time, "date") }} 反馈</div>
+              <el-button
+                link
+                type="danger"
+                style="position: absolute; top: 5px; right: 20px"
+                @click="doDeleteFeedback(item.id)"
+              >
+                删除
+              </el-button>
+            </div>
+            <div v-html="item.content"></div>
+          </div>
+        </el-scrollbar>
+      </div>
     </el-col>
     <el-col :sm="4" class="content hidden-sm-and-down"></el-col>
   </el-row>
@@ -233,7 +271,7 @@ import { Plus } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
 import { InterfaceUrl } from "@/api";
 import axios from "axios";
-import { ElMessage } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import ElementForm from "@/utils/ElementForm.vue";
 import CryptoJS from "crypto-js";
 import { useRouter } from "vue-router";
@@ -243,8 +281,12 @@ const router = useRouter();
 const menuIndex = ref("我的资料");
 
 const menuSelect = (index: string) => {
-  if (index === "我的收藏") {
-    getCollectionList(index);
+  if (index === "我的发帖") {
+    router.push("/myBlogs");
+  } else if (index === "我的收藏") {
+    getCollectionList();
+  } else if (index === "我的反馈") {
+    getFeedbackList();
   } else {
     menuIndex.value = index;
   }
@@ -262,8 +304,12 @@ const getNewUserInfo = () => {
   axios
     .post(InterfaceUrl + "/user/getUserInfo", { id: userInfo.id })
     .then((res) => {
-      newUserInfo.value = res.data.data;
-      store.dispatch("setUserInfoFromAxios", res.data.data);
+      if (res.data.state === 0) {
+        newUserInfo.value = res.data.data;
+        store.dispatch("setUserInfoFromAxios", res.data.data);
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
     });
 };
 
@@ -277,11 +323,15 @@ const uploadSuccess = (res) => {
       avatarUrl: avatarUrl.value,
     })
     .then((res) => {
-      getNewUserInfo();
-      ElMessage({
-        type: "success",
-        message: "修改头像成功!",
-      });
+      if (res.data.state === 0) {
+        getNewUserInfo();
+        ElMessage({
+          type: "success",
+          message: "修改头像成功!",
+        });
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
     })
     .catch((error) => {
       console.error(error);
@@ -346,11 +396,15 @@ const updateUserInfo = () => {
   axios
     .post(InterfaceUrl + "/user/updateUserInfo", form)
     .then((res) => {
-      getNewUserInfo();
-      ElMessage({
-        type: "success",
-        message: "资料修改成功!",
-      });
+      if (res.data.state === 0) {
+        getNewUserInfo();
+        ElMessage({
+          type: "success",
+          message: "资料修改成功!",
+        });
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
     })
     .catch((error) => {
       console.error(error);
@@ -406,13 +460,17 @@ const changeAccountSubmit = (label: string) => {
   axios
     .post(InterfaceUrl + "/user/updateAccount", account)
     .then((res) => {
-      getNewUserInfo();
-      newUserInfo.value = res.data.data;
-      store.dispatch("setUserInfoFromAxios", res.data.data);
-      ElMessage({
-        type: "success",
-        message: "修改成功!",
-      });
+      if (res.data.state === 0) {
+        getNewUserInfo();
+        newUserInfo.value = res.data.data;
+        store.dispatch("setUserInfoFromAxios", res.data.data);
+        ElMessage({
+          type: "success",
+          message: "修改成功!",
+        });
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
     })
     .catch((error) => {
       console.error(error);
@@ -423,15 +481,19 @@ const changeAccountSubmit = (label: string) => {
 
 let collectionList = reactive([]);
 
-const getCollectionList = (index: string) => {
+const getCollectionList = () => {
   axios
-    .post(InterfaceUrl + "/user/getCollectionList", { id: userInfo.id })
+    .post(InterfaceUrl + "/user/getCollectionList", { user_id: userInfo.id })
     .then((res) => {
-      collectionList = res.data.data.sort(function (a, b) {
-        return b.collection_time - a.collection_time;
-      });
+      if (res.data.state === 0) {
+        collectionList = res.data.data.sort(function (a, b) {
+          return b.collection_time - a.collection_time;
+        });
 
-      menuIndex.value = index;
+        menuIndex.value = "我的收藏";
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
     })
     .catch((error) => {
       console.error(error);
@@ -441,6 +503,54 @@ const getCollectionList = (index: string) => {
 
 const doGoToBlogPage = (id: number) => {
   router.push({ name: "blogPage", params: { id } });
+};
+
+let feedbackList = reactive([]);
+
+const getFeedbackList = () => {
+  axios
+    .post(InterfaceUrl + "/user/getFeedbackList", { user_id: userInfo.id })
+    .then((res) => {
+      if (res.data.state === 0) {
+        feedbackList = res.data.data.sort(function (a, b) {
+          return b.create_time - a.create_time;
+        });
+
+        menuIndex.value = "我的反馈";
+      } else {
+        ElMessage.error("请求失败，请联系管理员。");
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+      ElMessage.error("请求失败，请联系管理员。");
+    });
+};
+
+const doDeleteFeedback = (id: number) => {
+  ElMessageBox.confirm("是否确定要删除此条反馈?", "确认删除", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  }).then(() => {
+    axios
+      .post(InterfaceUrl + "/user/deleteFeedback", { id })
+      .then((res) => {
+        if (res.data.state === 0) {
+          getFeedbackList();
+          ElMessage({
+            type: "success",
+            message: "删除成功!",
+          });
+        } else {
+          ElMessage.error("请求失败，请联系管理员。");
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        ElMessage.error("请求失败，请联系管理员。");
+      });
+  });
 };
 </script>
 
