@@ -13,19 +13,6 @@
         right: 20px;
       "
     >
-      <div>
-        发布人：
-        {{
-          form.data.publisher === "1"
-            ? "张三"
-            : form.data.publisher === "2"
-            ? "李四"
-            : form.data.publisher === "3"
-            ? "王五"
-            : "未知"
-        }}
-      </div>
-      <div>&nbsp;|&nbsp;</div>
       <div>{{ form.data.date }}</div>
     </div>
 
@@ -97,11 +84,11 @@
           <div style="margin-bottom: 10px; transform: translate(45px, -5px)">
             <div v-html="comment.content"></div>
           </div>
-          <div style="display: flex; transform: translateX(45px)">
+          <div class="date" style="transform: translateX(45px)">
             {{ dateFunction(comment.create_time) }}
             <div class="comment-operate" style="display: flex; cursor: pointer">
               <div style="display: flex" @click="doLike(comment.id)">
-                <img alt="" src="../../assets/comment/dian zan.png" />
+                <img alt="" src="../../assets/comment/dianzan.png" />
                 <div
                   style="
                     transform: translateY(-5px);
@@ -113,7 +100,7 @@
                 </div>
               </div>
               <div style="display: flex">
-                <img alt="" src="../../assets/comment/hui fu.png" />
+                <img alt="" src="../../assets/comment/huifu.png" />
                 <div
                   style="transform: translateY(-2px); font-size: 14px"
                   @click="
@@ -123,12 +110,6 @@
                   "
                 >
                   回复
-                </div>
-              </div>
-              <div style="display: flex">
-                <img alt="" src="../../assets/comment/ju bao.png" />
-                <div style="transform: translateY(-2px); font-size: 14px">
-                  举报
                 </div>
               </div>
             </div>
@@ -142,7 +123,7 @@
           >
             <div style="margin-bottom: 10px; display: flex">
               <img alt="" class="avatar" src="../../assets/avatar.png" />
-              <div style="display: flex; padding-top: 10px">
+              <div class="date" style="padding-top: 10px">
                 <strong>{{ childrenComment.nickname }}</strong>
                 &nbsp回复&nbsp
                 <strong>{{ childrenComment.pname }}</strong>
@@ -150,14 +131,14 @@
                 <div v-html="childrenComment.content"></div>
               </div>
             </div>
-            <div style="display: flex; transform: translate(45px, -5px)">
+            <div class="date" style="transform: translate(45px, -5px)">
               {{ dateFunction(childrenComment.create_time) }}
               <div
                 class="comment-operate"
                 style="display: flex; cursor: pointer"
               >
                 <div style="display: flex" @click="doLike(childrenComment.id)">
-                  <img alt="" src="../../assets/comment/dian zan.png" />
+                  <img alt="" src="../../assets/comment/dianzan.png" />
                   <div
                     style="
                       transform: translateY(-2px);
@@ -175,12 +156,6 @@
                     @click="reply(childrenComment.nickname, comment.id)"
                   >
                     回复
-                  </div>
-                </div>
-                <div style="display: flex">
-                  <img alt="" src="../../assets/comment/ju bao.png" />
-                  <div style="transform: translateY(-2px); font-size: 14px">
-                    举报
                   </div>
                 </div>
               </div>
@@ -204,11 +179,9 @@
 
 <script lang="ts" setup>
 import { defineProps, onMounted, reactive, ref } from "vue";
-import axios from "axios";
-import { InterfaceUrl } from "@/api";
+import _axios from "@/api";
 import { ElMessage } from "element-plus";
-import { Share, Star, Tickets, Warning } from "@element-plus/icons-vue";
-import LZString from "lz-string";
+import { Share, Tickets } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
 import { useStore } from "vuex";
 import router from "@/router";
@@ -247,32 +220,19 @@ const comments = ref();
 const commentsLength = ref(0);
 
 const getComments = () => {
-  axios
-    .post(InterfaceUrl + "/news/getComments?id=" + props.id)
-    .then((res) => {
-      comments.value = res.data.data.comments.sort((a: any, b: any) => {
-        return new Date(b.create_time) - new Date(a.create_time);
-      });
-      commentsLength.value = res.data.data.total;
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/news/getComments?id=" + props.id).then((res) => {
+    comments.value = res.data.comments.sort((a: any, b: any) => {
+      return new Date(b.create_time) - new Date(a.create_time);
     });
+    commentsLength.value = res.data.data.total;
+  });
 };
 
 onMounted(() => {
-  axios
-    .post(InterfaceUrl + "/news/newsPage?id=" + props.id)
-    .then((response) => {
-      const data = response.data;
-      form.data = data.data;
-      form.data.date = dateFunction(form.data.date);
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
+  _axios.post("/news/newsPage?id=" + props.id).then((response) => {
+    form.data = response.data;
+    form.data.date = dateFunction(form.data.date);
+  });
   getComments();
 });
 
@@ -299,42 +259,29 @@ const userInfo = store.getters.getUserInfo;
 const richTextEditor = ref();
 
 const submitComment = () => {
-  if (userInfo === null) {
-    ElMessage.error("请先登录");
-    router.push("/login");
-  } else {
-    comment.value = store.getters.getRichTextEditor;
-    axios
-      .post(InterfaceUrl + "/news/postComment", {
-        content: comment.value,
-        publisher_id: userInfo.id,
-        nickname: userInfo.nickname,
-        bn_id: props.id,
-        category: "news",
-      })
-      .then((res) => {
-        richTextEditor.value.clearEditorContent();
-        getComments();
-        ElMessage.success("评论成功");
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
-  }
+  comment.value = store.getters.getRichTextEditor;
+  _axios
+    .post("/news/postComment", {
+      content: comment.value,
+      publisher_id: userInfo ? userInfo.id : 0,
+      nickname: userInfo.nickname,
+      bn_id: props.id,
+      category: "news",
+    })
+    .then((res) => {
+      richTextEditor.value.clearEditorContent();
+      getComments();
+      ElMessage.success("评论成功");
+    });
 };
 
 const doLike = (comment_id: number) => {
-  axios
-    .post(InterfaceUrl + "/news/like", {
+  _axios
+    .post("/news/like", {
       comment_id: comment_id,
     })
     .then((res) => {
       getComments();
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
     });
 };
 
@@ -354,10 +301,10 @@ const replyComment = ref();
 
 const submitReplyComment = () => {
   replyComment.value = store.getters.getRichTextEditor;
-  axios
+  _axios
     .post(InterfaceUrl + "/news/postComment", {
       content: replyComment.value,
-      publisher_id: userInfo.id,
+      publisher_id: userInfo ? userInfo.id : 0,
       nickname: userInfo.nickname,
       bn_id: props.id,
       pid: pid.value,
@@ -369,10 +316,6 @@ const submitReplyComment = () => {
       getComments();
       replyCommentDialogVisible.value = false;
       ElMessage.success("回复成功");
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
     });
 };
 </script>
@@ -382,8 +325,18 @@ const submitReplyComment = () => {
   width: 70vw;
   margin: 0 auto;
 
+  @media screen and (max-width: 1000px) {
+    width: 90vw;
+  }
+
+  @media screen and (min-width: 700px) {
+    .date {
+      display: flex;
+    }
+  }
+
   .avatar {
-    width: 45px;
+    width: 45px !important;
     height: 45px;
     border-radius: 50%;
     margin: 0;
@@ -400,12 +353,20 @@ const submitReplyComment = () => {
     justify-content: space-between;
     position: relative;
 
+    @media screen and (max-width: 1000px) {
+      margin-bottom: 40px;
+    }
+
     .comment-operate {
       img {
         height: 15px;
-        width: 15px;
+        width: 15px !important;
         border-radius: 0;
         margin-right: 35px;
+      }
+
+      @media screen and (max-width: 1000px) {
+        margin-top: 10px;
       }
     }
   }
@@ -417,6 +378,10 @@ const submitReplyComment = () => {
   background-color: rgba(245, 245, 245, 0.6);
   border-radius: 10px;
   transform: translateX(-0.5vw);
+
+  @media screen and (max-width: 1000px) {
+    padding: 0;
+  }
 
   .divider {
     width: 100%;

@@ -10,12 +10,16 @@ import { useRoute } from "vue-router";
 const route = useRoute();
 
 watch(route, (to) => {
+  const isAuthorIntroRoute = /^\/author(?:\/|$)/.test(to.path);
   const isBlogRoute = /^\/blog(?:\/|$)/.test(to.path);
   const isNewsRoute = /^\/news(?:\/|$)/.test(to.path);
   const isAdminRoute = /^\/admin(?:\/|$)/.test(to.path);
   const isAdminRoutes = /^\/admin\/[^\/]+(?:\/[^\/]+)*$/.test(to.path);
+  const isWebsitesRoute = /^\/website(?:\/|$)/.test(to.path);
 
-  if (isBlogRoute) {
+  if (isAuthorIntroRoute) {
+    document.documentElement.style.setProperty("--background", "black");
+  } else if (isBlogRoute) {
     document.documentElement.style.setProperty(
       "--background",
       "url('/src/assets/background/1.jpg')"
@@ -24,6 +28,11 @@ watch(route, (to) => {
     document.documentElement.style.setProperty(
       "--background",
       "url('/src/assets/background/6.jpg')"
+    );
+  } else if (isWebsitesRoute) {
+    document.documentElement.style.setProperty(
+      "--background",
+      "url('/src/assets/background/4.jpg')"
     );
   } else if ("/login") {
     document.documentElement.style.setProperty(

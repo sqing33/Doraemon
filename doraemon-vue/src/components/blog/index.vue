@@ -48,7 +48,8 @@
             <li
               v-for="(form, index) in hotBlog"
               :key="index"
-              style="cursor: pointer; font-size: 2.5vmin"
+              style="cursor: pointer; font-size: 18px"
+              class="blog-hot-item"
             >
               <span>
                 <span
@@ -159,33 +160,9 @@
               />
               <template #footer>
                 <div style="display: flex; justify-content: space-between">
-                  <!-- <strong>
-                    [{{
-                      form.region === "1"
-                        ? "新闻"
-                        : form.region === "2"
-                        ? "活动"
-                        : form.region === "3"
-                        ? "公告"
-                        : "未知"
-                    }}]
-                  </strong> -->
-                  <div>
-                    <!-- <span style="font-size: 0.8em">
-                      {{
-                        form.publisher === "1"
-                          ? "张三"
-                          : form.publisher === "2"
-                          ? "李四"
-                          : form.publisher === "3"
-                          ? "王五"
-                          : "未知"
-                      }}
-                    </span> -->
-                    <span style="margin-left: 10px; font-size: 0.8em">
-                      {{ form.create_time }}
-                    </span>
-                  </div>
+                  <span style="margin-left: 10px; font-size: 0.8em">
+                    {{ form.create_time }}
+                  </span>
                 </div>
               </template>
             </el-card>
@@ -198,7 +175,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
-import axios from "axios";
+import _axios from "@/api";
 import { ElMessage } from "element-plus";
 import { InterfaceUrl } from "@/api";
 import { useRouter } from "vue-router";
@@ -233,8 +210,8 @@ const getBlog = (
   category: number | null = null,
   keyword: string | null = null
 ) => {
-  axios
-    .post(InterfaceUrl + "/blog", null, {
+  _axios
+    .post("/blog", {
       params: {
         page: 1,
         pageSize: null,
@@ -244,18 +221,14 @@ const getBlog = (
       },
     })
     .then((res) => {
-      blog.value = res.data.data.map((item: any) => {
+      blog.value = res.data.map((item: any) => {
         item.create_time = dateFunction(item.create_time);
         return item;
       });
 
       if (category === null && keyword === null) {
-        hotBlog.value = res.data.data.slice(0, 5);
+        hotBlog.value = res.data.slice(0, 5);
       }
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
     });
 };
 

@@ -114,7 +114,7 @@ const href = [
   },
   {
     title: "相关网站",
-    href: "/test",
+    href: "/website",
   },
   user,
   {
@@ -176,6 +176,13 @@ const click = () => {
   font-family: "Haiyanzhishi", sans-serif;
 }
 
+#img-header,
+#img-footer {
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
+}
+
 section {
   height: 100vh;
   position: relative;
@@ -188,9 +195,6 @@ section {
 
   h1 {
     font-size: 10vmin;
-    /*background: url('@/assets/index/0.gif') repeat;
-    background-size: 80vw 80vh;
-    background: linear-gradient(135deg, rgb(212, 194, 162), rgb(152, 85, 53), rgb(212, 194, 162));*/
     background: linear-gradient(
       90deg,
       rgb(7, 114, 185),
@@ -206,6 +210,10 @@ section {
     white-space: nowrap;
     margin: 1vw 0 5vw 0;
     animation: text 4s linear infinite;
+
+    @media screen and (max-width: 768px) {
+      display: none;
+    }
   }
 
   @keyframes text {
@@ -225,6 +233,10 @@ section {
 
     img {
       width: 30px;
+    }
+
+    @media screen and (max-width: 768px) {
+      display: none;
     }
   }
 
@@ -327,12 +339,26 @@ section {
         color: #fff;
         margin: 5px 0;
       }
+
+      @media screen and (max-width: 768px) {
+        flex-direction: column;
+        margin: 5vw;
+
+        h2 {
+          font-size: 24px;
+        }
+      }
     }
 
     span {
       font-size: 2.5vmin;
       line-height: 2;
       color: #fff;
+
+      @media screen and (max-width: 768px) {
+        font-size: 18px;
+        white-space: unset !important;
+      }
     }
   }
 }
@@ -343,6 +369,10 @@ section {
   right: 30px;
   display: flex;
   font-family: initial;
+
+  @media screen and (max-width: 768px) {
+    display: none;
+  }
 
   .navigation-text {
     width: 0;

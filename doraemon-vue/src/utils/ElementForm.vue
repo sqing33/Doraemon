@@ -2,41 +2,40 @@
   <div :style="props.labelStyle">
     <slot name="header"></slot>
     <el-form
-        :label-position="props.labelPosition"
-        :label-width="props.labelWidth"
-        :model="modelValue"
-        :rules="props.formRules"
-        :style="props.labelStyle"
+      :label-position="props.labelPosition"
+      :label-width="props.labelWidth"
+      :model="modelValue"
+      :rules="props.formRules"
+      :style="props.labelStyle"
     >
       <template v-for="item in props.formItems">
         <el-form-item :label="item.label">
-
           <!-- 输入框 -->
           <template v-if="item.type === 'input' || item.type === 'password'">
             <el-input
-                v-model="modelValue[item.prop]"
-                :placeholder="item.placeholder"
-                :prop="item.prop"
-                :show-password="item.type === 'password'"
-                :style="item.style"
-                clearable
+              v-model="modelValue[item.prop]"
+              :placeholder="item.placeholder"
+              :prop="item.prop"
+              :show-password="item.type === 'password'"
+              :style="item.style"
+              clearable
             ></el-input>
           </template>
 
           <!-- 富文本编辑器 -->
           <template v-else-if="item.type === 'textarea'">
-            <RichTextEditor :style="item.style"/>
+            <RichTextEditor :style="item.style" />
           </template>
 
           <!-- 开关 -->
           <template v-else-if="item.type === 'switch'">
             <el-switch
-                v-model="modelValue[item.prop]"
-                :prop="item.prop"
-                :size="item.size"
-                :style="item.style"
-                class="ml-2"
-                style="
+              v-model="modelValue[item.prop]"
+              :prop="item.prop"
+              :size="item.size"
+              :style="item.style"
+              class="ml-2"
+              style="
                 --el-switch-on-color: #13ce66;
                 --el-switch-off-color: #ff4949;
               "
@@ -47,16 +46,16 @@
           <!-- 选择按钮 -->
           <template v-else-if="item.type === 'select'">
             <el-select
-                v-model="modelValue[item.prop]"
-                :placeholder="item.placeholder"
-                :prop="item.prop"
-                :style="item.style"
+              v-model="modelValue[item.prop]"
+              :placeholder="item.placeholder"
+              :prop="item.prop"
+              :style="item.style"
             >
               <el-option
-                  v-for="(option, index) in item.options"
-                  :key="index"
-                  :label="option.label"
-                  :value="option.value"
+                v-for="(option, index) in item.options"
+                :key="index"
+                :label="option.label"
+                :value="option.value"
               ></el-option>
             </el-select>
           </template>
@@ -64,44 +63,44 @@
           <!-- 日期选择 -->
           <template v-else-if="item.type === 'date'">
             <el-date-picker
-                v-model="modelValue[item.prop]"
-                :placeholder="item.placeholder"
-                :prop="item.prop"
-                :style="item.style"
-                type="date"
+              v-model="modelValue[item.prop]"
+              :placeholder="item.placeholder"
+              :prop="item.prop"
+              :style="item.style"
+              type="date"
             ></el-date-picker>
           </template>
 
           <!-- 时间选择 -->
           <template v-else-if="item.type === 'time'">
             <el-time-select
-                v-model="modelValue[item.prop]"
-                :placeholder="item.placeholder"
-                :prop="item.prop"
-                :style="item.style"
+              v-model="modelValue[item.prop]"
+              :placeholder="item.placeholder"
+              :prop="item.prop"
+              :style="item.style"
             ></el-time-select>
           </template>
 
           <!-- 图片 -->
           <template v-else-if="item.type === 'image'">
             <img
-                :src="modelValue[item.prop]"
-                :style="item.style"
-                alt=""
-                style="border: 1px solid #ccc; padding: 10px; border-radius: 5px"
+              :src="modelValue[item.prop]"
+              :style="item.style"
+              alt=""
+              style="border: 1px solid #ccc; padding: 10px; border-radius: 5px"
             />
           </template>
 
           <!-- 上传图片 -->
           <template v-else-if="item.type === 'upload'">
             <el-upload
-                :action="item.uploadUrl"
-                :on-preview="handlePictureCardPreview"
-                :on-remove="handleRemove"
-                :on-success="uploadSuccess"
-                :style="item.style"
-                list-type="picture-card"
-                multiple
+              :action="item.uploadUrl"
+              :on-preview="handlePictureCardPreview"
+              :on-remove="handleRemove"
+              :on-success="uploadSuccess"
+              :style="item.style"
+              list-type="picture-card"
+              multiple
             >
               <span>
                 <i class="el-icon-plus" style="font-size: 14px"></i>
@@ -110,14 +109,13 @@
             </el-upload>
             <!-- 大图预览 -->
             <el-image-viewer
-                v-if="showImgViewer"
-                :initial-index="initialImgPreviewIndex"
-                :on-close="closeImgViewer"
-                :url-list="imagePreviewUrls"
-                :z-index="3000"
+              v-if="showImgViewer"
+              :initial-index="initialImgPreviewIndex"
+              :on-close="closeImgViewer"
+              :url-list="imagePreviewUrls"
+              :z-index="3000"
             />
           </template>
-
         </el-form-item>
       </template>
     </el-form>
@@ -127,9 +125,9 @@
 </template>
 
 <script lang="ts" setup>
-import {ref, defineProps} from "vue";
+import { ref, defineProps } from "vue";
 import RichTextEditor from "./RichTextEditor.vue";
-import {useStore} from "vuex";
+import { useStore } from "vuex";
 
 const store = useStore();
 

@@ -85,11 +85,11 @@
           <div style="margin-bottom: 10px; transform: translate(45px, -5px)">
             <div v-html="comment.content"></div>
           </div>
-          <div style="display: flex; transform: translateX(45px)">
+          <div class="date" style="transform: translateX(45px)">
             {{ dateFunction(comment.create_time) }}
             <div class="comment-operate" style="display: flex; cursor: pointer">
               <div style="display: flex" @click="doLike(comment.id)">
-                <img alt="" src="../../assets/comment/dian zan.png" />
+                <img alt="" src="../../assets/comment/dianzan.png" />
                 <div
                   style="
                     transform: translateY(-5px);
@@ -101,7 +101,7 @@
                 </div>
               </div>
               <div style="display: flex">
-                <img alt="" src="../../assets/comment/hui fu.png" />
+                <img alt="" src="../../assets/comment/huifu.png" />
                 <div
                   style="transform: translateY(-2px); font-size: 14px"
                   @click="
@@ -111,12 +111,6 @@
                   "
                 >
                   回复
-                </div>
-              </div>
-              <div style="display: flex">
-                <img alt="" src="../../assets/comment/ju bao.png" />
-                <div style="transform: translateY(-2px); font-size: 14px">
-                  举报
                 </div>
               </div>
             </div>
@@ -130,7 +124,7 @@
           >
             <div style="margin-bottom: 10px; display: flex">
               <img alt="" class="avatar" src="../../assets/avatar.png" />
-              <div style="display: flex; padding-top: 10px">
+              <div class="date" style="padding-top: 10px">
                 <strong>{{ childrenComment.nickname }}</strong>
                 &nbsp回复&nbsp
                 <strong>{{ childrenComment.pname }}</strong>
@@ -138,14 +132,14 @@
                 <div v-html="childrenComment.content"></div>
               </div>
             </div>
-            <div style="display: flex; transform: translate(45px, -5px)">
+            <div class="date" style="transform: translate(45px, -5px)">
               {{ dateFunction(childrenComment.create_time) }}
               <div
                 class="comment-operate"
                 style="display: flex; cursor: pointer"
               >
                 <div style="display: flex" @click="doLike(childrenComment.id)">
-                  <img alt="" src="../../assets/comment/dian zan.png" />
+                  <img alt="" src="../../assets/comment/dianzan.png" />
                   <div
                     style="
                       transform: translateY(-2px);
@@ -157,7 +151,7 @@
                   </div>
                 </div>
                 <div style="display: flex">
-                  <img alt="" src="../../assets/comment/hui fu.png" />
+                  <img alt="" src="../../assets/comment/huifu.png" />
                   <div
                     style="transform: translateY(-2px); font-size: 14px"
                     @click="
@@ -168,12 +162,6 @@
                     "
                   >
                     回复
-                  </div>
-                </div>
-                <div style="display: flex">
-                  <img alt="" src="../../assets/comment/ju bao.png" />
-                  <div style="transform: translateY(-2px); font-size: 14px">
-                    举报
                   </div>
                 </div>
               </div>
@@ -197,8 +185,7 @@
 
 <script lang="ts" setup>
 import { defineProps, onMounted, ref } from "vue";
-import axios from "axios";
-import { InterfaceUrl } from "@/api";
+import _axios from "@/api";
 import { ElMessage } from "element-plus";
 import { Share, Star, Tickets } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
@@ -236,23 +223,14 @@ const blog = ref<Blog>({
 });
 
 const collect = () => {
-  if (userInfo === null) {
-    ElMessage.error("请先登录");
-    router.push("/login");
-  } else {
-    axios
-      .post(InterfaceUrl + "/user/collect", {
-        blog_id: props.id,
-        user_id: userInfo.id,
-      })
-      .then((res) => {
-        ElMessage.success("收藏成功");
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
-  }
+  _axios
+    .post("/user/collect", {
+      blog_id: props.id,
+      user_id: userInfo.id,
+    })
+    .then((res) => {
+      ElMessage.success("收藏成功");
+    });
 };
 
 const comments = ref();
@@ -260,33 +238,19 @@ const comments = ref();
 const commentsLength = ref(0);
 
 const getComments = () => {
-  axios
-    .post(InterfaceUrl + "/blog/getComments?id=" + props.id)
-    .then((res) => {
-      comments.value = res.data.data.comments.sort((a: any, b: any) => {
-        return new Date(b.create_time) - new Date(a.create_time);
-      });
-      commentsLength.value = res.data.data.total;
-
-      console.log(comments.value);
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/blog/getComments?id=" + props.id).then((res) => {
+    comments.value = res.data.comments.sort((a: any, b: any) => {
+      return new Date(b.create_time) - new Date(a.create_time);
     });
+    commentsLength.value = res.data.total;
+  });
 };
 
 onMounted(() => {
-  axios
-    .post(InterfaceUrl + "/blog/blogPage?id=" + props.id)
-    .then((res) => {
-      blog.value = res.data.data;
-      blog.value.create_time = dateFunction(blog.value.create_time);
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
+  _axios.post("/blog/blogPage?id=" + props.id).then((res) => {
+    blog.value = res.data;
+    blog.value.create_time = dateFunction(blog.value.create_time);
+  });
   getComments();
 });
 
@@ -308,47 +272,34 @@ const copyToClipboard = (text: string) => {
     .catch((error) => console.error("复制失败", error));
 };
 
-const userInfo = store.getters.getUserInfo;
+const userInfo = reactive(store.getters.getUserInfo);
 
 const richTextEditor = ref();
 
 const submitComment = () => {
-  if (userInfo === null) {
-    ElMessage.error("请先登录");
-    router.push("/login");
-  } else {
-    comment.value = store.getters.getRichTextEditor;
-    axios
-      .post(InterfaceUrl + "/blog/postComment", {
-        content: comment.value,
-        publisher_id: userInfo.id,
-        nickname: userInfo.nickname,
-        bn_id: props.id,
-        category: "blog",
-      })
-      .then((res) => {
-        richTextEditor.value.clearEditorContent();
-        getComments();
-        ElMessage.success("评论成功");
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
-  }
+  comment.value = store.getters.getRichTextEditor;
+  _axios
+    .post("/blog/postComment", {
+      content: comment.value,
+      publisher_id: userInfo ? userInfo.id : 0,
+      nickname: userInfo.nickname,
+      bn_id: props.id,
+      category: "blog",
+    })
+    .then((res) => {
+      richTextEditor.value.clearEditorContent();
+      getComments();
+      ElMessage.success("评论成功");
+    });
 };
 
 const doLike = (comment_id: number) => {
-  axios
-    .post(InterfaceUrl + "/blog/like", {
+  _axios
+    .post("/blog/like", {
       comment_id: comment_id,
     })
     .then((res) => {
       getComments();
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
     });
 };
 
@@ -367,32 +318,23 @@ const replyCommentDialogVisible = ref(false);
 const replyComment = ref();
 
 const submitReplyComment = () => {
-  if (userInfo === null) {
-    ElMessage.error("请先登录");
-    router.push("/login");
-  } else {
-    replyComment.value = store.getters.getRichTextEditor;
-    axios
-      .post(InterfaceUrl + "/blog/postComment", {
-        content: replyComment.value,
-        publisher_id: userInfo.id,
-        nickname: userInfo.nickname,
-        bn_id: props.id,
-        pid: pid.value,
-        pname: pname.value,
-        category: "blog",
-      })
-      .then((res) => {
-        richTextEditor.value.clearEditorContent();
-        getComments();
-        replyCommentDialogVisible.value = false;
-        ElMessage.success("回复成功");
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
-  }
+  replyComment.value = store.getters.getRichTextEditor;
+  _axios
+    .post("/blog/postComment", {
+      content: replyComment.value,
+      publisher_id: userInfo.id,
+      nickname: userInfo.nickname,
+      bn_id: props.id,
+      pid: pid.value,
+      pname: pname.value,
+      category: "blog",
+    })
+    .then((res) => {
+      richTextEditor.value.clearEditorContent();
+      getComments();
+      replyCommentDialogVisible.value = false;
+      ElMessage.success("回复成功");
+    });
 };
 </script>
 
@@ -401,8 +343,18 @@ const submitReplyComment = () => {
   width: 70vw;
   margin: 0 auto;
 
+  @media screen and (max-width: 1000px) {
+    width: 90vw;
+  }
+
+  @media screen and (min-width: 700px) {
+    .date {
+      display: flex;
+    }
+  }
+
   .avatar {
-    width: 45px;
+    width: 45px !important;
     height: 45px;
     border-radius: 50%;
     margin: 0;
@@ -419,12 +371,21 @@ const submitReplyComment = () => {
     justify-content: space-between;
     position: relative;
 
+    @media screen and (max-width: 1000px) {
+      margin-bottom: 40px;
+    }
+
     .comment-operate {
       img {
         height: 15px;
-        width: 15px;
+        width: 15px !important;
         border-radius: 0;
         margin-right: 35px;
+        object-fit: cover;
+      }
+
+      @media screen and (max-width: 1000px) {
+        margin-top: 10px;
       }
     }
   }
@@ -436,6 +397,10 @@ const submitReplyComment = () => {
   background-color: rgba(245, 245, 245, 0.75);
   border-radius: 10px;
   transform: translateX(-0.5vw);
+
+  @media screen and (max-width: 1000px) {
+    padding: 0;
+  }
 
   .news-header {
     position: absolute;

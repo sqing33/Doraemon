@@ -2,7 +2,7 @@
   <el-row :gutter="10">
     <el-col :span="24" class="head"></el-col>
     <el-col :sm="4" class="content hidden-sm-and-down"></el-col>
-    <el-col :sm="4" :xs="7" class="content">
+    <el-col :sm="4" :xs="24" class="content">
       <el-menu class="content" default-active="我的资料" @select="menuSelect">
         <h4
           style="
@@ -24,7 +24,7 @@
     </el-col>
     <el-col
       :sm="12"
-      :xs="17"
+      :xs="24"
       class="content"
       style="
         background-image: linear-gradient(
@@ -61,7 +61,7 @@
           </el-upload>
         </div>
 
-        <div style="position: relative">
+        <div style="">
           <span>昵称:</span>
           {{ newUserInfo.nickname }}
 
@@ -108,7 +108,7 @@
             type="text"
             @click="doChangeAccount('手机号')"
           >
-            修改手机号
+            <span>修改手机号</span>
           </el-button>
         </div>
         <div>
@@ -119,7 +119,7 @@
             type="text"
             @click="doChangeAccount('邮箱')"
           >
-            修改邮箱
+            <span>修改邮箱</span>
           </el-button>
         </div>
         <div>
@@ -130,7 +130,7 @@
             type="text"
             @click="doChangeAccount('密码')"
           >
-            修改密码
+            <span>修改密码</span>
           </el-button>
         </div>
       </div>
@@ -270,7 +270,7 @@ import { useStore } from "vuex";
 import { Plus } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
 import { InterfaceUrl } from "@/api";
-import axios from "axios";
+import _axios from "@/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 import ElementForm from "@/utils/ElementForm.vue";
 import CryptoJS from "crypto-js";
@@ -301,41 +301,27 @@ const userInfo = store.getters.getUserInfo;
 const newUserInfo = ref(userInfo);
 
 const getNewUserInfo = () => {
-  axios
-    .post(InterfaceUrl + "/user/getUserInfo", { id: userInfo.id })
-    .then((res) => {
-      if (res.data.state === 0) {
-        newUserInfo.value = res.data.data;
-        store.dispatch("setUserInfoFromAxios", res.data.data);
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    });
+  _axios.post("/user/getUserInfo", { id: userInfo.id }).then((res) => {
+    newUserInfo.value = res.data;
+    store.dispatch("setUserInfoFromAxios", res.data);
+  });
 };
 
 const avatarUrl = ref();
 
 const uploadSuccess = (res) => {
   avatarUrl.value = res.data.url;
-  axios
-    .post(InterfaceUrl + "/user/updateAvatar", {
+  _axios
+    .post("/user/updateAvatar", {
       id: userInfo.id,
       avatarUrl: avatarUrl.value,
     })
     .then((res) => {
-      if (res.data.state === 0) {
-        getNewUserInfo();
-        ElMessage({
-          type: "success",
-          message: "修改头像成功!",
-        });
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+      getNewUserInfo();
+      ElMessage({
+        type: "success",
+        message: "修改头像成功!",
+      });
     });
 };
 
@@ -393,23 +379,13 @@ const submitNewUserInfo = () => {
 };
 
 const updateUserInfo = () => {
-  axios
-    .post(InterfaceUrl + "/user/updateUserInfo", form)
-    .then((res) => {
-      if (res.data.state === 0) {
-        getNewUserInfo();
-        ElMessage({
-          type: "success",
-          message: "资料修改成功!",
-        });
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/user/updateUserInfo", form).then((res) => {
+    getNewUserInfo();
+    ElMessage({
+      type: "success",
+      message: "资料修改成功!",
     });
+  });
 };
 
 const changeAccountDialogVisible = ref(false);
@@ -457,47 +433,30 @@ const changeAccountSubmit = (label: string) => {
     account.password = CryptoJS.SHA256(accountSetting.value).toString();
   }
 
-  axios
-    .post(InterfaceUrl + "/user/updateAccount", account)
-    .then((res) => {
-      if (res.data.state === 0) {
-        getNewUserInfo();
-        newUserInfo.value = res.data.data;
-        store.dispatch("setUserInfoFromAxios", res.data.data);
-        ElMessage({
-          type: "success",
-          message: "修改成功!",
-        });
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/user/updateAccount", account).then((res) => {
+    getNewUserInfo();
+    newUserInfo.value = res.data;
+    store.dispatch("setUserInfoFromAxios", res.data);
+    ElMessage({
+      type: "success",
+      message: "修改成功!",
     });
+  });
+
   changeAccountDialogVisible.value = false;
 };
 
 let collectionList = reactive([]);
 
 const getCollectionList = () => {
-  axios
-    .post(InterfaceUrl + "/user/getCollectionList", { user_id: userInfo.id })
+  _axios
+    .post("/user/getCollectionList", { user_id: userInfo.id })
     .then((res) => {
-      if (res.data.state === 0) {
-        collectionList = res.data.data.sort(function (a, b) {
-          return b.collection_time - a.collection_time;
-        });
+      collectionList = res.data.sort(function (a, b) {
+        return b.collection_time - a.collection_time;
+      });
 
-        menuIndex.value = "我的收藏";
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+      menuIndex.value = "我的收藏";
     });
 };
 
@@ -508,23 +467,13 @@ const doGoToBlogPage = (id: number) => {
 let feedbackList = reactive([]);
 
 const getFeedbackList = () => {
-  axios
-    .post(InterfaceUrl + "/user/getFeedbackList", { user_id: userInfo.id })
-    .then((res) => {
-      if (res.data.state === 0) {
-        feedbackList = res.data.data.sort(function (a, b) {
-          return b.create_time - a.create_time;
-        });
-
-        menuIndex.value = "我的反馈";
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/user/getFeedbackList", { user_id: userInfo.id }).then((res) => {
+    feedbackList = res.data.sort(function (a, b) {
+      return b.create_time - a.create_time;
     });
+
+    menuIndex.value = "我的反馈";
+  });
 };
 
 const doDeleteFeedback = (id: number) => {
@@ -533,23 +482,13 @@ const doDeleteFeedback = (id: number) => {
     cancelButtonText: "取消",
     type: "warning",
   }).then(() => {
-    axios
-      .post(InterfaceUrl + "/user/deleteFeedback", { id })
-      .then((res) => {
-        if (res.data.state === 0) {
-          getFeedbackList();
-          ElMessage({
-            type: "success",
-            message: "删除成功!",
-          });
-        } else {
-          ElMessage.error("请求失败，请联系管理员。");
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        ElMessage.error("请求失败，请联系管理员。");
+    _axios.post("/user/deleteFeedback", { id }).then((res) => {
+      getFeedbackList();
+      ElMessage({
+        type: "success",
+        message: "删除成功!",
       });
+    });
   });
 };
 </script>
@@ -603,12 +542,25 @@ const doDeleteFeedback = (id: number) => {
 }
 
 .content {
-  height: 70vh;
   border-radius: 10px;
+
+  &:nth-child(1) {
+    height: 70vh;
+    @media screen and (max-width: 768px) {
+      width: 100vw;
+      height: 100px;
+      display: flex;
+
+      .el-menu-item {
+        margin-left: 5px;
+      }
+    }
+  }
 }
 
 .contentInfo {
   position: relative;
+  height: 70vh;
   top: 50%;
   transform: translateY(-50%);
 
@@ -618,6 +570,14 @@ const doDeleteFeedback = (id: number) => {
     span {
       display: inline-block;
       width: 60px;
+    }
+  }
+
+  @media screen and (max-width: 768px) {
+    .el-button {
+      span {
+        transform: translate(50px, 100px);
+      }
     }
   }
 }

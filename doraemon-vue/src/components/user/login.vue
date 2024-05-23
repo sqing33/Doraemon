@@ -1,96 +1,134 @@
 <template>
-  <div style="height:90vh;width:100%;">
+  <div style="height: 90vh; width: 100%">
     <div class="login-container">
       <div class="div-description">
-        <img alt="" src="../../assets/regist.gif">
+        <img alt="" src="../../assets/regist.gif" />
       </div>
-      <div :style="{ transform: isChange ? 'rotateY(180deg)' : '' }" class="div-form">
-
-        <el-form ref="loginFormRef" :class="{ disappear: isChange }" :model="loginForm" :rules="loginRules" class="form-login">
+      <div
+        :style="{ transform: isChange ? 'rotateY(180deg)' : '' }"
+        class="div-form"
+      >
+        <el-form
+          ref="loginFormRef"
+          :class="{ disappear: isChange }"
+          :model="loginForm"
+          :rules="loginRules"
+          class="form-login"
+        >
           <h1>登录</h1>
           <el-form-item label="用户名" prop="username">
-            <el-input v-model="loginForm.username" placeholder="请输入用户名、手机号或邮箱" @keyup.enter="login"></el-input>
+            <el-input
+              v-model="loginForm.username"
+              placeholder="请输入用户名、手机号或邮箱"
+              @keyup.enter="login"
+            ></el-input>
           </el-form-item>
           <el-form-item label="密码" prop="password">
-            <el-input v-model="loginForm.password" placeholder="请输入密码" style="margin-left: 15px" type="password" @keyup.enter="login"></el-input>
+            <el-input
+              v-model="loginForm.password"
+              placeholder="请输入密码"
+              style="margin-left: 15px"
+              type="password"
+              @keyup.enter="login"
+            ></el-input>
           </el-form-item>
 
-          <el-button style="margin-top: 50px" @click="login(loginFormRef)">登录</el-button>
+          <el-button style="margin-top: 50px" @click="login(loginFormRef)"
+            >登录</el-button
+          >
           <div class="control">
             <span>没有帐号？<a href="#" @click="change">注册</a></span>
           </div>
         </el-form>
 
-        <el-form ref="registFormRef" :class="{ disappear: !isChange }" :model="registForm" :rules="registRules"
-                 action="" class="form-register">
-          <h1 style="margin:0 0 10px 0">注册</h1>
+        <el-form
+          ref="registFormRef"
+          :class="{ disappear: !isChange }"
+          :model="registForm"
+          :rules="registRules"
+          action=""
+          class="form-register"
+        >
+          <h1 style="margin: 0 0 10px 0">注册</h1>
           <el-form-item label="用户名:" prop="username">
             <el-input
-                v-model="registForm.username"
-                placeholder="请输入用户名"
-                @keyup.enter="login"
+              v-model="registForm.username"
+              placeholder="请输入用户名"
+              @keyup.enter="login"
             ></el-input>
           </el-form-item>
           <el-form-item label="密码:" prop="password">
             <el-input
-                v-model="registForm.password"
-                placeholder="请输入密码"
-                type="password"
-                @keyup.enter="login"
+              v-model="registForm.password"
+              placeholder="请输入密码"
+              type="password"
+              @keyup.enter="login"
             ></el-input>
           </el-form-item>
           <el-form-item label="确认密码:" prop="confirmPassword">
             <el-input
-                v-model="registForm.confirmPassword"
-                placeholder="请再次输入密码"
-                type="password"
-                @keyup.enter="login"
+              v-model="registForm.confirmPassword"
+              placeholder="请再次输入密码"
+              type="password"
+              @keyup.enter="login"
             ></el-input>
           </el-form-item>
           <el-form-item label="昵称:" prop="nickname">
-            <el-input v-model="registForm.nickname" placeholder="请输入昵称" @keyup.enter="login"></el-input>
+            <el-input
+              v-model="registForm.nickname"
+              placeholder="请输入昵称"
+              @keyup.enter="login"
+            ></el-input>
           </el-form-item>
           <el-form-item label="手机号:" prop="phone">
-            <el-input v-model="registForm.phone" placeholder="请输入手机号" @keyup.enter="login"></el-input>
+            <el-input
+              v-model="registForm.phone"
+              placeholder="请输入手机号"
+              @keyup.enter="login"
+            ></el-input>
           </el-form-item>
           <el-form-item label="邮箱:" prop="email">
-            <el-input v-model="registForm.email" placeholder="请输入邮箱" @keyup.enter="login"></el-input>
+            <el-input
+              v-model="registForm.email"
+              placeholder="请输入邮箱"
+              @keyup.enter="login"
+            ></el-input>
           </el-form-item>
           <el-form-item class="code-item" label="验证码:" prop="code">
             <el-input
-                v-model="registForm.code"
-                placeholder="请输入邮箱验证码"
-                @keyup.enter="login"
+              v-model="registForm.code"
+              placeholder="请输入邮箱验证码"
+              @keyup.enter="login"
             >
               <template #append>
-                <el-text @click="postCode">
-                  获取验证码
-                </el-text>
+                <el-text @click="postCode"> 获取验证码 </el-text>
               </template>
             </el-input>
           </el-form-item>
-          <el-button style="margin:10px" @click="regist(registFormRef)">注册</el-button>
+          <el-button style="margin: 10px" @click="regist(registFormRef)"
+            >注册</el-button
+          >
           <div class="control">
             <span>已有帐号？<a href="#" @click="change">登录</a></span>
           </div>
         </el-form>
       </div>
       <div class="div-description">
-        <img alt="" src="../../assets/login.gif">
+        <img alt="" src="../../assets/login.gif" />
       </div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import {reactive, ref} from "vue";
-import axios from "axios";
-import {ElMessage} from "element-plus";
-import type {FormInstance, FormRules} from 'element-plus'
-import {useRouter} from "vue-router";
-import {InterfaceUrl} from "@/api";
+import { reactive, ref } from "vue";
+import _axios from "@/api";
+import { ElMessage } from "element-plus";
+import type { FormInstance, FormRules } from "element-plus";
+import { useRouter } from "vue-router";
+import { InterfaceUrl } from "@/api";
 import CryptoJS from "crypto-js";
-import {useStore} from "vuex";
+import { useStore } from "vuex";
 
 const loginFormRef = ref<FormInstance>();
 
@@ -104,7 +142,7 @@ const isChange = ref(false);
 
 const change = () => {
   isChange.value = !isChange.value;
-}
+};
 
 const loginForm = ref({
   username: "",
@@ -120,10 +158,10 @@ const loginRules = reactive<FormRules<typeof loginForm>>({
         const phoneRegex = /^\d{11}$/;
         const emailRegex = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
         if (
-            value &&
-            (usernameRegex.test(value) ||
-                phoneRegex.test(value) ||
-                emailRegex.test(value))
+          value &&
+          (usernameRegex.test(value) ||
+            phoneRegex.test(value) ||
+            emailRegex.test(value))
         ) {
           callback();
         } else {
@@ -133,7 +171,7 @@ const loginRules = reactive<FormRules<typeof loginForm>>({
       trigger: "blur",
     },
   ],
-  password: [{required: true, message: "请输入密码", trigger: "blur"}],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
 });
 
 const login = async (formEl: FormInstance | undefined) => {
@@ -143,45 +181,37 @@ const login = async (formEl: FormInstance | undefined) => {
       // 密码加密 (前端SHA256 后端bcrypt)
       const hash = CryptoJS.SHA256(loginForm.value.password).toString();
       loginForm.value.password = hash;
-      axios
-          .post(InterfaceUrl + "/user/login", null, {
-            params: loginForm,
-          })
-          .then((res) => {
-            if (res.data.state === 1) {
-              ElMessage.error("用户名或密码错误");
-            } else {
-              ElMessage.success("登录成功!");
-              store.dispatch("setUserInfoFromAxios", res.data.data);
-              // 保存token到localStorage
-              localStorage.setItem("token", res.data.token);
-              router.go(-1);
-            }
-          })
-          .catch((error) => {
-            console.error(error);
-            ElMessage.error("请求失败，请联系管理员。");
-          });
+      _axios
+        .post("/user/login", null, {
+          params: loginForm,
+        })
+        .then((res) => {
+          if (res.data.state === 1) {
+            ElMessage.error("用户名或密码错误");
+          } else {
+            ElMessage.success("登录成功!");
+            store.dispatch("setUserInfoFromAxios", res.data.data);
+            // 保存token到localStorage
+            localStorage.setItem("token", res.data.token);
+            router.go(-1);
+          }
+        });
     } else {
       ElMessage.error("请检查输入是否正确!");
     }
-  })
+  });
 };
 
-const postCode = async () => {
-  await axios
-      .post(InterfaceUrl + "/user/emailCode", null, {
-        params: {
-          email: registForm.value.email,
-        },
-      })
-      .then((res) => {
-        ElMessage.success("验证码发送成功!");
-      })
-      .catch((error) => {
-        console.error(error);
-        ElMessage.error("验证码发送失败，请检查邮箱格式是否正确。");
-      });
+const postCode = () => {
+  _axios
+    .post("/user/emailCode", null, {
+      params: {
+        email: registForm.value.email,
+      },
+    })
+    .then((res) => {
+      ElMessage.success("验证码发送成功!");
+    });
 };
 
 const registForm = ref({
@@ -196,7 +226,7 @@ const registForm = ref({
 
 const registRules = reactive<FormRules<typeof registForm>>({
   username: [
-    {required: true, message: "请输入用户名", trigger: "blur"},
+    { required: true, message: "请输入用户名", trigger: "blur" },
     {
       pattern: /^[a-zA-Z0-9_-]{4,16}$/,
       message: "用户名长度为4-16位且不能包含特殊字符",
@@ -204,7 +234,7 @@ const registRules = reactive<FormRules<typeof registForm>>({
     },
   ],
   password: [
-    {required: true, message: "请输入密码", trigger: "blur"},
+    { required: true, message: "请输入密码", trigger: "blur" },
     {
       min: 6,
       max: 16,
@@ -228,7 +258,7 @@ const registRules = reactive<FormRules<typeof registForm>>({
     },
   ],
   nickname: [
-    {required: true, message: "请输入昵称", trigger: "blur"},
+    { required: true, message: "请输入昵称", trigger: "blur" },
     {
       min: 2,
       max: 10,
@@ -252,7 +282,7 @@ const registRules = reactive<FormRules<typeof registForm>>({
       trigger: "blur",
     },
   ],
-  code: [{required: true, message: "请输入邮箱验证码", trigger: "blur"}],
+  code: [{ required: true, message: "请输入邮箱验证码", trigger: "blur" }],
 });
 
 const regist = async (formEl: FormInstance | undefined) => {
@@ -263,23 +293,14 @@ const regist = async (formEl: FormInstance | undefined) => {
       const hash = CryptoJS.SHA256(registForm.value.password).toString();
       registForm.value.password = hash;
 
-      try {
-        axios
-            .post(InterfaceUrl + "/user/regist", null, {
-              params: registForm,
-            })
-            .then((res) => {
-              ElMessage.success("注册成功!");
-              router.push("/login");
-            })
-            .catch((error) => {
-              console.error(error);
-              ElMessage.error("请求失败，请联系管理员。");
-            });
-      } catch (error) {
-        console.error(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      }
+      _axios
+        .post("/user/regist", null, {
+          params: registForm,
+        })
+        .then((res) => {
+          ElMessage.success("注册成功!");
+          router.push("/login");
+        });
     } else {
       ElMessage.error("请检查输入是否正确!");
     }
@@ -287,7 +308,7 @@ const regist = async (formEl: FormInstance | undefined) => {
 };
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 .login-container {
   width: 800px;
   position: relative;
@@ -297,6 +318,10 @@ const regist = async (formEl: FormInstance | undefined) => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+
+  @media screen and (max-width: 800px) {
+    transform: translate(-25%, -50%);
+  }
 }
 
 .div-description {
@@ -309,6 +334,10 @@ const regist = async (formEl: FormInstance | undefined) => {
   background-color: rgba(255, 255, 255, 0.75);
   border-radius: 5px 0 0 5px;
   transform: translateZ(-1px);
+
+  @media screen and (max-width: 800px) {
+    opacity: 0;
+  }
 }
 
 .div-description:nth-last-child(1) {
@@ -358,6 +387,10 @@ const regist = async (formEl: FormInstance | undefined) => {
   background-image: linear-gradient(to right, #48c6ef -100%, #6f86d6 100%);
   border-radius: 0 5px 5px 0;
   transform: rotateY(180deg);
+
+  @media screen and (max-width: 800px) {
+    transform: rotateY(180deg) translateX(-100%);
+  }
 
   .el-form-item {
     margin: 10px;

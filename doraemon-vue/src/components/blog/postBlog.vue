@@ -1,14 +1,5 @@
 <template>
-  <div
-    style="
-      width: 80vw;
-      min-height: 95%;
-      padding: 10px 20px;
-      margin: 5px auto;
-      background: rgb(255, 255, 255, 0.5);
-      border-radius: 20px;
-    "
-  >
+  <div class="post-blog">
     <h1 style="margin: 10px 0 15px 0; text-align: center">发表帖子</h1>
 
     <ElementForm v-bind="formConfig" v-model="form">
@@ -30,10 +21,8 @@
 
 <script lang="ts" setup>
 import { reactive, ref, onMounted } from "vue";
-import { InterfaceUrl } from "@/api";
 import { ElMessage } from "element-plus";
-import axios from "axios";
-import LZString from "lz-string";
+import _axios from "@/api";
 import ElementForm from "@/utils/ElementForm.vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
@@ -42,22 +31,20 @@ const store = useStore();
 
 const router = useRouter();
 
-const categories = ref();
-
 const formItems = reactive([
   {
     label: "标题",
     type: "input",
     placeholder: "请输入标题",
     prop: "title",
-    style: ["width: 45vw"],
+    style: ["width: 400px"],
   },
   {
     label: "类型",
     type: "select",
     placeholder: "请选择类型",
     prop: "category",
-    style: ["width: 15vw"],
+    style: ["width: 200px"],
     options: [
       {
         label: "分享",
@@ -78,14 +65,14 @@ const formItems = reactive([
     type: "textarea",
     placeholder: "请输入新闻内容",
     prop: "content",
-    style: ["height: 30vh", "width: 90%"],
+    style: ["height: 30vh", "width: 100%"],
   },
   {
     label: "封面",
     type: "upload",
     prop: "coverUrl",
     style: [],
-    uploadUrl: InterfaceUrl + "/admin/upload",
+    uploadUrl: "localhost:3000/admin/upload",
   },
 ]);
 
@@ -109,29 +96,23 @@ formConfig.formItems.map((item) => {
 
 const form = reactive(formValues);
 
+const userInfo = reactive(store.getters.getUserInfo);
+
 const onSubmit = () => {
   form.coverUrl = store.getters.getElementImageUrl;
   form.content = store.getters.getRichTextEditor;
-  form.user_id = store.getters.getUserInfo.id;
+  form.user_id = userInfo ? userInfo.id : 0;
 
-  console.log(form);
-
-  axios
-    .post(InterfaceUrl + "/blog/postBlog", form)
-    .then((response) => {
-      ElMessage({
-        type: "success",
-        message: "发布成功!",
-      });
-      form.value = "";
-      store.commit("setElementImageUrl", "");
-      store.commit("setRichTextEditor", "");
-      router.push("/blog");
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/blog/postBlog", form).then((response) => {
+    ElMessage({
+      type: "success",
+      message: "发布成功!",
     });
+    form.value = "";
+    store.commit("setElementImageUrl", "");
+    store.commit("setRichTextEditor", "");
+    router.push("/blog");
+  });
 };
 
 const onCancel = () => {
@@ -142,4 +123,20 @@ const onCancel = () => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.post-blog {
+  width: 80vw;
+  height: calc(100vh - 100px);
+  padding: 10px 20px;
+  margin: 5px auto;
+  background: rgb(255, 255, 255, 0.5);
+  border-radius: 20px;
+
+  @media screen and (max-width: 768px) {
+    width: calc(100vw - 10px);
+    height: 110vh;
+    padding: 0;
+    margin: 0 5px;
+  }
+}
+</style>

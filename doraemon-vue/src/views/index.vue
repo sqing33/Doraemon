@@ -171,9 +171,19 @@
         }"
         style=""
       >
-        <el-scrollbar @scroll="scroll">
+        <el-scrollbar
+          @scroll="scroll"
+          :style="
+            !(HomePage || AdminPage)
+              ? { height: 'calc(100vh - 40px) !important' }
+              : {}
+          "
+          :class="{ 'login-page': LoginPage }"
+        >
           <router-view></router-view>
-          <CopyrightIcp v-if="!(Admin || AuthorPage || HomePage)" />
+          <CopyrightIcp
+            v-if="!(Admin || AuthorPage || HomePage || CharacterPage)"
+          />
         </el-scrollbar>
       </el-main>
     </el-container>
@@ -189,7 +199,8 @@ import {
   EditPen,
   QuestionFilled,
   Tickets,
-  User,Link
+  User,
+  Link,
 } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
@@ -229,6 +240,8 @@ const AuthorPage = ref(false);
 
 const CharacterPage = ref(false);
 
+const LoginPage = ref(false);
+
 const ellipsis = ref(true);
 
 watch(route, (to) => {
@@ -242,6 +255,7 @@ watch(route, (to) => {
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
   AuthorPage.value = to.path === "/author";
   CharacterPage.value = to.path === "/character";
+  LoginPage.value = to.path === "/login";
 });
 
 const logout = () => {
@@ -340,5 +354,11 @@ li {
 
 .character-page {
   --el-menu-bg-color: rgb(243, 241, 236) !important;
+}
+
+.login-page {
+  :deep(.el-scrollbar__wrap) {
+    overflow: hidden;
+  }
 }
 </style>

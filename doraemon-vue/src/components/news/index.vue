@@ -7,7 +7,7 @@
       </div>
 
       <div class="search">
-        <el-input v-model="keyword" placeholder="搜索" style="width: 250px">
+        <el-input v-model="keyword" placeholder="搜索">
           <template #suffix>
             <el-icon class="el-input__icon" @click="search">
               <Search />
@@ -18,16 +18,8 @@
     </div>
 
     <div class="news-categories">
-      <div>
-        <span
-          style="
-            width: 100px;
-            display: inline-block;
-            transform: translateY(-3px);
-          "
-        >
-          分类：
-        </span>
+      <div class="title">
+        <span> 分类： </span>
       </div>
 
       <div class="categories">
@@ -71,12 +63,9 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
-import { ElMessage } from "element-plus";
+import _axios from "@/api";
 import { Search } from "@element-plus/icons-vue";
-import { InterfaceUrl } from "@/api";
 import { useRouter } from "vue-router";
-import LZString from "lz-string";
 import dateFunction from "@/utils/Date";
 
 const router = useRouter();
@@ -112,8 +101,8 @@ const getNews = (
   category: string | null = null,
   keyword: string | null = null
 ) => {
-  axios
-    .post(InterfaceUrl + "/news", null, {
+  _axios
+    .post("/news", {
       params: {
         page: 1,
         pageSize: null,
@@ -123,15 +112,11 @@ const getNews = (
       },
     })
     .then((res) => {
-      news.value = res.data.data.map((item: any) => {
+      news.value = res.data.map((item: any) => {
         item.content = item.content;
         item.create_time = dateFunction(item.create_time);
         return item;
       });
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
     });
 };
 
@@ -148,6 +133,10 @@ const doGoToNewsPage = (id: string) => {
 #news {
   width: 60vw;
   margin: 0 auto;
+
+  @media screen and (max-width: 768px) {
+    width: 100vw;
+  }
 
   .news-head {
     height: 50px;
@@ -169,6 +158,16 @@ const doGoToNewsPage = (id: string) => {
         margin: auto 10px;
       }
     }
+
+    .search {
+      .el-input {
+        width: 250px;
+
+        @media screen and (max-width: 768px) {
+          width: 50vw;
+        }
+      }
+    }
   }
 
   .news-categories {
@@ -178,11 +177,30 @@ const doGoToNewsPage = (id: string) => {
     padding: 10px 20px;
     border-radius: 10px;
 
+    @media screen and (max-width: 768px) {
+      font-size: 18px;
+      width: 90vw;
+    }
+
+    .title {
+      span {
+        width: 100px;
+        display: inline-block;
+        transform: translateY(-3px);
+
+        @media screen and (max-width: 768px) {
+          width: 55px;
+        }
+      }
+    }
+
     .categories {
-      display: flex;
-      flex: 1;
       font-size: 16px;
       justify-content: space-around;
+
+      @media screen and (min-width: 768px) {
+        display: flex;
+      }
 
       span {
         cursor: pointer;

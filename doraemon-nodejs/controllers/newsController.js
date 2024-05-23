@@ -35,12 +35,25 @@ const insertComment = (req, res, next) => {
 const likeBlog = (req, res, next) => {
   const { comment_id } = req.body;
 
-  newsService.likeBlog(comment_id, (err, result) => {
-    if (err) {
-      return res.send({ state: 1, message: err });
-    }
-    return res.send({ state: 0, message: "点赞成功", data: result });
-  });
+  const authHeader = req.headers.authorization;
+
+  if (authHeader) {
+    const token = authHeader.split(" ")[1];
+    jwt.verify(token, jwtKey.key, (err) => {
+      if (err) {
+        return res.sendStatus(403);
+      }
+
+      newsService.likeBlog(comment_id, (err, result) => {
+        if (err) {
+          return res.send({ state: 1, message: err });
+        }
+        return res.send({ state: 0, message: "点赞成功", data: result });
+      });
+    });
+  } else {
+    res.sendStatus(401);
+  }
 };
 
 // 查询--条件筛选

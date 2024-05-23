@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div id="map" style="width: 100vw; height: 95vh"></div>
+    <div id="map" style="width: 100vw; height: calc(100vh - 40px)"></div>
 
     <div
       :class="{
@@ -24,15 +24,6 @@
       }"
       class="character"
     >
-      <!-- <el-button
-        type="primary"
-        @click="
-          _back();
-          character.value = '';
-        "
-        >返回</el-button
-      > -->
-
       <img
         src="@/assets/map/back.png"
         alt=""
@@ -68,12 +59,11 @@
         <p v-if="chickIntro.fear">不喜欢{{ chickIntro.fear }}</p>
       </div>
 
-      <div class="intro">
+      <div class="intro-img">
         <img
           v-for="(item, index) in intro"
           :key="index"
           :src="item.img"
-          :style="{ height: '300px' }"
           alt=""
           @click="handleClick(index)"
         />
@@ -235,8 +225,6 @@ onMounted(() => {
     map.addEventListener("zoomend", function (e) {
       let zoomValue = map.getZoom();
 
-      console.log(zoomValue);
-
       let zoom = 50;
 
       if (zoomValue === 4) {
@@ -286,13 +274,7 @@ const handleClick = (value) => {
 };
 </script>
 
-<style>
-.BMap_cpyCtrl,
-.BMap_stdMpCtrl,
-.anchorBL {
-  display: none !important;
-}
-
+<style scoped lang="scss">
 .cloud {
   z-index: -99999;
   position: absolute;
@@ -348,19 +330,36 @@ const handleClick = (value) => {
     background-color: rgba(255, 255, 255, 0.8);
   }
 
-  .intro {
+  .intro-img {
     display: flex;
     position: absolute;
     bottom: 0;
     left: 50%;
     transform: translateX(-50%);
     align-items: end;
+    height: 300px;
 
-    @media (max-width: 768px) {
-      flex-direction: column;
+    img {
+      height: 300px;
+    }
+
+    @media screen and (max-width: 480px) {
       align-items: center;
       justify-content: center;
+
+      img {
+        width: 20vw;
+        height: auto;
+      }
     }
   }
+}
+</style>
+
+<style>
+.BMap_cpyCtrl,
+.BMap_stdMpCtrl,
+.anchorBL {
+  display: none !important;
 }
 </style>

@@ -80,14 +80,14 @@ const authorContent = () => {
   let index = 0;
 let iterationCount = 0;
 const maxIterations = 4;
-const intervalTime = 1; // 毫秒
+const intervalTime = 1;
 
 const interval = setInterval(() => {
   if (index < content_author.length) {
     _content_author.value += content_author[index];
     index++;
   } else {
-    index = 0; // 重置索引
+    index = 0;
     iterationCount++;
     if (iterationCount >= maxIterations) {
       clearInterval(interval);
@@ -101,10 +101,6 @@ const interval = setInterval(() => {
 </script>
 
 <style lang="scss" scoped>
-body {
-  background-color: #000;
-}
-
 .author-intro {
   background: black;
   position: relative;
@@ -115,6 +111,10 @@ body {
     bottom: 30vh;
     left: 10vw;
     text-align: center;
+
+    @media screen and (max-width: 768px) {
+      display: none;
+    }
 
     a:first-child:hover {
       span:first-child {
@@ -139,6 +139,11 @@ body {
 
     div {
       width: 25vw;
+
+      @media screen and (max-width: 768px) {
+        width: 100vw;
+        font-size: 20px;
+      }
     }
 
     .left {
@@ -151,6 +156,15 @@ body {
       position: absolute;
       top: 5vh;
       right: 5vw;
+    }
+
+    @media screen and (max-width: 768px) {
+      .left, .right {
+        position: relative;
+        left: 0;
+        right: 0;
+        top:50%;
+      }
     }
 
     span {
@@ -193,7 +207,13 @@ body {
     background-size: contain;
     background-blend-mode: soft-light;
     -webkit-background-clip: text;
+
+    @media screen and (max-width: 768px) {
+      height: 50vh;
+    }
   }
+
+  
 }
 
 
