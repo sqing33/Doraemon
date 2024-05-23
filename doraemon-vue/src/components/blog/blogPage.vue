@@ -184,13 +184,12 @@
 </template>
 
 <script lang="ts" setup>
-import { defineProps, onMounted, ref } from "vue";
+import { defineProps, onMounted, ref, reactive } from "vue";
 import _axios from "@/api";
 import { ElMessage } from "element-plus";
 import { Share, Star, Tickets } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
 import { useStore } from "vuex";
-import router from "@/router";
 import RichTextEditor from "@/utils/RichTextEditor.vue";
 
 const store = useStore();

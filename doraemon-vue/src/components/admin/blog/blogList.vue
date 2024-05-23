@@ -120,10 +120,9 @@
 </template>
 
 <script lang="ts" setup>
-import axios from "axios";
+import _axios from "@/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { onMounted, reactive, ref } from "vue";
-import { InterfaceUrl } from "@/api";
 import dateFunction from "@/utils/Date";
 import ElementForm from "@/utils/ElementForm.vue";
 import checkBlog from "./checkBlog.vue";
@@ -223,8 +222,8 @@ const getBlogs = (
   category?: number,
   create_time?: string
 ) => {
-  axios
-    .post(InterfaceUrl + "/blog", null, {
+  _axios
+    .post("/blog", null, {
       params: {
         page: pagination.value.page,
         pageSize: pagination.value.size,
@@ -234,16 +233,9 @@ const getBlogs = (
       },
     })
     .then((res) => {
-      if (res.data.state === 0) {
-        blog.value = res.data.data.blogArr;
-        total.value = res.data.data.total;
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
+      const data = res.data;
+      blog.value = data.blogArr;
+      total.value = data.total;
     });
 };
 
@@ -261,21 +253,11 @@ const doDelete = (id: number, title: string) => {
     cancelButtonText: "取消",
     type: "warning",
   }).then(() => {
-    axios
-      .post(InterfaceUrl + "/admin/blog/delete", { id })
-      .then((res) => {
-        if (res.data.state === 0) {
-          ElMessage.success("删除成功！");
-          getBlogs();
-          dialogVisible.value = false;
-        } else {
-          ElMessage.error("请求失败，请联系管理员。");
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
+    _axios.post("/admin/blog/delete", { id }).then((res) => {
+      ElMessage.success("删除成功！");
+      getBlogs();
+      dialogVisible.value = false;
+    });
   });
 };
 </script>

@@ -1,6 +1,4 @@
 export const InterfaceUrl: string = "http://localhost:3000";
-
-// 外部设备访问地址
 // export const InterfaceUrl: string = "http://192.168.31.74:3000";
 // export const InterfaceUrl: string = "http://101.34.255.5:3000";
 
@@ -17,11 +15,19 @@ const _axios = axios.create({
 _axios.interceptors.request.use(
   (config) => {
     let token = localStorage.getItem("token");
+    let adminToken = localStorage.getItem("adminToken");
     let url = config.url || "";
-    let whiteList = ["/news"];
-    if (whiteList.includes(url) == false && token) {
-      config.headers.Authorization = `Bearer ${token}`;
+
+    let whiteList = ["/news", "blog", "/login", "/register"];
+
+    if (!whiteList.includes(url)) {
+      if (url.startsWith("/admin/")) {
+        config.headers.Authorization = `Bearer ${adminToken}`;
+      } else {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
+
     return config;
   },
   (error) => {
@@ -42,7 +48,8 @@ _axios.interceptors.response.use(
           router.push("/login");
           break;
         case 403:
-          ElMessage.error("权限不足，请联系管理员");
+          ElMessage.error("权限不足，请重新登录管理员账号");
+          router.push("/adminLogin");
           break;
         case 404:
           ElMessage.error("请求的资源不存在");

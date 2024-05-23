@@ -104,7 +104,7 @@ const getUserBlogList = (id, callback) => {
 // 获取用户收藏列表
 const getCollectionList = (user_id, callback) => {
   const sql =
-    "SELECT b.title, b.coverUrl, ubc.collection_time" +
+    "SELECT b.title, b.coverUrl, ubc.blog_id, ubc.collection_time" +
     " FROM blog b" +
     " JOIN user_blog_collection ubc ON b.id = ubc.blog_id" +
     " WHERE ubc.user_id = ?";

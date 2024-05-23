@@ -9,20 +9,31 @@ const usersRoutes: RouteRecordRaw[] = [
     ),
   },
   {
-    path: "/userInfo",
-    component: defineAsyncComponent(
-      () => import("@/components/user/userInfo.vue")
-    ),
-  },
-  {
-    path: "/myBlogs",
-    component: defineAsyncComponent(() => import("@/components/user/blog.vue")),
-  },
-  {
-    path: "/feedback",
-    component: defineAsyncComponent(
-      () => import("@/components/user/feedback.vue")
-    ),
+    path: "/user",
+    children: [
+      {
+        path: "info",
+        component: defineAsyncComponent(
+          () => import("@/components/user/userInfo.vue")
+        ),
+      },
+      {
+        path: "myBlogs",
+        component: defineAsyncComponent(
+          () => import("@/components/user/blog.vue")
+        ),
+      },
+      {
+        path: "feedback",
+        component: defineAsyncComponent(
+          () => import("@/components/user/feedback.vue")
+        ),
+      },
+    ],
+    meta: {
+      requiresAuth: true,
+      role: "user",
+    },
   },
 ];
 

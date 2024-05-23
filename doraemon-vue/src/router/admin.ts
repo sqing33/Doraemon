@@ -1,5 +1,6 @@
 import { RouteRecordRaw } from "vue-router";
 import { defineAsyncComponent } from "vue";
+import { ro } from "element-plus/es/locale/index.mjs";
 
 const adminRoutes: RouteRecordRaw[] = [
   {
@@ -78,6 +79,10 @@ const adminRoutes: RouteRecordRaw[] = [
         ),
       },
     ],
+    meta: {
+      requiresAuth: true,
+      role: "admin",
+    },
   },
 ];
 

@@ -175,9 +175,7 @@
 
 <script lang="ts" setup>
 import { onMounted, ref } from "vue";
-import _axios from "@/api";
-import { ElMessage } from "element-plus";
-import { InterfaceUrl } from "@/api";
+import _axios from "@/api"; 
 import { useRouter } from "vue-router";
 import dateFunction from "@/utils/Date";
 

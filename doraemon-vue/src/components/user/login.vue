@@ -126,7 +126,6 @@ import _axios from "@/api";
 import { ElMessage } from "element-plus";
 import type { FormInstance, FormRules } from "element-plus";
 import { useRouter } from "vue-router";
-import { InterfaceUrl } from "@/api";
 import CryptoJS from "crypto-js";
 import { useStore } from "vuex";
 
@@ -186,15 +185,13 @@ const login = async (formEl: FormInstance | undefined) => {
           params: loginForm,
         })
         .then((res) => {
-          if (res.data.state === 1) {
-            ElMessage.error("用户名或密码错误");
-          } else {
-            ElMessage.success("登录成功!");
-            store.dispatch("setUserInfoFromAxios", res.data.data);
-            // 保存token到localStorage
-            localStorage.setItem("token", res.data.token);
-            router.go(-1);
-          }
+          ElMessage.success("登录成功!");
+          store.dispatch("setUserInfoFromAxios", res.data);
+
+          const token = res.token.split(" ")[1];
+
+          localStorage.setItem("token", token);
+          router.go(-1);
         });
     } else {
       ElMessage.error("请检查输入是否正确!");

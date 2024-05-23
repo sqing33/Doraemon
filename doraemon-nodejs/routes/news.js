@@ -1,12 +1,13 @@
 const express = require("express");
 const router = express.Router();
 const newsController = require("../controllers/newsController");
+const authenticateToken = require("../utils/authenticateToken");
 
 // 新增评论
-router.post("/postComment", newsController.insertComment);
+router.post("/postComment", authenticateToken, newsController.insertComment);
 
 // 点赞
-router.post("/like", newsController.likeBlog);
+router.post("/like", authenticateToken, newsController.likeBlog);
 
 // 查询--条件筛选
 router.post("/", newsController.getNews);

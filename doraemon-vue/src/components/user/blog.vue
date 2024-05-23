@@ -69,9 +69,7 @@
 <script lang="ts" setup>
 import _axios from "@/api";
 import { ref, reactive, onMounted } from "vue";
-import { InterfaceUrl } from "@/api";
 import { useStore } from "vuex";
-import { ElMessage } from "element-plus";
 import dateFunction from "@/utils/Date";
 
 const store = useStore();

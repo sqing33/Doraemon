@@ -42,9 +42,8 @@
 import * as echarts from "echarts";
 import { onMounted, reactive, ref } from "vue";
 import dateFunction from "@/utils/Date";
-import axios from "axios";
+import _axios from "@/api";
 import { ElMessage } from "element-plus";
-import { InterfaceUrl } from "@/api";
 
 interface User {
   id: number;
@@ -97,97 +96,92 @@ const ageRanges = {
 };
 
 onMounted(() => {
-  axios
-    .get(InterfaceUrl + "/admin/users")
-    .then((response) => {
-      const data = response.data.data;
+  _axios.get("/admin/users").then((response) => {
+    const data = response.data;
 
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const yesterday = new Date(today);
-      yesterday.setDate(yesterday.getDate() - 1);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
 
-      let todayRegistrations = 0;
-      let yesterdayRegistrations = 0;
-      let beforeYesterdayRegistrations = 0;
+    let todayRegistrations = 0;
+    let yesterdayRegistrations = 0;
+    let beforeYesterdayRegistrations = 0;
 
-      data.forEach((item) => {
-        const birthDate = new Date(item.birthday);
+    data.forEach((item) => {
+      const birthDate = new Date(item.birthday);
 
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (
-          monthDiff < 0 ||
-          (monthDiff === 0 && today.getDate() < birthDate.getDate())
-        ) {
-          age--;
-        }
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
 
-        const registrationDate = new Date(item.create_time);
+      const registrationDate = new Date(item.create_time);
 
-        const registrationYear = registrationDate.getFullYear();
-        const registrationMonth = registrationDate.getMonth();
-        const registrationDay = registrationDate.getDate();
+      const registrationYear = registrationDate.getFullYear();
+      const registrationMonth = registrationDate.getMonth();
+      const registrationDay = registrationDate.getDate();
 
-        if (
-          registrationYear === today.getFullYear() &&
-          registrationMonth === today.getMonth() &&
-          registrationDay === today.getDate()
-        ) {
-          todayRegistrations++;
-        } else if (
-          registrationYear === yesterday.getFullYear() &&
-          registrationMonth === yesterday.getMonth() &&
-          registrationDay === yesterday.getDate()
-        ) {
-          yesterdayRegistrations++;
-        } else {
-          beforeYesterdayRegistrations++;
-        }
+      if (
+        registrationYear === today.getFullYear() &&
+        registrationMonth === today.getMonth() &&
+        registrationDay === today.getDate()
+      ) {
+        todayRegistrations++;
+      } else if (
+        registrationYear === yesterday.getFullYear() &&
+        registrationMonth === yesterday.getMonth() &&
+        registrationDay === yesterday.getDate()
+      ) {
+        yesterdayRegistrations++;
+      } else {
+        beforeYesterdayRegistrations++;
+      }
 
-        if (age >= 0 && age < 18) {
-          ageRanges["0-17岁"]++;
-        } else if (age >= 18 && age < 32) {
-          ageRanges["18-31岁"]++;
-        } else if (age >= 32 && age < 46) {
-          ageRanges["32-45岁"]++;
-        } else if (age >= 46 && age < 60) {
-          ageRanges["46-59岁"]++;
-        } else {
-          ageRanges["60岁以上"]++;
-        }
-      });
-
-      userAge.forEach((ageObj) => {
-        if (ageRanges.hasOwnProperty(ageObj.name)) {
-          ageObj.value = ageRanges[ageObj.name];
-        }
-      });
-
-      userRegister = [
-        {
-          id: 1,
-          name: `今日新增用户 (${todayRegistrations})`,
-          value: todayRegistrations,
-        },
-        {
-          id: 2,
-          name: `昨日新增用户 (${yesterdayRegistrations})`,
-          value: yesterdayRegistrations,
-        },
-        {
-          id: 3,
-          name: `历史用户 (${beforeYesterdayRegistrations})`,
-          value: beforeYesterdayRegistrations,
-        },
-      ];
-
-      userRegisterChart();
-      userAgeChart();
-    })
-    .catch((error) => {
-      ElMessage.error("请求失败，请联系管理员。");
+      if (age >= 0 && age < 18) {
+        ageRanges["0-17岁"]++;
+      } else if (age >= 18 && age < 32) {
+        ageRanges["18-31岁"]++;
+      } else if (age >= 32 && age < 46) {
+        ageRanges["32-45岁"]++;
+      } else if (age >= 46 && age < 60) {
+        ageRanges["46-59岁"]++;
+      } else {
+        ageRanges["60岁以上"]++;
+      }
     });
+
+    userAge.forEach((ageObj) => {
+      if (ageRanges.hasOwnProperty(ageObj.name)) {
+        ageObj.value = ageRanges[ageObj.name];
+      }
+    });
+
+    userRegister = [
+      {
+        id: 1,
+        name: `今日新增用户 (${todayRegistrations})`,
+        value: todayRegistrations,
+      },
+      {
+        id: 2,
+        name: `昨日新增用户 (${yesterdayRegistrations})`,
+        value: yesterdayRegistrations,
+      },
+      {
+        id: 3,
+        name: `历史用户 (${beforeYesterdayRegistrations})`,
+        value: beforeYesterdayRegistrations,
+      },
+    ];
+
+    userRegisterChart();
+    userAgeChart();
+  });
 });
 
 const userRegisterChart = () => {
@@ -286,33 +280,22 @@ const userAgeChart = () => {
 const blog = ref();
 
 onMounted(() => {
-  axios
-    .post(InterfaceUrl + "/blog")
-
-    .then((res) => {
-      if (res.data.state === 0) {
-        const categoryCounts = res.data.data.reduce((acc, item) => {
-          if (!acc[item.category]) {
-            acc[item.category] = 0;
-          }
-          acc[item.category] += 1;
-          return acc;
-        }, {});
-
-        blog.value = Object.keys(categoryCounts).map((category) => ({
-          category: category,
-          value: categoryCounts[category],
-        }));
-
-        blogChart();
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/blog").then((res) => {
+    const categoryCounts = res.data.reduce((acc, item) => {
+      if (!acc[item.category]) {
+        acc[item.category] = 0;
       }
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
+      acc[item.category] += 1;
+      return acc;
+    }, {});
+
+    blog.value = Object.keys(categoryCounts).map((category) => ({
+      category: category,
+      value: categoryCounts[category],
+    }));
+
+    blogChart();
+  });
 });
 
 const blogChart = () => {
@@ -350,21 +333,12 @@ const blog_count = ref();
 const feedback_count = ref();
 
 onMounted(() => {
-  axios
-    .get(InterfaceUrl + "/admin/platform")
-    .then((res) => {
-      if (res.data.state === 0) {
-        users_count.value = res.data.data.usercount;
-        blog_count.value = res.data.data.blogcount;
-        feedback_count.value = res.data.data.feedbackcount;
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
-    });
+  _axios.get("/admin/platform").then((res) => {
+    const data = res.data;
+    users_count.value = data.usercount;
+    blog_count.value = data.blogcount;
+    feedback_count.value = data.feedbackcount;
+  });
 });
 </script>
 

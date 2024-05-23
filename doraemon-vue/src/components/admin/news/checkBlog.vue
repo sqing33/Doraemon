@@ -11,12 +11,11 @@
 
 <script lang="ts" setup>
 import { ref, reactive } from "vue";
-import axios from "axios";
+import _axios from "@/api";
 import { ElMessage } from "element-plus";
 import { InterfaceUrl } from "@/api";
 import ElementForm from "@/utils/ElementForm.vue";
 import { useStore } from "vuex";
-import LZString from "lz-string";
 
 const store = useStore();
 
@@ -77,18 +76,12 @@ const formConfig = {
 };
 
 const doUpdete = () => {
-  axios
-    .post(InterfaceUrl + "/admin/news/update", form)
-    .then((res) => {
-      ElMessage({
-        type: "success",
-        message: "编辑成功!",
-      });
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/admin/news/update", form).then((res) => {
+    ElMessage({
+      type: "success",
+      message: "编辑成功!",
     });
+  });
 };
 
 const doDelete = () => {};

@@ -16,7 +16,7 @@ var app = express();
 // 解决跨域问题
 app.use(
   cors({
-    origin: "*",
+    origin: ["http://localhost:5173", "http://101.34.255.5:85"],
     methods: ["GET", "POST"],
     allowedHeaders: "*",
     credentials: true,

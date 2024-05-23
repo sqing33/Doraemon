@@ -116,15 +116,13 @@
 </template>
 
 <script lang="ts" setup>
-import axios from "axios";
+import _axios from "@/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { onMounted, reactive, ref } from "vue";
-import { InterfaceUrl } from "@/api";
 import dateFunction from "@/utils/Date";
 import ElementForm from "@/utils/ElementForm.vue";
 import checkBlog from "./checkBlog.vue";
 import { useStore } from "vuex";
-import LZString from "lz-string";
 
 const store = useStore();
 
@@ -223,13 +221,9 @@ const search = () => {
   getNews(searchValues.keyword, searchValues.category, searchValues.date);
 };
 
-const getNews = (
-  keyword?: string,
-  category?: number,
-  create_time?: string
-) => {
-  axios
-    .post(InterfaceUrl + "/admin/news", null, {
+const getNews = (keyword?: string, category?: number, create_time?: string) => {
+  _axios
+    .post("/admin/news", null, {
       params: {
         page: pagination.value.page,
         pageSize: pagination.value.size,
@@ -238,18 +232,10 @@ const getNews = (
         create_time,
       },
     })
-    .then((response) => {
-      const data = response.data;
-      if (data.state === 0) {
-        news.value = data.data.newsArr;
-        total.value = data.data.total;
-      } else {
-        console.error(data.message);
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+    .then((res) => {
+      const data = res.data;
+      news.value = data.newsArr;
+      total.value = data.total;
     });
 };
 
@@ -269,21 +255,10 @@ const doDelete = (id: number, title: string) => {
     cancelButtonText: "取消",
     type: "warning",
   }).then(() => {
-    axios
-      .post(InterfaceUrl + "/admin/news/delete", { id })
-      .then((response) => {
-        const data = response.data;
-        if (data.state === 0) {
-          ElMessage.success("删除成功");
-          getNews();
-        } else {
-          console.error(data.message);
-        }
-      })
-      .catch((error) => {
-        console.error(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
+    _axios.post("/admin/news/delete", { id }).then((res) => {
+      ElMessage.success("删除成功");
+      getNews();
+    });
   });
 };
 </script>

@@ -302,7 +302,7 @@ const replyComment = ref();
 const submitReplyComment = () => {
   replyComment.value = store.getters.getRichTextEditor;
   _axios
-    .post(InterfaceUrl + "/news/postComment", {
+    .post("/news/postComment", {
       content: replyComment.value,
       publisher_id: userInfo ? userInfo.id : 0,
       nickname: userInfo.nickname,

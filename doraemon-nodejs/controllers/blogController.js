@@ -13,33 +13,21 @@ const insertBlog = (req, res, next) => {
 
   const create_time = dateFunction();
 
-  const authHeader = req.headers.authorization;
-
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
-    jwt.verify(token, jwtKey.key, (err) => {
+  blogService.insertBlog(
+    id,
+    title,
+    content,
+    category,
+    coverUrl,
+    create_time,
+    user_id,
+    (err, result) => {
       if (err) {
-        return res.sendStatus(403);
+        return res.send({ state: 1, message: err });
       }
-      blogService.insertBlog(
-        id,
-        title,
-        content,
-        category,
-        coverUrl,
-        create_time,
-        user_id,
-        (err, result) => {
-          if (err) {
-            return res.send({ state: 1, message: err });
-          }
-          return res.send({ state: 0, message: "新增成功", data: result });
-        }
-      );
-    });
-  } else {
-    res.sendStatus(401);
-  }
+      return res.send({ state: 0, message: "新增成功", data: result });
+    }
+  );
 };
 
 // 新增--评论
@@ -52,61 +40,35 @@ const insertComment = (req, res, next) => {
 
   const create_time = dateFunction();
 
-  const authHeader = req.headers.authorization;
-
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
-    jwt.verify(token, jwtKey.key, (err) => {
+  blogService.insertComment(
+    id,
+    content,
+    publisher_id,
+    nickname,
+    bn_id,
+    pid,
+    pname,
+    category,
+    create_time,
+    (err, result) => {
       if (err) {
-        return res.sendStatus(403);
+        return res.send({ state: 1, message: err });
       }
-
-      blogService.insertComment(
-        id,
-        content,
-        publisher_id,
-        nickname,
-        bn_id,
-        pid,
-        pname,
-        category,
-        create_time,
-        (err, result) => {
-          if (err) {
-            return res.send({ state: 1, message: err });
-          }
-          return res.send({ state: 0, message: "新增成功", data: result });
-        }
-      );
-    });
-  } else {
-    res.sendStatus(401);
-  }
+      return res.send({ state: 0, message: "新增成功", data: result });
+    }
+  );
 };
 
 // 点赞
 const likeBlog = (req, res, next) => {
   const { comment_id } = req.body;
 
-  const authHeader = req.headers.authorization;
-
-  if (authHeader) {
-    const token = authHeader.split(" ")[1];
-    jwt.verify(token, jwtKey.key, (err) => {
-      if (err) {
-        return res.sendStatus(403);
-      }
-
-      blogService.likeBlog(comment_id, (err, result) => {
-        if (err) {
-          return res.send({ state: 1, message: err });
-        }
-        return res.send({ state: 0, message: "点赞成功", data: result });
-      });
-    });
-  } else {
-    res.sendStatus(401);
-  }
+  blogService.likeBlog(comment_id, (err, result) => {
+    if (err) {
+      return res.send({ state: 1, message: err });
+    }
+    return res.send({ state: 0, message: "点赞成功", data: result });
+  });
 };
 
 // 删除

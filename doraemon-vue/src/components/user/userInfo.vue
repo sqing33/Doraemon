@@ -37,11 +37,9 @@
       <div
         v-if="menuIndex == '我的资料'"
         class="contentInfo"
-        style="padding-left: 10vw"
+        style="display: flex; align-items: center"
       >
-        <div style="padding: 35px 0; display: flex">
-          <span>头像:</span>
-
+        <div style="display: flex; align-items: center">
           <el-upload
             :action="InterfaceUrl + '/admin/upload'"
             :on-success="uploadSuccess"
@@ -59,39 +57,44 @@
               <Plus />
             </el-icon>
           </el-upload>
-        </div>
 
-        <div style="">
-          <span>昵称:</span>
-          {{ newUserInfo.nickname }}
+          <div style="margin-left: 20px">
+            <div>
+              <span>昵称:</span>
+              {{ newUserInfo.nickname }}
 
-          <el-button
-            style="
-              position: absolute;
-              top: 0;
-              right: 40px;
-              font-size: 16px;
-              padding: 5px 10px;
-            "
-            @click="doUpdateUserInfo"
-          >
-            修改资料
-          </el-button>
-        </div>
+              <el-button
+                style="
+                  position: absolute;
+                  top: 40px;
+                  right: 40px;
+                  font-size: 16px;
+                  padding: 5px 10px;
+                "
+                @click="doUpdateUserInfo"
+              >
+                修改资料
+              </el-button>
+            </div>
 
-        <div><span>用户名:</span> {{ newUserInfo.username }}</div>
+            <div style="margin-top: 10px">
+              <span>用户名:</span> {{ newUserInfo.username }}
+            </div>
 
-        <div>
-          <span>性别:</span> {{ newUserInfo.gender ? userInfo.gender : "无" }}
-        </div>
+            <div style="margin-top: 10px">
+              <span>性别:</span>
+              {{ newUserInfo.gender ? userInfo.gender : "无" }}
+            </div>
 
-        <div>
-          <span>生日:</span>
-          {{
-            newUserInfo.birthday
-              ? dateFunction(newUserInfo.birthday, "date")
-              : "无"
-          }}
+            <div style="margin-top: 10px">
+              <span>生日:</span>
+              {{
+                newUserInfo.birthday
+                  ? dateFunction(newUserInfo.birthday, "date")
+                  : "无"
+              }}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -147,7 +150,7 @@
               padding: 10px;
               background: rgba(255, 255, 255, 0.5);
             "
-            @click="doGoToBlogPage(collection.bn_id)"
+            @click="doGoToBlogPage(collection.blog_id)"
           >
             <div style="width: 150px; text-align: center">
               <img
@@ -561,8 +564,9 @@ const doDeleteFeedback = (id: number) => {
 .contentInfo {
   position: relative;
   height: 70vh;
-  top: 50%;
-  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 
   div {
     margin: 0;
@@ -576,7 +580,7 @@ const doDeleteFeedback = (id: number) => {
   @media screen and (max-width: 768px) {
     .el-button {
       span {
-        transform: translate(50px, 100px);
+        transform: translateX(50px);
       }
     }
   }

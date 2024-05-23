@@ -63,10 +63,9 @@
 </template>
 
 <script lang="ts" setup>
-import axios from "axios";
+import _axios from "@/api";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { onMounted, ref } from "vue";
-import { InterfaceUrl } from "@/api";
 import dateFunction from "@/utils/Date";
 
 const form = ref();
@@ -74,20 +73,12 @@ const form = ref();
 const keyword = ref("");
 
 const getUsers = (keyword?: string) => {
-  axios
-    .get(InterfaceUrl + "/admin/users", {
+  _axios
+    .get("/admin/users", {
       params: { keyword: keyword },
     })
     .then((response) => {
-      if (response.data.state === 0) {
-        form.value = response.data.data;
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
+      form.value = response.data;
     });
 };
 
@@ -105,21 +96,10 @@ const doDelete = (id: number, name: string) => {
     cancelButtonText: "取消",
     type: "warning",
   }).then(() => {
-    console.log(id);
-    axios
-      .post(InterfaceUrl + "/admin/users/delete", { id: id })
-      .then((res) => {
-        if (res.data.state === 0) {
-          ElMessage.success("删除成功！");
-          getUsers();
-        } else {
-          ElMessage.error("请求失败，请联系管理员。");
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-        ElMessage.error("请求失败，请联系管理员。");
-      });
+    _axios.post("/admin/users/delete", { id: id }).then((res) => {
+      ElMessage.success("删除成功！");
+      getUsers();
+    });
   });
 };
 </script>

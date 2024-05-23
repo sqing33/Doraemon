@@ -27,8 +27,7 @@
 import { reactive } from "vue";
 import { InterfaceUrl } from "@/api";
 import { ElMessage } from "element-plus";
-import axios from "axios";
-import LZString from "lz-string";
+import _axios from "@/api";
 import ElementForm from "@/utils/ElementForm.vue";
 import { useStore } from "vuex";
 
@@ -98,21 +97,11 @@ const onSubmit = () => {
     form.state = true;
   }
 
-  axios
-    .post(InterfaceUrl + "/admin/news/insert", form)
-    .then((res) => {
-      if (res.data.state === 0) {
-        ElMessage({
-          type: "success",
-          message: "发布成功!",
-        });
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.error(error);
-      ElMessage.error("请求失败，请联系管理员。");
+  _axios.post("/admin/news/insert", form).then((res) => {
+    ElMessage({
+      type: "success",
+      message: "发布成功!",
     });
+  });
 };
 </script>

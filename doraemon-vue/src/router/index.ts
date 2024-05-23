@@ -92,4 +92,21 @@ usersRoutes.forEach((route) => {
   router.addRoute(route);
 });
 
+router.beforeEach((to, _from, next) => {
+  if (to.matched.some((record) => record.meta.requiresAuth)) {
+    const token = localStorage.getItem("token");
+    const adminToken = localStorage.getItem("adminToken");
+
+    if (to.meta.role === "admin" && !adminToken) {
+      next("/adminLogin");
+    } else if (to.meta.role === "user" && !token) {
+      next("/login");
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
+
 export default router;

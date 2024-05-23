@@ -42,6 +42,11 @@
             item.title
           }}</el-text>
         </a>
+        <div>
+          <el-text @click="goToAdmin" :class="{ 'el-text-2': textColor }">
+            后台管理
+          </el-text>
+        </div>
       </div>
       <img :src="navigationImg" alt="" />
     </div>
@@ -52,6 +57,9 @@
 import CopyrightIcp from "@/components/copyright-icp.vue";
 import { useStore } from "vuex";
 import { onMounted, ref, watch } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 const store = useStore();
 
@@ -85,7 +93,7 @@ const content = [
 
 const user = {
   title: "用户中心",
-  href: "/userInfo",
+  href: "/user/info",
 };
 
 const userInfo = store.getters.getUserInfo;
@@ -121,11 +129,16 @@ const href = [
     title: "反馈",
     href: "/feedback",
   },
-  {
-    title: "后台管理",
-    href: "/adminLogin",
-  },
 ];
+
+const goToAdmin = () => {
+  const adminToken = localStorage.getItem("adminToken");
+  if (!adminToken) {
+    router.push("/adminLogin");
+    return;
+  }
+  router.push("/admin");
+};
 
 const navigationImg = ref(
   new URL("@/assets/index/navigation.png", import.meta.url).href
@@ -380,8 +393,10 @@ section {
     transition: 0.5s;
     height: 22px;
     margin-right: 10px;
+    display: flex;
 
-    a {
+    a,
+    div {
       margin-left: 15px;
 
       .el-text {

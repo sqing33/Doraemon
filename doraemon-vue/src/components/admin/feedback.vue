@@ -50,12 +50,10 @@
 </template>
 
 <script lang="ts" setup>
-import axios from "axios";
-import { ElMessage, ElMessageBox } from "element-plus";
-import { onMounted, reactive, ref } from "vue";
-import { InterfaceUrl } from "@/api";
+import _axios from "@/api";
+import { ElMessage } from "element-plus";
+import { onMounted, ref } from "vue";
 import dateFunction from "@/utils/Date";
-import { useStore } from "vuex";
 
 const feedback = ref();
 
@@ -76,23 +74,15 @@ const currentChange = (currentPage: number) => {
 const total = ref();
 
 const getBlogs = () => {
-  axios
-    .post(InterfaceUrl + "/admin/feedback", {
+  _axios
+    .post("/admin/feedback", {
       page: pagination.value.page,
       pageSize: pagination.value.size,
     })
     .then((res) => {
-      if (res.data.state === 0) {
-        feedback.value = res.data.data.feedbackArr;
-
-        total.value = res.data.data.total;
-      } else {
-        ElMessage.error("请求失败，请联系管理员。");
-      }
-    })
-    .catch((error) => {
-      console.log(error);
-      ElMessage.error("请求失败，请联系管理员。");
+      const data = res.data;
+      feedback.value = data.feedbackArr;
+      total.value = data.total;
     });
 };
 </script>

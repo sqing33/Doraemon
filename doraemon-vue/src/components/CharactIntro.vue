@@ -316,7 +316,7 @@ const handleClick = (value) => {
 .character {
   position: absolute;
   width: 100vw;
-  height: 95vh;
+  height: calc(100vh - 40px);
   top: 0;
   left: 0;
 

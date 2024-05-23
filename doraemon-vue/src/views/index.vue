@@ -138,15 +138,15 @@
                       <el-dropdown-item @click="goToUserInfo">
                         用户信息
                       </el-dropdown-item>
-                      <router-link to="/myBlogs">
+                      <router-link to="/user/myBlogs">
                         <el-dropdown-item divided>我的发帖</el-dropdown-item>
                       </router-link>
                       <router-link to="/feedback">
                         <el-dropdown-item divided>反馈</el-dropdown-item>
                       </router-link>
-                      <router-link to="/adminLogin">
-                        <el-dropdown-item divided>后台管理</el-dropdown-item>
-                      </router-link>
+                      <el-dropdown-item divided @click="goToAdmin">
+                        后台管理
+                      </el-dropdown-item>
                       <router-link
                         v-if="userInfo.isLogining === true"
                         to=""
@@ -204,6 +204,7 @@ import {
 } from "@element-plus/icons-vue";
 import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
+import _axios from "@/api";
 import { InterfaceUrl } from "@/api";
 import { useStore } from "vuex";
 import { ElMessage } from "element-plus";
@@ -261,30 +262,33 @@ watch(route, (to) => {
 const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("vuex");
-  router.go(0);
+  router.push("/login");
 };
 
-const goToUserInfo = async () => {
-  try {
-    const token = localStorage.getItem("token");
-    await axios
-      .post(InterfaceUrl + "/user/info", null, {
-        headers: { Authorization: token },
-      })
+const goToAdmin = () => {
+  const adminToken = localStorage.getItem("adminToken");
+  console.log(adminToken);
+
+  if (adminToken) {
+    axios
+      .post(InterfaceUrl + "/admin/checkToken", { adminToken })
       .then((res) => {
         if (res.data.state === 0) {
-          router.push("/userInfo");
-        } else if (res.data.state === 2) {
-          ElMessage.error("登录超时，请重新登录");
-          router.push("/login");
+          router.push("/admin");
+        } else {
+          ElMessage.error("登录失效，请重新登录");
+          router.push("/adminLogin");
         }
-      })
-      .catch((err) => {
-        console.log(err);
       });
-  } catch (err) {
-    console.log(err);
+  } else {
+    router.push("/adminLogin");
   }
+};
+
+const goToUserInfo = () => {
+  _axios.post("/user/info").then((res) => {
+    router.push("/user/info");
+  });
 };
 
 const scroll = ({ scrollTop }) => {

@@ -44,6 +44,7 @@
           v-for="(item, index) in web_video"
           :key="index"
           style="text-align: center; margin-bottom: 20px"
+          class="video-card"
         >
           <a
             :href="item.url"
@@ -117,14 +118,14 @@ const website = reactive([
 
 const web_video = reactive([
   {
-    name: "哆啦新番社",
-    url: "https://www.dora-video.cn/",
-    img: new URL("@/assets/website/01.png", import.meta.url).href,
-  },
-  {
     name: "哆啦A梦电影官方网站",
     url: "https://doraeiga.com/",
     img: new URL("@/assets/website/02.png", import.meta.url).href,
+  },
+  {
+    name: "哆啦新番社",
+    url: "https://www.dora-video.cn/",
+    img: new URL("@/assets/website/01.png", import.meta.url).href,
   },
   {
     name: "哆啦A梦|朝日电视台",
@@ -141,7 +142,7 @@ const web_video = reactive([
 
 <style lang="scss" scoped>
 .website {
-  min-height: calc(100vh - 140px);
+  height: calc(100vh - 140px);
   width: calc(100vw - 60px);
   margin: 30px;
 
@@ -183,6 +184,13 @@ const web_video = reactive([
         top: 50%;
         transform: translateY(-50%);
       }
+    }
+  }
+
+  .video-card {
+    &:hover {
+      transform: scale(1.1);
+      cursor: pointer;
     }
   }
 }
