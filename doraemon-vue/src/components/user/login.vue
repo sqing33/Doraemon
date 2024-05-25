@@ -199,18 +199,6 @@ const login = async (formEl: FormInstance | undefined) => {
   });
 };
 
-const postCode = () => {
-  _axios
-    .post("/user/emailCode", null, {
-      params: {
-        email: registForm.value.email,
-      },
-    })
-    .then((res) => {
-      ElMessage.success("验证码发送成功!");
-    });
-};
-
 const registForm = ref({
   username: "",
   password: "",
@@ -281,6 +269,16 @@ const registRules = reactive<FormRules<typeof registForm>>({
   ],
   code: [{ required: true, message: "请输入邮箱验证码", trigger: "blur" }],
 });
+
+const postCode = () => {
+  _axios
+    .post("/user/emailCode", {
+      email: registForm.value.email,
+    })
+    .then((res) => {
+      ElMessage.success("验证码发送成功!");
+    });
+};
 
 const regist = async (formEl: FormInstance | undefined) => {
   if (!formEl) return;

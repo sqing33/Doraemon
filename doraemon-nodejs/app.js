@@ -16,7 +16,7 @@ var app = express();
 // 解决跨域问题
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://101.34.255.5:85"],
+    origin: ["http://localhost:5173", "http://101.34.255.5:1293"],
     methods: ["GET", "POST"],
     allowedHeaders: "*",
     credentials: true,
@@ -49,6 +49,10 @@ app.use(
 app.use(
   "/uploads/images/avatars",
   express.static(path.join(__dirname, "public", "images", "avatars"))
+);
+app.use(
+  "/map",
+  express.static(path.join(__dirname, "public", "images", "map"))
 );
 
 // catch 404 and forward to error handler

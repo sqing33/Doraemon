@@ -1,7 +1,4 @@
 const { mysqlDb } = require("../db");
-const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
-const dateFunction = require("../utils/Date");
-const LZString = require("lz-string");
 
 // 查询--条件筛选
 const getNews = (page, pageSize, category, keyword, create_time, callback) => {

@@ -134,7 +134,6 @@ const updateUserInfo = (
   id,
   username,
   nickname,
-  avatarUrl,
   phone,
   email,
   gender,
@@ -142,10 +141,10 @@ const updateUserInfo = (
   callback
 ) => {
   const sql =
-    "UPDATE users SET username = ?, nickname = ?, avatarUrl = ?, phone = ?, email = ?, gender = ?, birthday = ? WHERE id = ?";
+    "UPDATE users SET username = ?, nickname = ?, phone = ?, email = ?, gender = ?, birthday = ? WHERE id = ?";
   mysqlDb.query(
     sql,
-    [username, nickname, avatarUrl, phone, email, gender, birthday, id],
+    [username, nickname, phone, email, gender, birthday, id],
     (err, result) => {
       if (err) {
         callback(err, null);
@@ -223,7 +222,6 @@ const deleteFeedback = (id, callback) => {
 
 // 管理员管理
 const getUsers = (keyword, callback) => {
-  console.log(keyword);
   if (!keyword) {
     const sql = "SELECT * FROM users";
     mysqlDb.query(sql, (err, result) => {

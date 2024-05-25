@@ -72,11 +72,6 @@ const routes: RouteRecordRaw[] = [
     name: "website",
     component: defineAsyncComponent(() => import("@/components/website.vue")),
   },
-  {
-    path: "/test",
-    name: "test",
-    component: defineAsyncComponent(() => import("@/components/test.vue")),
-  },
 ];
 
 const router = createRouter({

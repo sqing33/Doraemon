@@ -1,6 +1,7 @@
 const newsService = require("../services/newsService");
 const dateFunction = require("../utils/Date");
 const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
+const { InterfaceUrl } = require("../utils/InterfaceUrl");
 
 // 新增--评论
 const insertComment = (req, res, next) => {
@@ -163,8 +164,7 @@ const upload = (req, res, next) => {
   if (!req.file) {
     return res.status(400).send({ errno: 1, message: "上传失败" });
   }
-  const imagesUrl =
-    "http://localhost:3000/uploads/images/news/" + req.file.filename;
+  const imagesUrl = InterfaceUrl + "/uploads/images/news/" + req.file.filename;
   res.send({
     errno: 0,
     data: {

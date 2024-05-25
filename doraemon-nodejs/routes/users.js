@@ -4,7 +4,7 @@ const userController = require("../controllers/usersController");
 const authenticateToken = require("../utils/authenticateToken");
 
 // 获取邮箱验证码
-router.post("/emailCode", authenticateToken, userController.postCode);
+router.post("/emailCode", userController.postCode);
 
 // 用户注册
 router.post("/regist", userController.registUser);

@@ -150,7 +150,7 @@
                   </div>
                 </div>
                 <div style="display: flex">
-                  <img alt="" src="../../assets/comment/hui fu.png" />
+                  <img alt="" src="../../assets/comment/huifu.png" />
                   <div
                     style="transform: translateY(-2px); font-size: 14px"
                     @click="reply(childrenComment.nickname, comment.id)"
@@ -184,7 +184,6 @@ import { ElMessage } from "element-plus";
 import { Share, Tickets } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
 import { useStore } from "vuex";
-import router from "@/router";
 import RichTextEditor from "@/utils/RichTextEditor.vue";
 
 const store = useStore();

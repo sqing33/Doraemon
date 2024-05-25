@@ -1,7 +1,5 @@
 const { mysqlDb } = require("../db");
 const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
-const dateFunction = require("../utils/Date");
-const LZString = require("lz-string");
 
 // 新增帖子
 const insertBlog = (

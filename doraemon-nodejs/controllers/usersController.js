@@ -1,6 +1,5 @@
 const usersService = require("../services/usersService");
 const emailService = require("../services/emailService");
-const bcrypt = require("bcryptjs");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
 const jwtKey = require("../utils/jwtKey");
@@ -12,35 +11,21 @@ const dateFunction = require("../utils/Date");
 // 获取邮箱验证码
 const postCode = (req, res, next) => {
   const code = _.random(0, 999999).toString().padStart(6, "0");
-  const email = req.query.email;
+  const email = req.body.email;
 
   emailService.sendVerificationCode(email, code, (err, result) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
 
-    redisDb
-      .connect()
-      .then(() => {
-        return redisDb.set(email, code);
-      })
-      .then(() => {
-        return redisDb.expire(email, 120); // 验证码有效期 2 分钟
-      })
-      .then(() => {
-        return res.send({
-          state: 0,
-          message: "验证码发送成功",
-          result: result,
-        });
-      })
-      .catch((error) => {
-        console.error("将验证码保存到 Redis 中时发生错误：", error);
+    redisDb.set(email, code, "EX", 60 * 2, (err, result) => {
+      if (err) {
+        console.error(err);
         return res.send({ state: 1, message: "验证码发送失败" });
-      })
-      .finally(() => {
-        redisDb.quit();
-      });
+      }
+    });
+
+    res.send({ state: 0, message: "验证码发送成功" });
   });
 };
 
@@ -55,44 +40,36 @@ const registUser = (req, res, next) => {
 
   const create_time = dateFunction();
 
-  redisDb
-    .connect()
-    .then(() => {
-      // 从 Redis 中获取验证码
-      return redisDb.get(email);
-    })
-    .then((codeFromRedis) => {
-      // 验证码过期或错误
-      if (!codeFromRedis) {
-        return res.send({ state: 2, message: "验证码已过期" });
-      } else if (codeFromRedis !== code) {
-        return res.send({ state: 1, message: "验证码错误" });
-      } else {
-        // 注册用户
-        usersService.registUser(
-          id,
-          username,
-          password,
-          nickname,
-          phone,
-          email,
-          create_time,
-          (err, result) => {
-            if (err) {
-              return res.send({ state: 1, message: err });
-            }
-            return res.send({ state: 0, message: "新增成功", data: result });
-          }
-        );
+  redisDb.get(email, (err, result) => {
+    if (err) {
+      console.error(err);
+      return res.send({ state: 1, message: "验证码错误" });
+    }
+
+    if (result === null) {
+      return res.send({ state: 1, message: "验证码已过期" });
+    }
+
+    if (result !== code) {
+      return res.send({ state: 1, message: "验证码错误" });
+    }
+
+    usersService.registUser(
+      id,
+      username,
+      password,
+      nickname,
+      phone,
+      email,
+      create_time,
+      (err, result) => {
+        if (err) {
+          return res.send({ state: 1, message: err });
+        }
+        return res.send({ state: 0, message: "新增成功", data: result });
       }
-    })
-    .catch((error) => {
-      console.error("从 Redis 获取验证码时发生错误：", error);
-      return res.send({ state: 1, message: "服务器错误" });
-    })
-    .finally(() => {
-      redisDb.quit();
-    });
+    );
+  });
 };
 
 // 用户登录
@@ -204,14 +181,12 @@ const updateAvatar = (req, res, next) => {
 
 // 修改用户信息
 const updateUserInfo = (req, res, next) => {
-  const { id, username, nickname, avatarUrl, phone, email, gender, birthday } =
-    req.body;
+  const { id, username, nickname, phone, email, gender, birthday } = req.body;
 
   usersService.updateUserInfo(
     id,
     username,
     nickname,
-    avatarUrl,
     phone,
     email,
     gender,

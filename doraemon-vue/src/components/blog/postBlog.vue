@@ -20,9 +20,10 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref, onMounted } from "vue";
+import { reactive } from "vue";
 import { ElMessage } from "element-plus";
 import _axios from "@/api";
+import { InterfaceUrl } from "@/api";
 import ElementForm from "@/utils/ElementForm.vue";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
@@ -72,7 +73,7 @@ const formItems = reactive([
     type: "upload",
     prop: "coverUrl",
     style: [],
-    uploadUrl: "localhost:3000/admin/upload",
+    uploadUrl: InterfaceUrl + "/admin/upload",
   },
 ]);
 

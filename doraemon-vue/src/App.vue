@@ -4,10 +4,15 @@
 
 <script setup>
 import Index from "@/views/index.vue";
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, reactive } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
+
+const background_1 = new URL("@/assets/background/1.jpg", import.meta.url).href;
+const background_2 = new URL("@/assets/background/6.jpg", import.meta.url).href;
+const background_3 = new URL("@/assets/background/4.jpg", import.meta.url).href;
+const background_4 = new URL("@/assets/background/2.jpg", import.meta.url).href;
 
 watch(route, (to) => {
   const isAuthorIntroRoute = /^\/author(?:\/|$)/.test(to.path);
@@ -22,22 +27,22 @@ watch(route, (to) => {
   } else if (isBlogRoute) {
     document.documentElement.style.setProperty(
       "--background",
-      "url('/src/assets/background/1.jpg')"
+      `url('${background_1}')`
     );
   } else if (isNewsRoute) {
     document.documentElement.style.setProperty(
       "--background",
-      "url('/src/assets/background/6.jpg')"
+      `url('${background_2}')`
     );
   } else if (isWebsitesRoute) {
     document.documentElement.style.setProperty(
       "--background",
-      "url('/src/assets/background/4.jpg')"
+      `url('${background_3}')`
     );
   } else if ("/login") {
     document.documentElement.style.setProperty(
       "--background",
-      "url('/src/assets/background/2.jpg')"
+      `url('${background_4}')`
     );
   } else {
     document.documentElement.style.setProperty("--background", "white");

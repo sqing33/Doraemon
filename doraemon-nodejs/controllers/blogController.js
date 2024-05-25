@@ -1,8 +1,6 @@
 const blogService = require("../services/blogService");
 const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
 const dateFunction = require("../utils/Date");
-const jwt = require("jsonwebtoken");
-const jwtKey = require("../utils/jwtKey");
 
 // 新增--帖子
 const insertBlog = (req, res, next) => {

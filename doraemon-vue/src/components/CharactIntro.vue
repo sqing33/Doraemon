@@ -75,6 +75,7 @@
 <script setup>
 import { onMounted, reactive, ref } from "vue";
 import { useStore } from "vuex";
+import { InterfaceUrl } from "@/api";
 
 import address from "@/assets/map/address.png";
 
@@ -118,15 +119,7 @@ onMounted(() => {
   tileLayer.getTilesUrl = function (tileCoord, zoom) {
     var x = tileCoord.x;
     var y = tileCoord.y;
-    return (
-      "http://localhost:5173/src/assets/map/tiles/" +
-      zoom +
-      "/tile-" +
-      x +
-      "_" +
-      y +
-      ".png"
-    );
+    return `${InterfaceUrl}/map/${zoom}/tile-${x}_${y}.png`;
   };
   const MyMap = new BMap.MapType("MyMap", tileLayer, {
     minZoom: 4,

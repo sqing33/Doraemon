@@ -141,7 +141,7 @@
                       <router-link to="/user/myBlogs">
                         <el-dropdown-item divided>我的发帖</el-dropdown-item>
                       </router-link>
-                      <router-link to="/feedback">
+                      <router-link to="/user/feedback">
                         <el-dropdown-item divided>反馈</el-dropdown-item>
                       </router-link>
                       <el-dropdown-item divided @click="goToAdmin">
@@ -267,18 +267,23 @@ const logout = () => {
 
 const goToAdmin = () => {
   const adminToken = localStorage.getItem("adminToken");
-  console.log(adminToken);
 
   if (adminToken) {
     axios
       .post(InterfaceUrl + "/admin/checkToken", { adminToken })
       .then((res) => {
+        console.log(res);
         if (res.data.state === 0) {
           router.push("/admin");
         } else {
           ElMessage.error("登录失效，请重新登录");
           router.push("/adminLogin");
         }
+      })
+      .catch((err) => {
+        console.log(err);
+        ElMessage.error("登录失效，请重新登录");
+        router.push("/adminLogin");
       });
   } else {
     router.push("/adminLogin");

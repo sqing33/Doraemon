@@ -10,7 +10,7 @@ const authenticateToken = require("../utils/authenticateToken");
 // 管理员登录
 router.post("/login", usersController.loginAdmin);
 // 管理员登录验证
-router.post("/checkToken", authenticateToken, usersController.checkAdminLogin);
+router.post("/checkToken", usersController.checkAdminLogin);
 
 // blog管理--删除帖子
 router.post("/blog/delete", authenticateToken, blogController.deleteBlog);
