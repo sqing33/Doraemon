@@ -58,6 +58,9 @@ import CopyrightIcp from "@/components/copyright-icp.vue";
 import { useStore } from "vuex";
 import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import axios from "axios";
+import { InterfaceUrl } from "@/utils/interfaceUrl";
 
 const router = useRouter();
 
@@ -133,11 +136,27 @@ const href = [
 
 const goToAdmin = () => {
   const adminToken = localStorage.getItem("adminToken");
-  if (!adminToken) {
+
+  if (adminToken) {
+    axios
+      .post(InterfaceUrl + "/admin/checkToken", { adminToken })
+      .then((res) => {
+        console.log(res);
+        if (res.data.state === 0) {
+          router.push("/admin");
+        } else {
+          ElMessage.error("登录失效，请重新登录");
+          router.push("/adminLogin");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        ElMessage.error("登录失效，请重新登录");
+        router.push("/adminLogin");
+      });
+  } else {
     router.push("/adminLogin");
-    return;
   }
-  router.push("/admin");
 };
 
 const navigationImg = ref(
