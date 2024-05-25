@@ -60,7 +60,7 @@ import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 import { ElMessage } from "element-plus";
 import axios from "axios";
-import { InterfaceUrl } from "@/utils/interfaceUrl";
+import { InterfaceUrl } from "@/api";
 
 const router = useRouter();
 
