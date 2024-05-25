@@ -1,5 +1,4 @@
 export const InterfaceUrl: string = "http://localhost:3000";
-// export const InterfaceUrl: string = "http://101.34.255.5:3000";
 
 import axios from "axios";
 import { ElMessage } from "element-plus";
