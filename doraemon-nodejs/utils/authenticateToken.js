@@ -1,11 +1,10 @@
 const jwt = require("jsonwebtoken");
-const jwtKey = require("./jwtKey");
 
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
   if (authHeader) {
     const token = authHeader.split(" ")[1];
-    jwt.verify(token, jwtKey.key, (err) => {
+    jwt.verify(token, process.env.JWT_SECRET || "asdas@1315!asfSF%0", (err) => {
       if (err) {
         return res.sendStatus(403);
       }

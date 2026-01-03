@@ -2,7 +2,6 @@ const usersService = require("../services/usersService");
 const emailService = require("../services/emailService");
 const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
-const jwtKey = require("../utils/jwtKey");
 const { redisDb } = require("../db");
 const _ = require("lodash");
 const SnowFlakeId = require("../utils/SnowFlakeIdGenerator");
@@ -89,7 +88,7 @@ const loginUser = (req, res, next) => {
     if (err) {
       return res.send({ state: 1, message: err });
     }
-    jwt.sign({ username }, jwtKey.key, (err, token) => {
+    jwt.sign({ username }, process.env.JWT_SECRET || "asdas@1315!asfSF%0", (err, token) => {
       if (err) {
         console.error(err);
       } else {
@@ -106,7 +105,7 @@ const goToUserInfo = (req, res, next) => {
 
   if (authHeader) {
     const token = authHeader.split(" ")[1];
-    jwt.verify(token, jwtKey.key, (err) => {
+    jwt.verify(token, process.env.JWT_SECRET || "asdas@1315!asfSF%0", (err) => {
       if (err) {
         return res.sendStatus(403);
       }
@@ -236,7 +235,7 @@ const loginAdmin = (req, res, next) => {
   hash = CryptoJS.SHA256("admin").toString();
 
   if (username === "admin" && password === hash) {
-    jwt.sign({ username }, jwtKey.key, { expiresIn: "7d" }, (err, token) => {
+    jwt.sign({ username }, process.env.JWT_SECRET || "asdas@1315!asfSF%0", { expiresIn: "7d" }, (err, token) => {
       if (err) {
         console.error(err);
       } else {
@@ -254,7 +253,7 @@ const checkAdminLogin = (req, res, next) => {
   const { adminToken } = req.body;
 
   if (adminToken) {
-    jwt.verify(adminToken, jwtKey.key, (err) => {
+    jwt.verify(adminToken, process.env.JWT_SECRET || "asdas@1315!asfSF%0", (err) => {
       if (err) {
         return res.sendStatus(403);
       }

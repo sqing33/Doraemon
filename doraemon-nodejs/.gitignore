@@ -22,9 +22,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-
-# Token Key
-jwtKey.js
-
-# 邮箱验证码配置
-emailService.js
