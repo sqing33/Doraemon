@@ -1,0 +1,23 @@
+services:
+  doraemon:
+    image: ghcr.io/sqing33/doraemon
+    container_name: doraemon
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      # MySQL 配置
+      - DB_HOST=your_mysql_host
+      - DB_PORT=3306
+      - DB_USER=your_mysql_user
+      - DB_PASSWORD=your_mysql_password
+      - DB_DATABASE=doraemon
+      # Redis 配置
+      - REDIS_HOST=your_redis_host
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=your_redis_password
+    volumes:
+      # 持久化上传的文件
+      - ./uploads:/app/doraemon-nodejs/public/images
+      # 日志目录
+      - ./logs:/app/logs
