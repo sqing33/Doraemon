@@ -16,7 +16,7 @@ _axios.interceptors.request.use(
     let adminToken = localStorage.getItem("adminToken");
     let url = config.url || "";
 
-    let whiteList = ["/news", "blog", "/login", "/register"];
+    let whiteList = ["/news", "/blog", "/login", "/register"];
 
     if (!whiteList.includes(url)) {
       if (url.startsWith("/admin/")) {

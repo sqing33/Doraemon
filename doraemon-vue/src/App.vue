@@ -4,68 +4,36 @@
 
 <script setup>
 import Index from "@/views/index.vue";
-import { onMounted, ref, watch, reactive } from "vue";
+import { watch } from "vue";
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 
-const background_1 = new URL("@/assets/background/1.jpg", import.meta.url).href;
-const background_2 = new URL("@/assets/background/6.jpg", import.meta.url).href;
-const background_3 = new URL("@/assets/background/4.jpg", import.meta.url).href;
-const background_4 = new URL("@/assets/background/2.jpg", import.meta.url).href;
-
 watch(route, (to) => {
-  const isAuthorIntroRoute = /^\/author(?:\/|$)/.test(to.path);
-  const isBlogRoute = /^\/blog(?:\/|$)/.test(to.path);
-  const isNewsRoute = /^\/news(?:\/|$)/.test(to.path);
   const isAdminRoute = /^\/admin(?:\/|$)/.test(to.path);
   const isAdminRoutes = /^\/admin\/[^\/]+(?:\/[^\/]+)*$/.test(to.path);
-  const isWebsitesRoute = /^\/website(?:\/|$)/.test(to.path);
-
-  if (isAuthorIntroRoute) {
-    document.documentElement.style.setProperty("--background", "black");
-  } else if (isBlogRoute) {
-    document.documentElement.style.setProperty(
-      "--background",
-      `url('${background_1}')`
-    );
-  } else if (isNewsRoute) {
-    document.documentElement.style.setProperty(
-      "--background",
-      `url('${background_2}')`
-    );
-  } else if (isWebsitesRoute) {
-    document.documentElement.style.setProperty(
-      "--background",
-      `url('${background_3}')`
-    );
-  } else if ("/login") {
-    document.documentElement.style.setProperty(
-      "--background",
-      `url('${background_4}')`
-    );
-  } else {
-    document.documentElement.style.setProperty("--background", "white");
-  }
 
   if (isAdminRoute || isAdminRoutes) {
     document.documentElement.style.setProperty(
       "--font-family",
       "Arial, sans-serif"
     );
+    document.documentElement.style.setProperty("--font-title", "Arial, sans-serif");
+  } else {
+    document.documentElement.style.removeProperty("--font-family");
+    document.documentElement.style.removeProperty("--font-title");
   }
 });
 </script>
 
 <style>
-@font-face {
-  font-family: "Haiyanzhishi";
-  src: url("@/assets/ttf/Haiyanzhishidongdong-Regular-2.ttf");
-}
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;600;700&display=swap");
 
 :root {
-  --background: white;
-  --font-family: "Haiyanzhishi", sans-serif;
+  --background-image: linear-gradient(-20deg, #e9defa 0%, #fbfcdb 100%);
+  --font-family: "Noto Sans SC", system-ui, -apple-system, "PingFang SC",
+    "Microsoft YaHei", sans-serif;
+  --font-title: "Noto Serif SC", "Songti SC", "STSong", serif;
 }
 
 html {
@@ -77,9 +45,28 @@ body {
   padding: 0;
   height: 100vh;
   width: 100vw;
-  background: var(--background);
+  background-image: var(--background-image);
+  background-color: #ffffff;
+  background-position: center;
   background-size: cover;
+  background-repeat: no-repeat;
   font-family: var(--font-family);
+  position: relative;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-title);
+}
+
+#app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
 }
 
 a {

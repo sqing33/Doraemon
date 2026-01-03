@@ -2,7 +2,7 @@
   <div id="news">
     <div class="news-head">
       <div class="logo">
-        <img alt="logo" src="../../../public/icon.png" />
+        <img alt="logo" src="/icon.png" />
         <span>哆啦新闻</span>
       </div>
 

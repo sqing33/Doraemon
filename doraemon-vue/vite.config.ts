@@ -10,6 +10,16 @@ export default defineConfig({
         // 打包压缩图片
         ViteImageOptimizer()
     ],
+    css: {
+        preprocessorOptions: {
+            scss: {
+                api: "modern-compiler"
+            },
+            sass: {
+                api: "modern-compiler"
+            }
+        }
+    },
     resolve: {
         alias: {
             '@': path.resolve(__dirname, 'src')

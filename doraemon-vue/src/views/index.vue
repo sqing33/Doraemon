@@ -1,168 +1,6 @@
 <template>
   <div class="conta">
     <el-container>
-      <el-header
-        v-if="!(Admin || HomePage) || AuthorPage"
-        :class="{ 'author-page': AuthorPage, 'character-page': CharacterPage }"
-        height="40px"
-        style="
-          width: 100%;
-          --el-menu-bg-color: transparent;
-          --el-header-padding: 0;
-          border-bottom: 1px solid #eee;
-        "
-      >
-        <div style="display: flex; justify-content: space-between">
-          <div class="nav" style="flex: 1; height: 40px">
-            <el-menu
-              :ellipsis="ellipsis"
-              class="head"
-              mode="horizontal"
-              style="height: 40px"
-            >
-              <el-menu-item>
-                <router-link style="display: flex" to="/">
-                  <img
-                    alt="logo"
-                    src="../../public/icon.png"
-                    style="height: 30px; transform: translateY(13px)"
-                  />
-                  <div
-                    class="logo"
-                    style="
-                      font-size: 18px;
-                      font-family: Haiyanzhishi, serif;
-                      padding-left: 5px;
-                    "
-                  >
-                    哆啦A梦世界
-                  </div>
-                </router-link>
-              </el-menu-item>
-              <el-menu-item>
-                <router-link to="/author">
-                  <el-icon>
-                    <EditPen />
-                  </el-icon>
-                  作者介绍
-                </router-link>
-              </el-menu-item>
-              <el-menu-item>
-                <router-link to="/character">
-                  <el-icon>
-                    <User />
-                  </el-icon>
-                  动漫人物
-                </router-link>
-              </el-menu-item>
-
-              <!--      <el-menu-item>
-                <router-link to="/character">
-                  <el-icon>
-                    <Film />
-                  </el-icon>
-                  剧场史
-                </router-link>
-              </el-menu-item> -->
-
-              <el-menu-item>
-                <router-link to="/blog">
-                  <el-icon>
-                    <Connection />
-                  </el-icon>
-                  用户互动
-                </router-link>
-              </el-menu-item>
-
-              <el-menu-item>
-                <router-link to="/news">
-                  <el-icon>
-                    <Tickets />
-                  </el-icon>
-                  新闻活动
-                </router-link>
-              </el-menu-item>
-
-              <el-menu-item>
-                <router-link to="/website">
-                  <el-icon>
-                    <Link />
-                  </el-icon>
-                  相关网站
-                </router-link>
-              </el-menu-item>
-
-              <!--   <el-menu-item>
-                <router-link to="/test">
-                  <el-icon>
-                    <QuestionFilled />
-                  </el-icon>
-                  test
-                </router-link>
-              </el-menu-item>-->
-            </el-menu>
-          </div>
-          <div class="user">
-            <el-menu :ellipsis="false" mode="horizontal" style="height: 40px">
-              <el-menu-item>
-                <el-dropdown>
-                  <div class="el-dropdown-link" style="outline: none">
-                    <div>
-                      <div>
-                        <img
-                          v-if="userInfo.avatarUrl"
-                          :src="userInfo.avatarUrl"
-                          alt=""
-                        />
-                        <img v-else alt="" src="../assets/avatar.png" />
-                      </div>
-                      <div>
-                        <span
-                          v-if="userInfo.nickname"
-                          :class="{ 'author-page': AuthorPage }"
-                        >
-                          {{ userInfo.nickname }}
-                        </span>
-                        <span v-else style="color: #000"> 登录/注册 </span>
-                      </div>
-                    </div>
-                  </div>
-                  <template #dropdown>
-                    <el-dropdown-menu>
-                      <router-link
-                        v-if="userInfo.isLogining === false"
-                        to="/login"
-                      >
-                        <el-dropdown-item>登录/注册</el-dropdown-item>
-                      </router-link>
-                      <el-dropdown-item @click="goToUserInfo">
-                        用户信息
-                      </el-dropdown-item>
-                      <router-link to="/user/myBlogs">
-                        <el-dropdown-item divided>我的发帖</el-dropdown-item>
-                      </router-link>
-                      <router-link to="/user/feedback">
-                        <el-dropdown-item divided>反馈</el-dropdown-item>
-                      </router-link>
-                      <el-dropdown-item divided @click="goToAdmin">
-                        后台管理
-                      </el-dropdown-item>
-                      <router-link
-                        v-if="userInfo.isLogining === true"
-                        to=""
-                        @click="logout"
-                      >
-                        <el-dropdown-item divided>退出登录</el-dropdown-item>
-                      </router-link>
-                    </el-dropdown-menu>
-                  </template>
-                </el-dropdown>
-              </el-menu-item>
-            </el-menu>
-          </div>
-        </div>
-      </el-header>
-
       <el-main
         :class="{
           'home-page': HomePage,
@@ -173,17 +11,9 @@
       >
         <el-scrollbar
           @scroll="scroll"
-          :style="
-            !(HomePage || AdminPage)
-              ? { height: 'calc(100vh - 40px) !important' }
-              : {}
-          "
-          :class="{ 'login-page': LoginPage }"
+          :class="['main-scroll', { 'login-page': LoginPage }]"
         >
           <router-view></router-view>
-          <CopyrightIcp
-            v-if="!(Admin || AuthorPage || HomePage || CharacterPage)"
-          />
         </el-scrollbar>
       </el-main>
     </el-container>
@@ -191,42 +21,13 @@
 </template>
 
 <script setup>
-import { reactive, ref, watch, watchEffect } from "vue";
-import CopyrightIcp from "@/components/copyright-icp.vue";
-
-import {
-  Connection,
-  EditPen,
-  QuestionFilled,
-  Tickets,
-  User,
-  Link,
-} from "@element-plus/icons-vue";
-import { useRoute, useRouter } from "vue-router";
-import axios from "axios";
-import _axios from "@/api";
-import { InterfaceUrl } from "@/api";
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 import { useStore } from "vuex";
-import { ElMessage } from "element-plus";
 
 const store = useStore();
 
-const userInfo = reactive({
-  nickname: "",
-  avatarUrl: "",
-  isLogining: false,
-});
-
-watchEffect(() => {
-  const newUserInfo = store.getters.getUserInfo;
-  Object.assign(userInfo, newUserInfo); // 将新用户信息的所有属性复制到 userInfo 中
-  if (userInfo.nickname) {
-    userInfo.isLogining = true;
-  }
-});
-
 const route = useRoute();
-const router = useRouter();
 
 // 管理员页面导航栏
 const Admin = ref(false);
@@ -243,58 +44,18 @@ const CharacterPage = ref(false);
 
 const LoginPage = ref(false);
 
-const ellipsis = ref(true);
-
 watch(route, (to) => {
   Admin.value = to.path.startsWith("/admin");
   if (window.innerWidth >= 1024) {
     HomePage.value = to.path === "/" || to.path === "/author";
-    ellipsis.value = false;
   }
   OtherPage.value =
-    to.path !== "/" || to.path !== "/admin_login" || to.path !== "/admin";
+    to.path !== "/" && to.path !== "/admin_login" && to.path !== "/admin";
   AdminPage.value = to.path.startsWith("/admin") || to.path === "/admin_login";
   AuthorPage.value = to.path === "/author";
   CharacterPage.value = to.path === "/character";
   LoginPage.value = to.path === "/login";
 });
-
-const logout = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("vuex");
-  router.push("/login");
-};
-
-const goToAdmin = () => {
-  const adminToken = localStorage.getItem("adminToken");
-
-  if (adminToken) {
-    axios
-      .post(InterfaceUrl + "/admin/checkToken", { adminToken })
-      .then((res) => {
-        console.log(res);
-        if (res.data.state === 0) {
-          router.push("/admin");
-        } else {
-          ElMessage.error("登录失效，请重新登录");
-          router.push("/adminLogin");
-        }
-      })
-      .catch((err) => {
-        console.log(err);
-        ElMessage.error("登录失效，请重新登录");
-        router.push("/adminLogin");
-      });
-  } else {
-    router.push("/adminLogin");
-  }
-};
-
-const goToUserInfo = () => {
-  _axios.post("/user/info").then((res) => {
-    router.push("/user/info");
-  });
-};
 
 const scroll = ({ scrollTop }) => {
   store.commit("setScroll", scrollTop);
@@ -307,6 +68,10 @@ const scroll = ({ scrollTop }) => {
   flex-direction: column;
   min-height: 100vh;
   z-index: 99999;
+}
+
+.main-scroll {
+  height: 100vh;
 }
 
 li {
@@ -335,10 +100,6 @@ li {
   }
 }
 
-:deep(.other-page) {
-  height: 0;
-}
-
 :deep(.home-page) {
   height: 100vh;
 }
@@ -359,6 +120,103 @@ li {
   .el-menu-item {
     color: white !important;
   }
+}
+
+.head {
+  background: transparent !important;
+  border-bottom: none !important;
+}
+
+:deep(.el-menu--horizontal) {
+  border-bottom: none !important;
+}
+
+.head :deep(.el-menu-item) {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 26px;
+  margin: 7px 10px 7px 0;
+  padding: 0 6px;
+  left: 0;
+  overflow: hidden;
+  background: transparent !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  color: inherit;
+  transition: left 0.3s ease-out, color 0.3s ease-out;
+}
+
+.head :deep(.el-menu-item)::before,
+.head :deep(.el-menu-item)::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 1px;
+  bottom: 0;
+  left: 100%;
+  background-color: var(--nav-accent, #00b7ff);
+  transition: 0.3s ease-out;
+}
+
+.head :deep(.el-menu-item)::after {
+  transition: 0.4s ease-out 0.2s;
+}
+
+.head :deep(.el-menu-item:hover) {
+  left: 10px;
+  color: var(--nav-accent, #00b7ff);
+}
+
+.head :deep(.el-menu-item:hover)::before {
+  left: -100%;
+}
+
+.head :deep(.el-menu-item:hover)::after {
+  left: 0%;
+}
+
+.head :deep(.el-menu-item.is-active) {
+  color: var(--nav-accent, #00b7ff);
+}
+
+.head :deep(.el-menu-item.is-active)::before {
+  left: -100%;
+}
+
+.head :deep(.el-menu-item.is-active)::after {
+  left: 0%;
+}
+
+.head :deep(.el-menu-item > a) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.head :deep(.el-menu-item .el-icon) {
+  color: inherit;
+}
+
+.head :deep(.el-menu-item:first-child) {
+  height: 40px;
+  margin: 0 14px 0 0;
+  padding: 0;
+  overflow: visible;
+  transition: none;
+}
+
+.head :deep(.el-menu-item:first-child)::before,
+.head :deep(.el-menu-item:first-child)::after {
+  display: none;
+}
+
+.head :deep(.el-menu-item:first-child:hover) {
+  left: 0;
+  color: inherit;
 }
 
 .character-page {

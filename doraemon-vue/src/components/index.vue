@@ -27,9 +27,6 @@
 
     <section id="img-footer" class="img">
       <h1>让我们一起踏上这场奇妙的旅程吧！</h1>
-      <CopyrightIcp
-        style="position: absolute; bottom: 10px; right: 0; left: 0"
-      />
     </section>
 
     <div class="navigation" @click="click">
@@ -54,7 +51,6 @@
 </template>
 
 <script lang="ts" setup>
-import CopyrightIcp from "@/components/copyright-icp.vue";
 import { useStore } from "vuex";
 import { onMounted, ref, watch } from "vue";
 import { useRouter } from "vue-router";

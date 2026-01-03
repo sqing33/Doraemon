@@ -5,28 +5,19 @@ import adminRoutes from "./admin";
 import usersRoutes from "./users";
 
 const routes: RouteRecordRaw[] = [
+  // 首页重定向到博客
   {
     path: "/",
-    component: defineAsyncComponent(() => import("@/components/index.vue")),
+    redirect: "/blog"
   },
-  {
-    path: "/author",
-    component: defineAsyncComponent(
-      () => import("@/components/AuthorIntro.vue")
-    ),
-  },
-  {
-    path: "/character",
-    component: defineAsyncComponent(
-      () => import("@/components/CharactIntro.vue")
-    ),
-  },
+
+  // 博客页面（作为首页）
   {
     path: "/blog",
-    name: "blog",
     children: [
       {
         path: "",
+        name: "blog",
         component: defineAsyncComponent(
           () => import("@/components/blog/index.vue")
         ),
@@ -47,6 +38,59 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+
+  // 动漫详情页面（新增）
+  {
+    path: "/anime/:animeId",
+    name: "animeDetail",
+    component: defineAsyncComponent(
+      () => import("@/components/anime/AnimeDetail.vue")
+    ),
+    props: true,
+    children: [
+      {
+        path: "",
+        redirect: "author"
+      },
+      {
+        path: "author",
+        name: "animeAuthor",
+        component: defineAsyncComponent(
+          () => import("@/components/anime/AnimeAuthor.vue")
+        ),
+      },
+      {
+        path: "character",
+        name: "animeCharacter",
+        component: defineAsyncComponent(
+          () => import("@/components/anime/AnimeCharacter.vue")
+        ),
+      },
+      {
+        path: "website",
+        name: "animeWebsite",
+        component: defineAsyncComponent(
+          () => import("@/components/anime/AnimeWebsite.vue")
+        ),
+      },
+    ],
+  },
+
+  // 保留原有路由用于向后兼容
+  {
+    path: "/author",
+    redirect: "/anime/doraemon/author"
+  },
+  {
+    path: "/character",
+    redirect: "/anime/doraemon/character"
+  },
+  {
+    path: "/website",
+    redirect: "/anime/doraemon/website"
+  },
+
+  // 新闻活动
   {
     path: "/news",
     name: "news",
@@ -67,10 +111,11 @@ const routes: RouteRecordRaw[] = [
       },
     ],
   },
+
+  // 原首页（可选保留）
   {
-    path: "/website",
-    name: "website",
-    component: defineAsyncComponent(() => import("@/components/website.vue")),
+    path: "/home",
+    component: defineAsyncComponent(() => import("@/components/index.vue")),
   },
 ];
 
