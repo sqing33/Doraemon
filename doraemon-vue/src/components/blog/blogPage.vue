@@ -1,388 +1,399 @@
 <template>
-  <div class="blog-page">
-    <section class="blog-hero">
-      <div class="blog-hero__inner">
-        <p class="blog-hero__label">Doraemon Blog</p>
-        <h1 class="blog-title">{{ blog.title }}</h1>
-        <div class="blog-meta">
-          <span class="blog-meta__item">{{ blog.nickname || "匿名" }}</span>
-          <span class="blog-meta__dot">•</span>
-          <span class="blog-meta__item">{{ blog.create_time }}</span>
-          <template v-if="blog.category">
-            <span class="blog-meta__dot">•</span>
-            <span class="blog-meta__item">{{ blog.category }}</span>
-          </template>
-          <span class="blog-meta__dot">•</span>
-          <span class="blog-meta__item">约 {{ readingMinutes }} 分钟阅读</span>
-        </div>
-        <img v-if="blog.coverUrl" :src="blog.coverUrl" alt="" class="blog-cover" />
-      </div>
-    </section>
-
-    <section class="blog-body">
-      <article class="blog-article">
-        <div class="blog-divider"></div>
-        <el-skeleton v-if="blogLoading" :rows="12" animated />
-        <div
-          v-else
-          ref="contentRef"
-          class="blog-content"
-          v-html="blog.content"
-        ></div>
-      </article>
-
-      <aside class="blog-side">
-        <section class="side-card">
-          <h4 class="side-card__title">账号</h4>
-          <div class="user-card">
-            <div class="user-card__avatar">
-              <img :src="userAvatar" alt="" />
-            </div>
-            <div class="user-card__info">
-              <div class="user-card__name">{{ userNickname }}</div>
-              <div class="user-card__desc">
-                {{
-                  isLogined
-                    ? "已登录：可收藏、评论、回复"
-                    : "登录后可收藏、评论、回复"
-                }}
+  <div
+    class="blog blog-page"
+    style="--progress: 0; --header-progress: 1; --header-offset: 0px"
+  >
+    <div class="blog-shell">
+      <el-row :gutter="18" class="blog-layout">
+        <el-col :lg="16" :md="16" :sm="24" :xs="24" class="main-col">
+          <section ref="heroRef" class="blog-hero">
+            <div class="blog-hero__inner">
+              <router-link class="blog-hero__back" to="/blog">
+                <el-icon>
+                  <Back />
+                </el-icon>
+              </router-link>
+              <div class="blog-hero__top">
+                <div class="blog-hero__content">
+                  <p class="blog-hero__label">Doraemon Blog</p>
+                  <div class="blog-hero_title">
+                    <h1 class="blog-title">{{ blog.title }}</h1>
+                    <img
+                      v-if="blog.coverUrl"
+                      :src="blog.coverUrl"
+                      alt=""
+                      class="blog-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div class="blog-meta">
+                <span class="blog-meta__item">{{
+                  blog.nickname || "匿名"
+                }}</span>
+                <span class="blog-meta__dot">•</span>
+                <span class="blog-meta__item">{{ blog.create_time }}</span>
+                <template v-if="blog.category">
+                  <span class="blog-meta__dot">•</span>
+                  <span class="blog-meta__item">{{ blog.category }}</span>
+                </template>
+                <span class="blog-meta__dot">•</span>
+                <span class="blog-meta__item"
+                  >约 {{ readingMinutes }} 分钟阅读</span
+                >
               </div>
             </div>
+          </section>
 
-            <el-dropdown trigger="click">
-              <el-button round size="small" class="user-card__more"
-                >操作</el-button
+          <section class="blog-body">
+            <article class="blog-article">
+              <div class="blog-divider"></div>
+              <el-skeleton v-if="blogLoading" :rows="12" animated />
+              <div
+                v-else
+                ref="contentRef"
+                class="blog-content blog-content-container"
               >
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <router-link v-if="!isLogined" to="/login">
-                    <el-dropdown-item>登录/注册</el-dropdown-item>
-                  </router-link>
+                <VditorViewer :content="blog.content" @rendered="buildToc" />
+              </div>
+            </article>
+          </section>
 
-                  <el-dropdown-item v-if="isLogined" @click="goToUserInfo"
-                    >用户信息</el-dropdown-item
-                  >
+          <section ref="commentsRef" class="blog-comments">
+            <div class="comment-header">
+              <h3>评论</h3>
+              <div class="comment-count">
+                <div v-if="commentsLength === 0">
+                  （还没有评论，快来发表吧~）
+                </div>
+                <div v-else>（{{ commentsLength }}）</div>
+              </div>
+              <el-button
+                plain
+                class="comment-submit"
+                type="primary"
+                @click="submitComment"
+                >发布
+              </el-button>
+            </div>
 
-                  <router-link v-if="isLogined" to="/user/myBlogs">
-                    <el-dropdown-item divided>我的发帖</el-dropdown-item>
-                  </router-link>
+            <div class="comment-editor">
+              <VditorEditor
+                v-model="commentMarkdown"
+                class="comment-editor__input"
+                :height="300"
+              />
+            </div>
 
-                  <router-link v-if="isLogined" to="/user/feedback">
-                    <el-dropdown-item divided>反馈</el-dropdown-item>
-                  </router-link>
-
-                  <el-dropdown-item divided @click="goToAdmin"
-                    >后台管理</el-dropdown-item
-                  >
-
-                  <el-dropdown-item
-                    v-if="isLogined"
-                    divided
-                    @click="logout"
-                    >退出登录</el-dropdown-item
-                  >
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
-          </div>
-
-          <div class="user-card__quick">
-            <el-button
-              v-if="!isLogined"
-              round
-              size="large"
-              type="primary"
-              class="user-card__primary"
-              @click="goLogin"
+            <div
+              v-for="comment in comments"
+              :key="comment.id"
+              class="comment-card"
             >
-              登录/注册
-            </el-button>
-            <el-button
-              v-else
-              round
-              size="large"
-              class="user-card__primary"
-              @click="goToUserInfo"
-            >
-              个人中心
-            </el-button>
+              <div class="comment-top">
+                <img alt="" class="avatar" src="../../assets/avatar.png" />
+                <div class="comment-author">
+                  <strong>{{ comment.nickname }}</strong>
+                  <span>说：</span>
+                </div>
+              </div>
+
+              <div class="comment-body">
+                <VditorViewer :content="comment.content" />
+              </div>
+
+              <div class="comment-footer">
+                <span class="comment-date">
+                  {{ dateFunction(comment.create_time) }}
+                </span>
+                <div class="comment-actions">
+                  <button
+                    class="comment-action"
+                    type="button"
+                    @click="doLike(comment.id)"
+                  >
+                    <img alt="" src="../../assets/comment/dianzan.png" />
+                    <span>{{ comment.like }}</span>
+                  </button>
+                  <button
+                    class="comment-action"
+                    type="button"
+                    @click="
+                      pid = comment.id;
+                      pname = comment.nickname;
+                      replyCommentDialogVisible = true;
+                    "
+                  >
+                    <img alt="" src="../../assets/comment/huifu.png" />
+                    <span>回复</span>
+                  </button>
+                </div>
+              </div>
+
+              <div
+                v-for="childrenComment in comment.children"
+                :key="childrenComment.id"
+                class="comment-reply"
+              >
+                <div class="comment-top comment-top--compact">
+                  <img
+                    alt=""
+                    class="avatar avatar--small"
+                    src="../../assets/avatar.png"
+                  />
+                  <div class="comment-author">
+                    <strong>{{ childrenComment.nickname }}</strong>
+                    <span>&nbsp回复&nbsp</span>
+                    <strong>{{ childrenComment.pname }}</strong>
+                    <span>&nbsp说：</span>
+                  </div>
+                </div>
+
+                <div class="comment-body">
+                  <VditorViewer :content="childrenComment.content" />
+                </div>
+
+                <div class="comment-footer">
+                  <span class="comment-date">
+                    {{ dateFunction(childrenComment.create_time) }}
+                  </span>
+                  <div class="comment-actions">
+                    <button
+                      class="comment-action"
+                      type="button"
+                      @click="doLike(childrenComment.id)"
+                    >
+                      <img alt="" src="../../assets/comment/dianzan.png" />
+                      <span>{{ childrenComment.like }}</span>
+                    </button>
+                    <button
+                      class="comment-action"
+                      type="button"
+                      @click="
+                        reply(
+                          childrenComment.nickname,
+                          comment.id ? comment.id : 0
+                        )
+                      "
+                    >
+                      <img alt="" src="../../assets/comment/huifu.png" />
+                      <span>回复</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </el-col>
+
+        <el-col :lg="8" :md="8" :sm="24" :xs="24" class="aside-col">
+          <div class="blog-sidebar">
+            <section ref="accountRef" class="side-card side-card--account">
+              <div class="side-card__header">
+                <h4 class="side-card__title">账号</h4>
+                <span class="side-card__hint">{{
+                  isLogined ? "已登录" : "游客模式"
+                }}</span>
+              </div>
+
+              <el-dropdown trigger="click">
+                <div class="user-card">
+                  <div class="user-card__avatar">
+                    <img :src="userAvatar" alt="" />
+                  </div>
+                  <div class="user-card__info">
+                    <div class="user-card__name">{{ userNickname }}</div>
+                    <div class="user-card__desc">
+                      {{
+                        isLogined
+                          ? "欢迎回来，去看看最新帖子吧"
+                          : "登录后可发帖、收藏和评论"
+                      }}
+                    </div>
+                  </div>
+                </div>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <router-link v-if="!isLogined" to="/login">
+                      <el-dropdown-item>登录/注册</el-dropdown-item>
+                    </router-link>
+
+                    <el-dropdown-item v-if="isLogined" @click="goToUserInfo">
+                      用户信息
+                    </el-dropdown-item>
+
+                    <router-link v-if="isLogined" to="/user/myBlogs">
+                      <el-dropdown-item divided>我的发帖</el-dropdown-item>
+                    </router-link>
+
+                    <router-link v-if="isLogined" to="/user/feedback">
+                      <el-dropdown-item divided>反馈</el-dropdown-item>
+                    </router-link>
+
+                    <el-dropdown-item divided @click="goToAdmin">
+                      后台管理
+                    </el-dropdown-item>
+
+                    <el-dropdown-item v-if="isLogined" divided @click="logout">
+                      退出登录
+                    </el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+
+              <div class="user-card__quick">
+                <el-button
+                  v-if="!isLogined"
+                  round
+                  size="large"
+                  type="primary"
+                  class="user-card__primary"
+                  @click="goLogin"
+                >
+                  登录/注册
+                </el-button>
+                <el-button
+                  v-else
+                  round
+                  size="large"
+                  class="user-card__primary"
+                  @click="goToUserInfo"
+                >
+                  个人中心
+                </el-button>
+              </div>
+            </section>
+
+            <div class="blog-actions-wrapper">
+              <nav class="blog-actions">
+                <button
+                  ref="shareRef"
+                  class="blog-action"
+                  type="button"
+                  @click="doShare"
+                >
+                  <div class="blog-action__circle">
+                    <el-icon>
+                      <Share />
+                    </el-icon>
+                  </div>
+                  <span class="blog-action__text">分享</span>
+                </button>
+                <el-popover
+                  :virtual-ref="shareRef"
+                  title="已复制链接"
+                  trigger="click"
+                  virtual-triggering
+                  width="300"
+                >
+                  <span>{{ shareText }}</span>
+                </el-popover>
+
+                <button class="blog-action" type="button" @click="collect">
+                  <div class="blog-action__circle">
+                    <el-icon>
+                      <Star />
+                    </el-icon>
+                  </div>
+                  <span class="blog-action__text">收藏</span>
+                </button>
+
+                <button
+                  class="blog-action"
+                  type="button"
+                  @click="scrollToComments"
+                >
+                  <div class="blog-action__circle">
+                    <el-icon>
+                      <ChatDotRound />
+                    </el-icon>
+                  </div>
+                  <span class="blog-action__text">评论</span>
+                </button>
+              </nav>
+            </div>
+
+            <section class="blog-toc">
+              <h4 class="blog-toc__title">文章目录</h4>
+              <ul class="toc">
+                <li
+                  v-for="item in toc"
+                  :key="item.id"
+                  :class="['toc-item', `toc-item--l${item.level}`]"
+                  @click="scrollToHeading(item.id)"
+                >
+                  {{ item.text }}
+                </li>
+                <li v-if="!toc.length" class="toc-item toc-item--empty">
+                  暂无目录
+                </li>
+              </ul>
+            </section>
           </div>
-        </section>
+        </el-col>
+      </el-row>
+    </div>
 
-        <nav class="blog-actions">
-          <router-link class="blog-action" to="/blog">
-            <el-icon>
-              <Tickets />
-            </el-icon>
-            返回帖子首页
-          </router-link>
-
-          <button
-            ref="shareRef"
-            class="blog-action"
-            type="button"
-            @click="doShare"
+    <el-dialog v-model="replyCommentDialogVisible" title="回复" width="700">
+      <VditorEditor
+        v-model="replyMarkdown"
+        class="comment-editor__input"
+        :height="300"
+      />
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="replyCommentDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitReplyComment">
+            回复</el-button
           >
-            <el-icon>
-              <Share />
-            </el-icon>
-            分享
-          </button>
-          <el-popover
-            :virtual-ref="shareRef"
-            title="已复制链接"
-            trigger="click"
-            virtual-triggering
-            width="300"
-          >
-            <span>{{ shareText }}</span>
-          </el-popover>
-
-          <button class="blog-action" type="button" @click="collect">
-            <el-icon>
-              <Star />
-            </el-icon>
-            收藏
-          </button>
-
-          <button class="blog-action" type="button" @click="scrollToComments">
-            <el-icon>
-              <ChatDotRound />
-            </el-icon>
-            评论
-          </button>
-        </nav>
-
-        <section class="side-card">
-          <h4 class="side-card__title">站点导航</h4>
-          <div class="nav-list">
-            <router-link class="nav-item" to="/">
-              <el-icon><House /></el-icon>
-              首页
-            </router-link>
-            <router-link class="nav-item" to="/author">
-              <el-icon><EditPen /></el-icon>
-              作者介绍
-            </router-link>
-            <router-link class="nav-item" to="/character">
-              <el-icon><User /></el-icon>
-              动漫人物
-            </router-link>
-            <router-link class="nav-item" to="/blog">
-              <el-icon><Connection /></el-icon>
-              用户互动
-            </router-link>
-            <router-link class="nav-item" to="/news">
-              <el-icon><Tickets /></el-icon>
-              新闻活动
-            </router-link>
-            <router-link class="nav-item" to="/website">
-              <el-icon><Link /></el-icon>
-              相关网站
-            </router-link>
-          </div>
-        </section>
-
-        <section class="side-card">
-          <h4 class="side-card__title">文章信息</h4>
-          <div class="side-info">
-            <div class="side-row">
-              <span class="side-row__label">作者</span>
-              <span class="side-row__value">{{ blog.nickname || "匿名" }}</span>
-            </div>
-            <div class="side-row">
-              <span class="side-row__label">分类</span>
-              <span class="side-row__value">{{ blog.category || "未分类" }}</span>
-            </div>
-            <div class="side-row">
-              <span class="side-row__label">发布时间</span>
-              <span class="side-row__value">{{ blog.create_time }}</span>
-            </div>
-            <div class="side-row">
-              <span class="side-row__label">阅读时长</span>
-              <span class="side-row__value"
-                >约 {{ readingMinutes }} 分钟</span
-              >
-            </div>
-          </div>
-        </section>
-
-        <section v-if="toc.length" class="side-card">
-          <h4 class="side-card__title">目录</h4>
-          <ul class="toc">
-            <li
-              v-for="item in toc"
-              :key="item.id"
-              :class="['toc-item', `toc-item--l${item.level}`]"
-              @click="scrollToHeading(item.id)"
-            >
-              {{ item.text }}
-            </li>
-          </ul>
-        </section>
-      </aside>
-    </section>
-
-    <section ref="commentsRef" class="blog-comments">
-      <div class="comment-header">
-        <h3>评论</h3>
-        <div class="comment-count">
-          <div v-if="commentsLength === 0">（还没有评论，快来发表吧~）</div>
-          <div v-else>（{{ commentsLength }}）</div>
         </div>
-      </div>
-
-      <div class="comment-editor">
-        <RichTextEditor
-          ref="commentEditorRef"
-          class="comment-editor__input"
-          :style="{ width: '100%', height: '30vh' }"
-        />
-
-        <el-button
-          plain
-          class="comment-submit"
-          type="primary"
-          @click="submitComment"
-          >发布
-        </el-button>
-      </div>
-
-      <div v-for="comment in comments" :key="comment.id" class="comment-card">
-        <div class="comment-top">
-          <img alt="" class="avatar" src="../../assets/avatar.png" />
-          <div class="comment-author">
-            <strong>{{ comment.nickname }}</strong>
-            <span>说：</span>
-          </div>
-        </div>
-
-        <div class="comment-body" v-html="comment.content"></div>
-
-        <div class="comment-footer">
-          <span class="comment-date">
-            {{ dateFunction(comment.create_time) }}
-          </span>
-          <div class="comment-actions">
-            <button
-              class="comment-action"
-              type="button"
-              @click="doLike(comment.id)"
-            >
-              <img alt="" src="../../assets/comment/dianzan.png" />
-              <span>{{ comment.like }}</span>
-            </button>
-            <button
-              class="comment-action"
-              type="button"
-              @click="
-                pid = comment.id;
-                pname = comment.nickname;
-                replyCommentDialogVisible = true;
-              "
-            >
-              <img alt="" src="../../assets/comment/huifu.png" />
-              <span>回复</span>
-            </button>
-          </div>
-        </div>
-
-        <div
-          v-for="childrenComment in comment.children"
-          :key="childrenComment.id"
-          class="comment-reply"
-        >
-          <div class="comment-top comment-top--compact">
-            <img
-              alt=""
-              class="avatar avatar--small"
-              src="../../assets/avatar.png"
-            />
-            <div class="comment-author">
-              <strong>{{ childrenComment.nickname }}</strong>
-              <span>&nbsp回复&nbsp</span>
-              <strong>{{ childrenComment.pname }}</strong>
-              <span>&nbsp说：</span>
-            </div>
-          </div>
-
-          <div class="comment-body" v-html="childrenComment.content"></div>
-
-          <div class="comment-footer">
-            <span class="comment-date">
-              {{ dateFunction(childrenComment.create_time) }}
-            </span>
-            <div class="comment-actions">
-              <button
-                class="comment-action"
-                type="button"
-                @click="doLike(childrenComment.id)"
-              >
-                <img alt="" src="../../assets/comment/dianzan.png" />
-                <span>{{ childrenComment.like }}</span>
-              </button>
-              <button
-                class="comment-action"
-                type="button"
-                @click="
-                  reply(
-                    childrenComment.nickname,
-                    comment.id ? comment.id : 0
-                  )
-                "
-              >
-                <img alt="" src="../../assets/comment/huifu.png" />
-                <span>回复</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+      </template>
+    </el-dialog>
   </div>
-
-  <el-dialog v-model="replyCommentDialogVisible" title="回复" width="700">
-    <RichTextEditor
-      ref="replyEditorRef"
-      class="comment-editor__input"
-      :style="{ width: '100%', height: '30vh' }"
-    />
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="replyCommentDialogVisible = false">取消</el-button>
-        <el-button type="primary" @click="submitReplyComment"> 回复</el-button>
-      </div>
-    </template>
-  </el-dialog>
 </template>
 
 <script lang="ts" setup>
-import { defineProps, onMounted, ref, computed, nextTick, watch } from "vue";
-import _axios from "@/api";
-import { InterfaceUrl } from "@/api";
-import { ElMessage } from "element-plus";
+import {
+  defineProps,
+  onMounted,
+  onUnmounted,
+  ref,
+  computed,
+  nextTick,
+  watch,
+} from "vue";
+import _axios, { InterfaceUrl } from "@/api";
 import axios from "axios";
+import { ElMessage } from "element-plus";
 import {
   ChatDotRound,
   Connection,
-  EditPen,
-  House,
-  Link,
   Share,
   Star,
-  Tickets,
-  User,
+  Back,
 } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
 import { useStore } from "vuex";
-import RichTextEditor from "@/utils/RichTextEditor.vue";
 import { useRouter } from "vue-router";
+import BlogHeaderNav from "./BlogHeaderNav.vue";
+import VditorEditor from "@/utils/VditorEditor.vue";
+import VditorViewer from "@/utils/VditorViewer.vue";
+import { useCodeCollapse } from "@/hooks/useCodeCollapse";
 import avatarFallback from "@/assets/avatar.png";
+import gsap from "gsap";
+import ScrollTrigger from "gsap/ScrollTrigger";
+
+// 注册插件
+gsap.registerPlugin(ScrollTrigger);
 
 const store = useStore();
 const router = useRouter();
 
 const comment = ref();
+
+// GSAP 动画引用
+const heroRef = ref<HTMLElement | null>(null);
+const accountRef = ref<HTMLElement | null>(null);
 
 const props = defineProps({
   id: {
@@ -425,8 +436,50 @@ const stripHtml = (html: string) => {
     .trim();
 };
 
+const stripMarkdown = (md: string) => {
+  let result = md || "";
+
+  // 提取代码块中的内容（保留代码内容用于计算阅读时长）
+  result = result.replace(/```[\s\S]*?```/g, (match) => {
+    // 移除代码块标记，但保留代码内容
+    return match.replace(/^```\w*\n?/gm, "").replace(/```$/gm, "");
+  });
+
+  // 移除行内代码标记，但保留内容
+  result = result.replace(/`([^`]+)`/g, "$1");
+
+  // 移除图片
+  result = result.replace(/!\[[^\]]*?\]\([^)]+\)/g, " ");
+
+  // 移除链接，保留链接文本
+  result = result.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+
+  // 移除标题标记
+  result = result.replace(/^#{1,6}\s+/gm, " ");
+
+  // 移除引用标记
+  result = result.replace(/^>\s+/gm, " ");
+
+  // 移除列表标记
+  result = result.replace(/^[-*+]\s+/gm, " ");
+  result = result.replace(/^\d+\.\s+/gm, " ");
+
+  // 移除加粗、斜体、删除线标记
+  result = result.replace(/[*_~]+/g, " ");
+
+  // 合并多余空格
+  result = result.replace(/\s+/g, " ");
+
+  return result.trim();
+};
+
+const contentToText = (raw: string) => {
+  // Handle both legacy HTML and pure Markdown content.
+  return stripMarkdown(stripHtml(raw || ""));
+};
+
 const readingMinutes = computed(() => {
-  const text = stripHtml(blog.value.content || "");
+  const text = contentToText(blog.value.content || "");
   const minutes = Math.round(text.length / 300);
   return Math.max(1, minutes || 1);
 });
@@ -434,27 +487,40 @@ const readingMinutes = computed(() => {
 const contentRef = ref<HTMLElement | null>(null);
 const toc = ref<Array<{ id: string; text: string; level: number }>>([]);
 
+// 初始化代码折叠功能
+const { initCodeCollapse } = useCodeCollapse(".blog-content-container");
+
 const buildToc = () => {
   toc.value = [];
   const container = contentRef.value;
   if (!container) return;
 
-  const headings = Array.from(container.querySelectorAll("h1, h2, h3"));
-  headings.forEach((el, index) => {
-    const text = (el.textContent || "").trim();
-    if (!text) return;
-    const level = Number(el.tagName.slice(1)) || 1;
-    const id = el.id || `heading-${index + 1}`;
-    el.id = id;
-    toc.value.push({ id, text, level });
-  });
+  // 等待一小段时间确保 DOM 完全更新
+  setTimeout(() => {
+    const vditorReset = container.querySelector(".vditor-reset");
+    const searchContainer = vditorReset || container;
+
+    const headings = Array.from(
+      searchContainer.querySelectorAll("h1, h2, h3, h4, h5, h6")
+    );
+
+    headings.forEach((el, index) => {
+      const text = (el.textContent || "").trim();
+      if (!text) return;
+      const level = Number(el.tagName.slice(1)) || 1;
+      const id = el.id || `heading-${index + 1}`;
+      el.id = id;
+      toc.value.push({ id, text, level });
+    });
+  }, 100);
 };
 
 watch(
   () => blog.value.content,
   async () => {
     await nextTick();
-    buildToc();
+    // 延迟 300ms 等待 Vditor 渲染完成
+    setTimeout(() => initCodeCollapse(), 300);
   }
 );
 
@@ -495,15 +561,19 @@ const comments = ref<any[]>([]);
 const commentsLength = ref(0);
 
 const getComments = () => {
-  _axios.post("/blog/getComments", null, { params: { id: props.id } }).then((res) => {
-    comments.value = (res.data?.comments || []).sort((a: any, b: any) => {
-      return new Date(b.create_time).getTime() - new Date(a.create_time).getTime();
+  _axios
+    .post("/blog/getComments", null, { params: { id: props.id } })
+    .then((res) => {
+      comments.value = (res.data?.comments || []).sort((a: any, b: any) => {
+        return (
+          new Date(b.create_time).getTime() - new Date(a.create_time).getTime()
+        );
+      });
+      commentsLength.value = res.data?.total || 0;
     });
-    commentsLength.value = res.data?.total || 0;
-  });
 };
 
-onMounted(() => {
+onMounted(async () => {
   blogLoading.value = true;
   _axios
     .post("/blog/blogPage", null, { params: { id: props.id } })
@@ -511,12 +581,379 @@ onMounted(() => {
       blog.value = res.data;
       blog.value.create_time = dateFunction(blog.value.create_time);
       await nextTick();
-      buildToc();
+      // 延迟 300ms 等待 Vditor 渲染完成
+      setTimeout(() => initCodeCollapse(), 300);
     })
     .finally(() => {
       blogLoading.value = false;
     });
   getComments();
+
+  // GSAP 动画逻辑
+  await nextTick();
+  // 稍微延迟一下确保 ElementPlus 的结构完全生成
+  await new Promise((r) => setTimeout(r, 500));
+
+  // 找到 Element Plus 的滚动容器
+  const scrollEl = document.querySelector(".el-scrollbar__wrap");
+
+  if (!heroRef.value || !accountRef.value || !scrollEl) {
+    console.warn("GSAP: 缺少必要的 DOM 元素");
+    return;
+  }
+
+  // 创建时间轴 (Timeline)
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      scroller: ".el-scrollbar__wrap", // 关键：告诉 GSAP 监听哪个容器滚动
+      trigger: "body", // 触发源（整个页面）
+      start: "top top", // 从顶部开始
+      end: "300px top", // 滚动 300px 后结束动画
+      scrub: 1, // 1秒的平滑缓冲 (像 PR 拖拽一样的感觉)
+    },
+  });
+
+  // 左侧大标题
+  tl.to(
+    heroRef.value,
+    {
+      x: () => {
+        const rect = heroRef.value!.getBoundingClientRect();
+        const currentLeft = rect.left;
+        return -currentLeft;
+      },
+      y: -50,
+      width: () => {
+        const screenW = window.innerWidth;
+        return screenW - 182;
+      },
+      height: 50,
+      borderRadius: 0,
+      padding: 0,
+      borderLeftWidth: 0,
+      transformOrigin: "left top",
+      duration: 1,
+    },
+    0
+  );
+
+  tl.to(
+    heroRef.value!.querySelector(".blog-hero__inner"),
+    {
+      padding: 0,
+      height: 50,
+      borderRadius: 0,
+      transformOrigin: "left center",
+      duration: 1.5,
+    },
+    0
+  );
+
+  // Doraemon Blog 文字
+  tl.to(
+    heroRef.value!.querySelector(".blog-hero__label"),
+    {
+      autoAlpha: 0,
+      transformOrigin: "left center",
+      duration: 1,
+    },
+    0
+  );
+
+  // 标题和封面的父容器相关元素
+  const titleContainerEl = heroRef.value!.querySelector(
+    ".blog-hero_title"
+  ) as HTMLElement;
+  const titleEl = heroRef.value!.querySelector(".blog-title") as HTMLElement;
+  const coverEl = heroRef.value!.querySelector(
+    ".blog-cover"
+  ) as HTMLImageElement;
+
+  // 获取父级 hero 的位置信息（用于补偿父级移动带来的偏移）
+  const heroRect = heroRef.value!.getBoundingClientRect();
+
+  // 获取 inner 的左内边距（因为动画中 padding 会变成 0，导致内容左移，需要补偿回来）
+  const innerEl = heroRef.value!.querySelector(".blog-hero__inner");
+  const innerStyle = innerEl ? window.getComputedStyle(innerEl) : null;
+  const innerPaddingLeft = innerStyle
+    ? parseFloat(innerStyle.paddingLeft) || 0
+    : 0;
+
+  // 1. 预计算【标题】终点宽度
+  let targetTitleWidth = 0;
+  if (titleEl) {
+    const originalFontSize = titleEl.style.fontSize;
+    const originalWidth = titleEl.style.width;
+    const originalWhiteSpace = titleEl.style.whiteSpace;
+
+    titleEl.style.fontSize = "24px";
+    titleEl.style.width = "max-content";
+    titleEl.style.whiteSpace = "nowrap";
+
+    targetTitleWidth = titleEl.getBoundingClientRect().width;
+
+    titleEl.style.fontSize = originalFontSize;
+    titleEl.style.width = originalWidth;
+    titleEl.style.whiteSpace = originalWhiteSpace;
+  }
+
+  // 2. 预计算【封面】终点宽度
+  let targetCoverWidth = 0;
+  if (coverEl) {
+    const naturalWidth = coverEl.naturalWidth || coverEl.width || 280;
+    const naturalHeight = coverEl.naturalHeight || coverEl.height || 200;
+    const targetHeight = 45;
+    targetCoverWidth = (naturalWidth / naturalHeight) * targetHeight;
+  }
+
+  // 3. 计算终点总宽度 (标题 + 图片 + 间距10)
+  const totalTargetWidth =
+    targetTitleWidth + (targetCoverWidth ? targetCoverWidth + 10 : 0);
+
+  // 4. 计算修正后的居中位移 X
+  const containerRect = titleContainerEl.getBoundingClientRect();
+  const currentLeft = containerRect.left; // 当前标题容器在屏幕的绝对左坐标
+  const windowWidth = window.innerWidth;
+
+  // 公式解析：
+  // (屏幕中心 - 物体一半宽) -> 这是理想的绝对坐标
+  // - currentLeft -> 减去当前坐标，得到需要的位移量
+  // + heroRect.left -> 补偿：因为父级向左移动了 heroRect.left 这么多，我们要反向加回来
+  // + innerPaddingLeft -> 补偿：因为父级 padding 没了，内容自然左移了，我们要反向推回来
+  const finalX =
+    windowWidth / 2 -
+    totalTargetWidth / 2 -
+    currentLeft +
+    heroRect.left +
+    innerPaddingLeft;
+
+  tl.to(
+    titleContainerEl,
+    {
+      x: finalX,
+      y: -20,
+      transformOrigin: "left center",
+      duration: 1,
+    },
+    0
+  );
+
+  // 标题文字变形动画
+  tl.to(
+    titleEl,
+    {
+      fontSize: 24,
+      width: targetTitleWidth,
+      duration: 1,
+    },
+    0
+  );
+
+  // 封面图变形动画
+  if (coverEl) {
+    tl.to(
+      coverEl,
+      {
+        width: targetCoverWidth,
+        height: 45,
+        borderRadius: 3,
+        marginTop: 2,
+        marginLeft: 10,
+        duration: 1,
+      },
+      0
+    );
+  }
+
+  // 作者、发布时间
+  tl.to(
+    heroRef.value!.querySelector(".blog-meta"),
+    {
+      y: -95,
+      marginTop: 0,
+      marginLeft: 70,
+      transformOrigin: "left center",
+      duration: 1,
+    },
+    0
+  );
+
+  tl.to(
+    heroRef.value!.querySelector(".blog-hero__back"),
+    {
+      x: 80,
+      y: 70,
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      transformOrigin: "left center",
+      duration: 1,
+    },
+    0
+  );
+
+  tl.to(
+    heroRef.value!.querySelector(".el-icon"),
+    {
+      x: 0,
+      y: 0,
+      transformOrigin: "left center",
+      duration: 1,
+    },
+    0
+  );
+
+  // 让 category 和 reading time 逐渐消失
+  const metaEl = heroRef.value!.querySelector(".blog-meta");
+  if (metaEl) {
+    const metaItems = metaEl.querySelectorAll(".blog-meta__item");
+    const metaDots = metaEl.querySelectorAll(".blog-meta__dot");
+
+    if (metaDots[1]) {
+      tl.to(
+        metaDots[1],
+        {
+          autoAlpha: 0,
+          duration: 1,
+        },
+        0
+      );
+    }
+
+    // category（第3个 item，索引2）和 dot（第3个 dot，索引2）
+    if (metaItems[2]) {
+      tl.to(
+        metaItems[2],
+        {
+          autoAlpha: 0,
+          duration: 1,
+        },
+        0
+      );
+    }
+    if (metaDots[2]) {
+      tl.to(
+        metaDots[2],
+        {
+          autoAlpha: 0,
+          duration: 1,
+        },
+        0
+      );
+    }
+
+    // reading time（第4个 item，索引3）和 dot（第4个 dot，索引3）
+    if (metaItems[3]) {
+      tl.to(
+        metaItems[3],
+        {
+          autoAlpha: 0,
+          duration: 1,
+        },
+        0
+      );
+    }
+    if (metaDots[3]) {
+      tl.to(
+        metaDots[3],
+        {
+          autoAlpha: 0,
+          duration: 1,
+        },
+        0
+      );
+    }
+  }
+
+  // 右侧账号卡片
+  tl.to(
+    accountRef.value,
+    {
+      x: () => {
+        const rect = accountRef.value!.getBoundingClientRect();
+        const currentRight = rect.right;
+        const windowWidth = window.innerWidth;
+        return windowWidth - (currentRight - 150);
+      },
+      y: -10,
+      width: 200,
+      borderRadius: 0,
+      backgroundColor: "rgba(255, 255, 255, 0.92)",
+      padding: 0,
+      transformOrigin: "right top",
+      duration: 1,
+    },
+    0
+  );
+
+  tl.to(
+    accountRef.value,
+    {
+      height: 50,
+      transformOrigin: "right top",
+      duration: 1.5,
+    },
+    0
+  );
+
+  tl.to(
+    accountRef.value!.querySelector(".user-card"),
+    {
+      top: -46,
+      transformOrigin: "left center",
+      duration: 1,
+    },
+    0
+  );
+
+  tl.to(
+    accountRef.value!.querySelector(".user-card__avatar"),
+    {
+      width: 40,
+      height: 40,
+      marginLeft: 10,
+      marginTop: 5,
+      transformOrigin: "left center",
+      duration: 1,
+    },
+    0
+  );
+
+  tl.to(
+    accountRef.value!.querySelector(".user-card__name"),
+    {
+      margin: 0,
+      transformOrigin: "left center",
+      duration: 1,
+    },
+    0
+  );
+
+  tl.to(
+    accountRef.value!.querySelector(".side-card__header"),
+    {
+      autoAlpha: 0,
+      transformOrigin: "left center",
+      duration: 0.5,
+    },
+    0
+  );
+
+  tl.to(
+    accountRef.value!.querySelector(".user-card__desc"),
+    {
+      autoAlpha: 0,
+      height: 0,
+      transformOrigin: "left center",
+      duration: 0.5,
+    },
+    0
+  );
+});
+
+// 销毁时清理，防止内存泄漏
+onUnmounted(() => {
+  ScrollTrigger.getAll().forEach((t) => t.kill());
 });
 
 const shareRef = ref();
@@ -557,9 +994,7 @@ const isLogined = computed(() => !!userInfo.value?.nickname);
 const userAvatar = computed(() => userInfo.value?.avatarUrl || avatarFallback);
 const userNickname = computed(() => userInfo.value?.nickname || "游客");
 
-const goLogin = () => {
-  router.push("/login");
-};
+const goLogin = () => router.push("/login");
 
 const logout = () => {
   localStorage.removeItem("token");
@@ -590,12 +1025,12 @@ const goToAdmin = () => {
     });
 };
 
-const commentEditorRef = ref();
-const replyEditorRef = ref();
+const commentMarkdown = ref("");
+const replyMarkdown = ref("");
 
 const submitComment = () => {
   if (!ensureLogin()) return;
-  comment.value = store.getters.getRichTextEditor;
+  comment.value = commentMarkdown.value;
   _axios
     .post("/blog/postComment", {
       content: comment.value,
@@ -605,7 +1040,7 @@ const submitComment = () => {
       category: "blog",
     })
     .then((res) => {
-      commentEditorRef.value?.clearEditorContent?.();
+      commentMarkdown.value = "";
       getComments();
       ElMessage.success("评论成功");
     });
@@ -629,6 +1064,7 @@ const reply = (a: string, b: number) => {
   replyCommentDialogVisible.value = true;
   pname.value = a;
   pid.value = b;
+  replyMarkdown.value = "";
 };
 
 const replyCommentDialogVisible = ref(false);
@@ -637,7 +1073,7 @@ const replyComment = ref();
 
 const submitReplyComment = () => {
   if (!ensureLogin()) return;
-  replyComment.value = store.getters.getRichTextEditor;
+  replyComment.value = replyMarkdown.value;
   _axios
     .post("/blog/postComment", {
       content: replyComment.value,
@@ -649,7 +1085,7 @@ const submitReplyComment = () => {
       category: "blog",
     })
     .then((res) => {
-      replyEditorRef.value?.clearEditorContent?.();
+      replyMarkdown.value = "";
       getComments();
       replyCommentDialogVisible.value = false;
       ElMessage.success("回复成功");
@@ -658,6 +1094,26 @@ const submitReplyComment = () => {
 </script>
 
 <style lang="scss" scoped>
+.blog-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.side-card__header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.side-card__hint {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
 .blog-page {
   --paper: rgba(255, 255, 255, 0.92);
   --paper-strong: rgba(255, 255, 255, 0.98);
@@ -672,7 +1128,7 @@ const submitReplyComment = () => {
   --radius-md: 18px;
   --radius-sm: 12px;
   position: relative;
-  padding: 32px 0 80px;
+  padding: 0 0 60px;
   color: var(--ink);
   font-family: var(--font-family);
   z-index: 0;
@@ -713,16 +1169,47 @@ const submitReplyComment = () => {
   }
 }
 
-.blog-hero,
-.blog-body,
-.blog-comments {
-  max-width: 1100px;
+.blog-shell {
+  max-width: 1200px;
   margin: 0 auto;
+  width: 100%;
+  padding-top: 60px;
+}
+
+.blog-layout {
+  align-items: flex-start;
   padding: 0 24px;
 }
 
+@media screen and (min-width: 992px) {
+  .aside-col {
+    flex: 0 0 350px !important;
+    max-width: 350px !important;
+  }
+
+  .main-col {
+    flex: 1 1 auto !important;
+    max-width: calc(100% - 350px) !important;
+  }
+}
+
+.aside-col {
+  position: sticky;
+  top: 10px;
+  align-self: flex-start;
+  z-index: 10;
+}
+
+.blog-hero,
+.blog-body,
+.blog-comments {
+  width: 100%;
+}
+
 .blog-hero {
-  animation: fadeUp 0.8s ease both;
+  position: sticky;
+  top: 50px;
+  z-index: 20;
 }
 
 .blog-hero__inner {
@@ -737,18 +1224,55 @@ const submitReplyComment = () => {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(47, 118, 210, 0.08),
-      rgba(243, 193, 75, 0.05)
-    );
+    background: rgba(255, 255, 255, 1);
     pointer-events: none;
   }
+}
+
+.blog-hero__back {
+  position: absolute;
+  top: -65px;
+  left: -65px;
+  width: 125px;
+  height: 125px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(47, 118, 210, 0.1);
+  border-radius: 50%;
+  color: var(--accent);
+  transition: all 0.3s ease;
+  z-index: 10;
+
+  &:hover {
+    background: rgba(47, 118, 210, 0.2);
+    transform: scale(1.1);
+  }
+
+  .el-icon {
+    font-size: 1.4rem;
+    transform: translate(25px, 25px);
+  }
+}
+
+.blog-hero__top {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.blog-hero__content {
+  position: relative;
+  flex: 1;
+  min-width: 0;
 }
 
 .blog-hero__label {
   position: relative;
   margin: 0;
+  text-align: center;
   font-size: 0.9rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
@@ -756,11 +1280,15 @@ const submitReplyComment = () => {
   font-weight: 600;
 }
 
+.blog-hero_title {
+  display: flex;
+}
+
 .blog-title {
   position: relative;
-  margin: 10px 0 12px;
-  font-size: clamp(2rem, 3vw + 1rem, 3.6rem);
-  line-height: 1.1;
+  margin: 10px 0 8px;
+  font-size: clamp(1.8rem, 2.5vw + 1rem, 2.8rem);
+  line-height: 1.15;
 }
 
 .blog-meta {
@@ -770,6 +1298,8 @@ const submitReplyComment = () => {
   gap: 10px;
   color: var(--muted);
   font-size: 0.95rem;
+  padding-top: 20px;
+  border-top: 1px solid rgba(47, 118, 210, 0.12);
 }
 
 .blog-meta__dot {
@@ -780,74 +1310,25 @@ const submitReplyComment = () => {
 
 .blog-cover {
   position: relative;
-  margin-top: 22px;
-  width: 100%;
-  max-height: 420px;
+  width: 280px;
+  height: 200px;
+  max-height: 200px;
   object-fit: cover;
   border-radius: var(--radius-md);
   box-shadow: 0 12px 40px rgba(18, 38, 63, 0.2);
+  flex-shrink: 0;
 }
 
 .blog-body {
   margin-top: 28px;
-  display: grid;
-  grid-template-columns: 1fr minmax(240px, 280px);
-  gap: 24px;
-  align-items: start;
   animation: fadeUp 0.8s ease 0.12s both;
 }
 
-.blog-side {
-  position: sticky;
-  top: 96px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-self: start;
-}
-
-.blog-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.blog-action {
-  appearance: none;
-  border: 1px solid rgba(47, 118, 210, 0.18);
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 999px;
-  color: var(--ink);
-  font-family: var(--font-family);
-  padding: 10px 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  text-decoration: none;
-  cursor: pointer;
-  box-shadow: 0 10px 30px rgba(18, 38, 63, 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-
-  &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 18px 35px rgba(18, 38, 63, 0.18);
-    background: var(--paper-strong);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  svg {
-    transform: translateY(1px);
-  }
-}
-
-.side-card {
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(47, 118, 210, 0.12);
-  padding: 14px 14px 16px;
+.blog-actions-wrapper {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(47, 118, 210, 0.15);
+  padding: 24px 20px 20px;
   box-shadow: 0 12px 30px rgba(18, 38, 63, 0.12);
   position: relative;
   overflow: hidden;
@@ -858,11 +1339,109 @@ const submitReplyComment = () => {
     inset: 0;
     background: linear-gradient(
       135deg,
-      rgba(47, 118, 210, 0.06),
+      rgba(47, 118, 210, 0.05),
       rgba(243, 193, 75, 0.04)
     );
     pointer-events: none;
   }
+}
+
+.blog-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: center;
+  position: relative;
+}
+
+.blog-action {
+  appearance: none;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  font-family: var(--font-family);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+
+    .blog-action__circle {
+      transform: scale(1.05);
+      box-shadow: 0 8px 24px rgba(47, 118, 210, 0.25);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+
+    .blog-action__circle {
+      transform: scale(1);
+    }
+  }
+
+  &:focus {
+    outline: none;
+  }
+}
+
+.blog-action__circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #fff 0%, rgba(255, 255, 255, 0.9) 100%);
+  border: 1px solid rgba(47, 118, 210, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(18, 38, 63, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  flex-shrink: 0;
+
+  svg {
+    width: 28px;
+    height: 28px;
+    color: var(--accent);
+  }
+}
+
+.blog-action__text {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.2;
+  text-align: center;
+  color: var(--ink);
+}
+
+.side-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-md);
+  padding: 14px 14px 16px;
+  box-shadow: 0 12px 30px rgba(18, 38, 63, 0.12);
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgba(255, 255, 255, 1);
+
+    pointer-events: none;
+  }
+}
+
+.side-card--account {
+  background: rgba(255, 255, 255, 1);
 }
 
 .side-card__title {
@@ -1002,7 +1581,27 @@ const submitReplyComment = () => {
   margin: 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
+  max-height: 500px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: rgba(47, 118, 210, 0.05);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(47, 118, 210, 0.3);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(47, 118, 210, 0.5);
+    }
+  }
 }
 
 .toc-item {
@@ -1026,10 +1625,72 @@ const submitReplyComment = () => {
 
 .toc-item--l2 {
   padding-left: 14px;
+  font-size: 0.95em;
 }
 
 .toc-item--l3 {
   padding-left: 20px;
+  font-size: 0.9em;
+}
+
+.toc-item--l4 {
+  padding-left: 26px;
+  font-size: 0.85em;
+}
+
+.toc-item--l5 {
+  padding-left: 32px;
+  font-size: 0.8em;
+}
+
+.toc-item--l6 {
+  padding-left: 38px;
+  font-size: 0.75em;
+}
+
+.toc-item--empty {
+  padding: 12px 10px;
+  color: var(--muted);
+  font-size: 0.9em;
+  text-align: center;
+  font-style: italic;
+  cursor: default;
+
+  &:hover {
+    background: transparent;
+    color: var(--muted);
+    transform: none;
+  }
+}
+
+.blog-toc {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(47, 118, 210, 0.15);
+  padding: 24px 20px 20px;
+  box-shadow: 0 12px 30px rgba(18, 38, 63, 0.12);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(47, 118, 210, 0.05),
+      rgba(243, 193, 75, 0.04)
+    );
+    pointer-events: none;
+  }
+}
+
+.blog-toc__title {
+  position: relative;
+  margin: 0 0 16px;
+  font-size: 1.1rem;
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .blog-article {
@@ -1070,55 +1731,169 @@ const submitReplyComment = () => {
   color: #2a303c;
 }
 
+/* 代码块折叠样式 */
+:deep(.code-wrapper) {
+  position: relative;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-bottom: 1em;
+  max-height: 300px;
+}
+
+/* 折叠状态：限制高度 */
+:deep(.code-wrapper.collapsed) {
+  max-height: 300px; /* 与 JS 中的 MAX_HEIGHT 保持一致 */
+}
+
+/* 展开状态：不限制高度 */
+:deep(.code-wrapper.expanded) {
+  /* max-height 会由 JS 动态设置 */
+}
+
+/* 遮罩层 */
+:deep(.code-mask) {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 80px; /* 渐变高度 */
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0),
+    rgba(255, 255, 255, 1)
+  );
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9999;
+  pointer-events: auto;
+  padding-bottom: 10px;
+  user-select: none;
+  transition: opacity 0.3s ease, transform 0.3s ease, background 0.3s ease;
+}
+
+/* 深色模式适配 */
+.dark :deep(.code-mask) {
+  background: linear-gradient(
+    to bottom,
+    rgba(31, 41, 55, 0),
+    rgba(31, 41, 55, 1)
+  );
+}
+
+:deep(.mask-content) {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #666;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+  user-select: none;
+  transform: translateY(0);
+}
+
+:deep(.mask-content:hover) {
+  background: #f3f4f6;
+  color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+:deep(.mask-content:active) {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* 展开后的遮罩样式（变为底部的收起按钮，不需要渐变遮挡了） */
+:deep(.code-mask.is-expanded-mask) {
+  position: relative; /* 不再覆盖 */
+  height: 40px;
+  background: none !important;
+  margin-top: -20px; /* 调整位置 */
+  padding-bottom: 0;
+  opacity: 0.9;
+}
+
+:deep(.code-mask.is-expanded-mask:hover) {
+  opacity: 1;
+}
+
+:deep(.code-mask.is-expanded-mask .mask-content) {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #666;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+:deep(.code-mask.is-expanded-mask .mask-content:hover) {
+  background: #f3f4f6;
+  color: #333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
 .blog-comments {
   margin-top: 32px;
-  padding: 28px 32px 36px;
+  padding: 20px 20px 0;
   background: var(--paper);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
   animation: fadeUp 0.8s ease 0.22s both;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .comment-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
+  justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 
   h3 {
     margin: 0;
     font-size: 1.35rem;
   }
-}
 
-.comment-count {
-  color: var(--muted);
-  font-size: 0.95rem;
+  .comment-count {
+    color: var(--muted);
+    font-size: 0.95rem;
+    flex: 1;
+  }
 }
 
 .comment-editor {
   position: relative;
   margin-bottom: 18px;
+  width: 100%;
 }
 
 .comment-editor__input {
-  height: 30vh;
   min-height: 220px;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: #fff;
   box-shadow: inset 0 0 0 1px rgba(47, 118, 210, 0.12);
+  width: 100%;
 }
 
 .comment-submit {
-  width: 80px;
-  position: absolute;
-  top: 12px;
-  right: 12px;
+  width: auto;
+  min-width: 80px;
   border-radius: 999px;
-  padding: 6px 14px;
+  padding: 8px 20px;
+  flex-shrink: 0;
 }
 
 .comment-card {
@@ -1129,6 +1904,9 @@ const submitReplyComment = () => {
   padding: 18px 20px;
   margin-top: 18px;
   box-shadow: 0 12px 28px rgba(18, 38, 63, 0.08);
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 
   &::before {
     content: "";
@@ -1177,6 +1955,9 @@ const submitReplyComment = () => {
 .comment-body {
   margin: 8px 0 0 58px;
   color: #2a303c;
+  overflow-x: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .comment-footer {
@@ -1228,6 +2009,9 @@ const submitReplyComment = () => {
   background: rgba(47, 118, 210, 0.05);
   border-radius: var(--radius-md);
   border: 1px dashed rgba(47, 118, 210, 0.2);
+  width: calc(100% - 52px);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .comment-reply .comment-body {
@@ -1239,33 +2023,55 @@ const submitReplyComment = () => {
 }
 
 @media (max-width: 1000px) {
-  .blog-hero,
-  .blog-body,
-  .blog-comments {
-    padding: 0 16px;
+  .blog-layout {
+    padding: 0 12px;
   }
 
   .blog-hero__inner {
     padding: 24px;
   }
 
-  .blog-body {
-    grid-template-columns: 1fr;
-  }
-
-  .blog-side {
-    position: static;
+  .blog-actions-wrapper {
+    padding: 20px 16px 16px;
   }
 
   .blog-actions {
     position: static;
     flex-direction: row;
     flex-wrap: wrap;
+    gap: 16px;
   }
 
   .blog-action {
     flex: 1 1 auto;
-    justify-content: center;
+    min-width: 70px;
+  }
+
+  .blog-action__circle {
+    width: 52px;
+    height: 52px;
+
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+
+  .blog-action__text {
+    font-size: 11px;
+  }
+
+  .blog-toc {
+    padding: 20px 16px 16px;
+    margin-top: 16px;
+  }
+
+  .blog-toc__title {
+    font-size: 1rem;
+  }
+
+  .toc {
+    max-height: 400px;
   }
 
   .blog-article {
@@ -1307,42 +2113,5 @@ const submitReplyComment = () => {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.blog-content :deep(img) {
-  max-width: 100%;
-  max-height: 720px;
-  border-radius: var(--radius-md);
-  display: block;
-  margin: 16px auto;
-  box-shadow: 0 12px 30px rgba(18, 38, 63, 0.16);
-}
-
-.blog-content :deep(p) {
-  margin: 0 0 1.1em;
-}
-
-.blog-content :deep(h1),
-.blog-content :deep(h2),
-.blog-content :deep(h3) {
-  margin: 1.6em 0 0.6em;
-  color: var(--ink);
-  scroll-margin-top: 90px;
-}
-
-.blog-content :deep(blockquote) {
-  margin: 1.6em 0;
-  padding: 12px 18px;
-  border-left: 4px solid var(--accent);
-  background: rgba(47, 118, 210, 0.08);
-  border-radius: 12px;
-}
-
-.comment-body :deep(img) {
-  max-width: 100%;
-  max-height: 300px;
-  border-radius: 12px;
-  display: block;
-  margin: 12px 0;
 }
 </style>

@@ -27,6 +27,16 @@
             <RichTextEditor :style="item.style" />
           </template>
 
+          <!-- Markdown 编辑器 -->
+          <template v-else-if="item.type === 'markdown'">
+            <VditorEditor
+              v-model="modelValue[item.prop]"
+              :style="item.style"
+              :height="getEditorHeight(item.style)"
+              :placeholder="item.placeholder || '请输入 Markdown...'"
+            />
+          </template>
+
           <!-- 开关 -->
           <template v-else-if="item.type === 'switch'">
             <el-switch
@@ -127,6 +137,7 @@
 <script lang="ts" setup>
 import { ref, defineProps } from "vue";
 import RichTextEditor from "./RichTextEditor.vue";
+import VditorEditor from "./VditorEditor.vue";
 import { useStore } from "vuex";
 
 const store = useStore();
@@ -174,6 +185,28 @@ const handlePictureCardPreview = (file: any) => {
 
 const closeImgViewer = () => {
   showImgViewer.value = false;
+};
+
+const getEditorHeight = (style: any): string | number => {
+  if (!style) return "auto";
+
+  if (typeof style === "string") {
+    const match = style.match(/height\s*:\s*([^;]+)/i);
+    return match?.[1]?.trim() || "auto";
+  }
+
+  if (Array.isArray(style)) {
+    const joined = style.join(";");
+    const match = joined.match(/height\s*:\s*([^;]+)/i);
+    return match?.[1]?.trim() || "auto";
+  }
+
+  if (typeof style === "object") {
+    const height = (style as any).height;
+    return height ?? "auto";
+  }
+
+  return "auto";
 };
 
 // 上传成功回调

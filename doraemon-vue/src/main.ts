@@ -10,6 +10,9 @@ import ElementPlus from "element-plus";
 import "element-plus/theme-chalk/display.css";
 import "element-plus/dist/index.css";
 
+// GitHub-style Markdown rendering
+import "github-markdown-css/github-markdown.css";
+
 // @ts-ignore
 import BaiduMap from 'vue-baidu-map-3x';
 
