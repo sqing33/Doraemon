@@ -19,23 +19,28 @@
             </div>
             <div class="character-item__info">
               <h3>{{ character.name }}</h3>
-              <p v-if="character.realname" class="realname">{{ character.realname }}</p>
+              <p v-if="character.realname" class="realname">
+                {{ character.realname }}
+              </p>
               <div class="character-details">
                 <p v-if="character.birthday">
                   <el-icon><Calendar /></el-icon>
                   生日：{{ character.birthday }}
                 </p>
                 <p v-if="character.height">
-                  <el-icon><Height /></el-icon>
+                  <el-icon><Tickets /></el-icon>
                   身高：{{ character.height }}
                 </p>
                 <p v-if="character.weight">
-                  <el-icon><Scale /></el-icon>
+                  <el-icon><Odometer /></el-icon>
                   体重：{{ character.weight }}
                 </p>
               </div>
               <p class="character-nature">{{ character.nature }}</p>
-              <div class="character-tags" v-if="character.favorite || character.fear">
+              <div
+                class="character-tags"
+                v-if="character.favorite || character.fear"
+              >
                 <el-tag v-if="character.favorite" type="success" size="small">
                   喜欢：{{ character.favorite }}
                 </el-tag>
@@ -52,10 +57,10 @@
 </template>
 
 <script lang="ts" setup>
-import { computed } from 'vue';
-import { Calendar, Height, Scale } from '@element-plus/icons-vue';
-import animeConfig from '@/config/animeConfig';
-import CharactIntro from '@/components/CharactIntro.vue';
+import { computed } from "vue";
+import { Calendar, Tickets, Odometer } from "@element-plus/icons-vue";
+import animeConfig from "@/config/animeConfig";
+import CharactIntro from "@/components/CharactIntro.vue";
 
 const props = defineProps<{
   animeId: string;

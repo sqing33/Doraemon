@@ -57,6 +57,19 @@ app.use(
   express.static(path.join(__dirname, "public", "images", "map"))
 );
 
+// SPA 支持：对于非 API 请求，返回 index.html
+app.use(function (req, res, next) {
+  // 如果是 API 请求，继续处理
+  if (req.path.startsWith('/admin') || req.path.startsWith('/user') ||
+      req.path.startsWith('/news') || req.path.startsWith('/blog') ||
+      req.path.startsWith('/uploads') || req.path.startsWith('/map')) {
+    return next();
+  }
+
+  // 其他请求返回 index.html
+  res.sendFile(path.join(__dirname, 'public', 'dist', 'index.html'));
+});
+
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
   next(createError(404));

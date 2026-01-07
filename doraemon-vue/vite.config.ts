@@ -5,6 +5,7 @@ import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: '/dist/',
     plugins: [
         vue(),
         // 打包压缩图片

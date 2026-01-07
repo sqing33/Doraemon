@@ -4,18 +4,21 @@ FROM node:18-alpine AS builder
 # 设置工作目录
 WORKDIR /app
 
+# 安装 pnpm
+RUN npm install -g pnpm
+
 # 先构建后端
-COPY doraemon-nodejs/package*.json ./doraemon-nodejs/
-RUN cd doraemon-nodejs && npm ci --only=production
+COPY doraemon-nodejs/package.json doraemon-nodejs/pnpm-lock.yaml ./doraemon-nodejs/
+RUN cd doraemon-nodejs && pnpm install --prod --frozen-lockfile
 
 # 构建前端
-COPY doraemon-vue/package*.json ./doraemon-vue/
-RUN cd doraemon-vue && npm ci
+COPY doraemon-vue/package.json doraemon-vue/pnpm-lock.yaml ./doraemon-vue/
+RUN cd doraemon-vue && pnpm install --frozen-lockfile
 
 # 复制前端源码并构建
 COPY doraemon-vue ./doraemon-vue
 WORKDIR /app/doraemon-vue
-RUN npm run build
+RUN pnpm run build
 
 # 生产环境镜像
 FROM node:18-alpine AS production
