@@ -126,7 +126,7 @@ const getBlog = (page, pageSize, category, keyword, create_time, callback) => {
 
   let sql;
   const baseQuery = `
-  SELECT b.*, u.id AS user_id, u.username, u.nickname
+  SELECT b.*, u.id AS user_id, u.username, u.nickname, u.avatarUrl
   FROM blog b
   JOIN user_blog ub ON b.id = ub.blog_id
   JOIN users u ON ub.user_id = u.id
@@ -171,7 +171,7 @@ const getBlog = (page, pageSize, category, keyword, create_time, callback) => {
 // 查询--通过id
 const getBlogById = (id, callback) => {
   const sql =
-    "SELECT b.*, users.id AS user_id, users.username, users.nickname" +
+    "SELECT b.*, users.id AS user_id, users.username, users.nickname, users.avatarUrl" +
     " FROM blog b" +
     " JOIN user_blog ON b.id = user_blog.blog_id" +
     " JOIN users ON user_blog.user_id = users.id" +

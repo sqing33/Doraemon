@@ -1,8 +1,5 @@
 <template>
-  <div
-    class="blog blog-page"
-    style="--progress: 0; --header-progress: 1; --header-offset: 0px"
-  >
+  <div class="blog blog-page" style="--progress: 0; --header-progress: 1; --header-offset: 0px">
     <div class="blog-shell">
       <el-row :gutter="18" class="blog-layout">
         <el-col :lg="16" :md="16" :sm="24" :xs="24" class="main-col">
@@ -18,12 +15,7 @@
                   <p class="blog-hero__label">Doraemon Blog</p>
                   <div class="blog-hero_title">
                     <h1 class="blog-title">{{ blog.title }}</h1>
-                    <img
-                      v-if="blog.coverUrl"
-                      :src="blog.coverUrl"
-                      alt=""
-                      class="blog-cover"
-                    />
+                    <img v-if="blog.coverUrl" :src="blog.coverUrl" alt="" class="blog-cover" />
                   </div>
                 </div>
               </div>
@@ -38,9 +30,7 @@
                   <span class="blog-meta__item">{{ blog.category }}</span>
                 </template>
                 <span class="blog-meta__dot">•</span>
-                <span class="blog-meta__item"
-                  >约 {{ readingMinutes }} 分钟阅读</span
-                >
+                <span class="blog-meta__item">约 {{ readingMinutes }} 分钟阅读</span>
               </div>
             </div>
           </section>
@@ -49,141 +39,13 @@
             <article class="blog-article">
               <div class="blog-divider"></div>
               <el-skeleton v-if="blogLoading" :rows="12" animated />
-              <div
-                v-else
-                ref="contentRef"
-                class="blog-content blog-content-container"
-              >
+              <div v-else ref="contentRef" class="blog-content blog-content-container">
                 <VditorViewer :content="blog.content" @rendered="buildToc" />
               </div>
             </article>
           </section>
 
-          <section ref="commentsRef" class="blog-comments">
-            <div class="comment-header">
-              <h3>评论</h3>
-              <div class="comment-count">
-                <div v-if="commentsLength === 0">
-                  （还没有评论，快来发表吧~）
-                </div>
-                <div v-else>（{{ commentsLength }}）</div>
-              </div>
-              <el-button
-                plain
-                class="comment-submit"
-                type="primary"
-                @click="submitComment"
-                >发布
-              </el-button>
-            </div>
-
-            <div class="comment-editor">
-              <VditorEditor
-                v-model="commentMarkdown"
-                class="comment-editor__input"
-                :height="300"
-              />
-            </div>
-
-            <div
-              v-for="comment in comments"
-              :key="comment.id"
-              class="comment-card"
-            >
-              <div class="comment-top">
-                <img alt="" class="avatar" src="../../assets/avatar.png" />
-                <div class="comment-author">
-                  <strong>{{ comment.nickname }}</strong>
-                  <span>说：</span>
-                </div>
-              </div>
-
-              <div class="comment-body">
-                <VditorViewer :content="comment.content" />
-              </div>
-
-              <div class="comment-footer">
-                <span class="comment-date">
-                  {{ dateFunction(comment.create_time) }}
-                </span>
-                <div class="comment-actions">
-                  <button
-                    class="comment-action"
-                    type="button"
-                    @click="doLike(comment.id)"
-                  >
-                    <img alt="" src="../../assets/comment/dianzan.png" />
-                    <span>{{ comment.like }}</span>
-                  </button>
-                  <button
-                    class="comment-action"
-                    type="button"
-                    @click="
-                      pid = comment.id;
-                      pname = comment.nickname;
-                      replyCommentDialogVisible = true;
-                    "
-                  >
-                    <img alt="" src="../../assets/comment/huifu.png" />
-                    <span>回复</span>
-                  </button>
-                </div>
-              </div>
-
-              <div
-                v-for="childrenComment in comment.children"
-                :key="childrenComment.id"
-                class="comment-reply"
-              >
-                <div class="comment-top comment-top--compact">
-                  <img
-                    alt=""
-                    class="avatar avatar--small"
-                    src="../../assets/avatar.png"
-                  />
-                  <div class="comment-author">
-                    <strong>{{ childrenComment.nickname }}</strong>
-                    <span>&nbsp回复&nbsp</span>
-                    <strong>{{ childrenComment.pname }}</strong>
-                    <span>&nbsp说：</span>
-                  </div>
-                </div>
-
-                <div class="comment-body">
-                  <VditorViewer :content="childrenComment.content" />
-                </div>
-
-                <div class="comment-footer">
-                  <span class="comment-date">
-                    {{ dateFunction(childrenComment.create_time) }}
-                  </span>
-                  <div class="comment-actions">
-                    <button
-                      class="comment-action"
-                      type="button"
-                      @click="doLike(childrenComment.id)"
-                    >
-                      <img alt="" src="../../assets/comment/dianzan.png" />
-                      <span>{{ childrenComment.like }}</span>
-                    </button>
-                    <button
-                      class="comment-action"
-                      type="button"
-                      @click="
-                        reply(
-                          childrenComment.nickname,
-                          comment.id ? comment.id : 0
-                        )
-                      "
-                    >
-                      <img alt="" src="../../assets/comment/huifu.png" />
-                      <span>回复</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+          <BlogComments ref="commentsRef" :blog-id="id" />
         </el-col>
 
         <el-col :lg="8" :md="8" :sm="24" :xs="24" class="aside-col">
@@ -193,7 +55,7 @@
                 <h4 class="side-card__title">账号</h4>
                 <span class="side-card__hint">{{
                   isLogined ? "已登录" : "游客模式"
-                }}</span>
+                  }}</span>
               </div>
 
               <el-dropdown trigger="click">
@@ -242,23 +104,11 @@
               </el-dropdown>
 
               <div class="user-card__quick">
-                <el-button
-                  v-if="!isLogined"
-                  round
-                  size="large"
-                  type="primary"
-                  class="user-card__primary"
-                  @click="goLogin"
-                >
+                <el-button v-if="!isLogined" round size="large" type="primary" class="user-card__primary"
+                  @click="goLogin">
                   登录/注册
                 </el-button>
-                <el-button
-                  v-else
-                  round
-                  size="large"
-                  class="user-card__primary"
-                  @click="goToUserInfo"
-                >
+                <el-button v-else round size="large" class="user-card__primary" @click="goToUserInfo">
                   个人中心
                 </el-button>
               </div>
@@ -266,12 +116,7 @@
 
             <div class="blog-actions-wrapper">
               <nav class="blog-actions">
-                <button
-                  ref="shareRef"
-                  class="blog-action"
-                  type="button"
-                  @click="doShare"
-                >
+                <button ref="shareRef" class="blog-action" type="button" @click="doShare">
                   <div class="blog-action__circle">
                     <el-icon>
                       <Share />
@@ -279,13 +124,7 @@
                   </div>
                   <span class="blog-action__text">分享</span>
                 </button>
-                <el-popover
-                  :virtual-ref="shareRef"
-                  title="已复制链接"
-                  trigger="click"
-                  virtual-triggering
-                  width="300"
-                >
+                <el-popover :virtual-ref="shareRef" title="已复制链接" trigger="click" virtual-triggering width="300">
                   <span>{{ shareText }}</span>
                 </el-popover>
 
@@ -298,11 +137,7 @@
                   <span class="blog-action__text">收藏</span>
                 </button>
 
-                <button
-                  class="blog-action"
-                  type="button"
-                  @click="scrollToComments"
-                >
+                <button class="blog-action" type="button" @click="scrollToComments">
                   <div class="blog-action__circle">
                     <el-icon>
                       <ChatDotRound />
@@ -316,12 +151,8 @@
             <section class="blog-toc">
               <h4 class="blog-toc__title">文章目录</h4>
               <ul class="toc">
-                <li
-                  v-for="item in toc"
-                  :key="item.id"
-                  :class="['toc-item', `toc-item--l${item.level}`]"
-                  @click="scrollToHeading(item.id)"
-                >
+                <li v-for="item in toc" :key="item.id" :class="['toc-item', `toc-item--l${item.level}`]"
+                  @click="scrollToHeading(item.id)">
                   {{ item.text }}
                 </li>
                 <li v-if="!toc.length" class="toc-item toc-item--empty">
@@ -333,22 +164,6 @@
         </el-col>
       </el-row>
     </div>
-
-    <el-dialog v-model="replyCommentDialogVisible" title="回复" width="700">
-      <VditorEditor
-        v-model="replyMarkdown"
-        class="comment-editor__input"
-        :height="300"
-      />
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="replyCommentDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitReplyComment">
-            回复</el-button
-          >
-        </div>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -367,7 +182,6 @@ import axios from "axios";
 import { ElMessage } from "element-plus";
 import {
   ChatDotRound,
-  Connection,
   Share,
   Star,
   Back,
@@ -376,7 +190,7 @@ import dateFunction from "@/utils/Date";
 import { useStore } from "vuex";
 import { useRouter } from "vue-router";
 import BlogHeaderNav from "./BlogHeaderNav.vue";
-import VditorEditor from "@/utils/VditorEditor.vue";
+import BlogComments from "./BlogComments.vue";
 import VditorViewer from "@/utils/VditorViewer.vue";
 import { useCodeCollapse } from "@/hooks/useCodeCollapse";
 import avatarFallback from "@/assets/avatar.png";
@@ -388,8 +202,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 const store = useStore();
 const router = useRouter();
-
-const comment = ref();
 
 // GSAP 动画引用
 const heroRef = ref<HTMLElement | null>(null);
@@ -524,9 +336,9 @@ watch(
   }
 );
 
-const commentsRef = ref<HTMLElement | null>(null);
+const commentsRef = ref<any>(null);
 const scrollToComments = () => {
-  commentsRef.value?.scrollIntoView({ behavior: "smooth", block: "start" });
+  commentsRef.value?.scrollToComments();
 };
 
 const scrollToHeading = (id: string) => {
@@ -556,23 +368,6 @@ const collect = () => {
     });
 };
 
-const comments = ref<any[]>([]);
-
-const commentsLength = ref(0);
-
-const getComments = () => {
-  _axios
-    .post("/blog/getComments", null, { params: { id: props.id } })
-    .then((res) => {
-      comments.value = (res.data?.comments || []).sort((a: any, b: any) => {
-        return (
-          new Date(b.create_time).getTime() - new Date(a.create_time).getTime()
-        );
-      });
-      commentsLength.value = res.data?.total || 0;
-    });
-};
-
 onMounted(async () => {
   blogLoading.value = true;
   _axios
@@ -587,7 +382,6 @@ onMounted(async () => {
     .finally(() => {
       blogLoading.value = false;
     });
-  getComments();
 
   // GSAP 动画逻辑
   await nextTick();
@@ -1024,73 +818,6 @@ const goToAdmin = () => {
       router.push("/adminLogin");
     });
 };
-
-const commentMarkdown = ref("");
-const replyMarkdown = ref("");
-
-const submitComment = () => {
-  if (!ensureLogin()) return;
-  comment.value = commentMarkdown.value;
-  _axios
-    .post("/blog/postComment", {
-      content: comment.value,
-      publisher_id: userInfo.value.id || 0,
-      nickname: userInfo.value.nickname,
-      bn_id: props.id,
-      category: "blog",
-    })
-    .then((res) => {
-      commentMarkdown.value = "";
-      getComments();
-      ElMessage.success("评论成功");
-    });
-};
-
-const doLike = (comment_id: number) => {
-  _axios
-    .post("/blog/like", {
-      comment_id: comment_id,
-    })
-    .then((res) => {
-      getComments();
-    });
-};
-
-const pid = ref();
-
-const pname = ref();
-
-const reply = (a: string, b: number) => {
-  replyCommentDialogVisible.value = true;
-  pname.value = a;
-  pid.value = b;
-  replyMarkdown.value = "";
-};
-
-const replyCommentDialogVisible = ref(false);
-
-const replyComment = ref();
-
-const submitReplyComment = () => {
-  if (!ensureLogin()) return;
-  replyComment.value = replyMarkdown.value;
-  _axios
-    .post("/blog/postComment", {
-      content: replyComment.value,
-      publisher_id: userInfo.value.id,
-      nickname: userInfo.value.nickname,
-      bn_id: props.id,
-      pid: pid.value,
-      pname: pname.value,
-      category: "blog",
-    })
-    .then((res) => {
-      replyMarkdown.value = "";
-      getComments();
-      replyCommentDialogVisible.value = false;
-      ElMessage.success("回复成功");
-    });
-};
 </script>
 
 <style lang="scss" scoped>
@@ -1128,7 +855,7 @@ const submitReplyComment = () => {
   --radius-md: 18px;
   --radius-sm: 12px;
   position: relative;
-  padding: 0 0 60px;
+  padding: 0;
   color: var(--ink);
   font-family: var(--font-family);
   z-index: 0;
@@ -1143,29 +870,21 @@ const submitReplyComment = () => {
   }
 
   &::before {
-    background: radial-gradient(
-        circle at 15% 20%,
+    background: radial-gradient(circle at 15% 20%,
         rgba(47, 118, 210, 0.25),
-        transparent 45%
-      ),
-      radial-gradient(
-        circle at 85% 10%,
+        transparent 45%),
+      radial-gradient(circle at 85% 10%,
         rgba(243, 193, 75, 0.25),
-        transparent 40%
-      ),
-      radial-gradient(
-        circle at 85% 80%,
+        transparent 40%),
+      radial-gradient(circle at 85% 80%,
         rgba(232, 75, 60, 0.18),
-        transparent 45%
-      );
+        transparent 45%);
   }
 
   &::after {
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0.6),
-      rgba(255, 255, 255, 0)
-    );
+    background: linear-gradient(180deg,
+        rgba(255, 255, 255, 0.6),
+        rgba(255, 255, 255, 0));
   }
 }
 
@@ -1201,8 +920,7 @@ const submitReplyComment = () => {
 }
 
 .blog-hero,
-.blog-body,
-.blog-comments {
+.blog-body {
   width: 100%;
 }
 
@@ -1337,11 +1055,9 @@ const submitReplyComment = () => {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(47, 118, 210, 0.05),
-      rgba(243, 193, 75, 0.04)
-    );
+    background: linear-gradient(135deg,
+        rgba(47, 118, 210, 0.05),
+        rgba(243, 193, 75, 0.04));
     pointer-events: none;
   }
 }
@@ -1676,11 +1392,9 @@ const submitReplyComment = () => {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(47, 118, 210, 0.05),
-      rgba(243, 193, 75, 0.04)
-    );
+    background: linear-gradient(135deg,
+        rgba(47, 118, 210, 0.05),
+        rgba(243, 193, 75, 0.04));
     pointer-events: none;
   }
 }
@@ -1714,13 +1428,11 @@ const submitReplyComment = () => {
 .blog-divider {
   height: 1px;
   width: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(47, 118, 210, 0.5),
-    rgba(243, 193, 75, 0.6),
-    transparent
-  );
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(47, 118, 210, 0.5),
+      rgba(243, 193, 75, 0.6),
+      transparent);
   margin-bottom: 24px;
 }
 
@@ -1742,7 +1454,8 @@ const submitReplyComment = () => {
 
 /* 折叠状态：限制高度 */
 :deep(.code-wrapper.collapsed) {
-  max-height: 300px; /* 与 JS 中的 MAX_HEIGHT 保持一致 */
+  max-height: 300px;
+  /* 与 JS 中的 MAX_HEIGHT 保持一致 */
 }
 
 /* 展开状态：不限制高度 */
@@ -1756,12 +1469,11 @@ const submitReplyComment = () => {
   bottom: 0;
   left: 0;
   width: 100%;
-  height: 80px; /* 渐变高度 */
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 1)
-  );
+  height: 80px;
+  /* 渐变高度 */
+  background: linear-gradient(to bottom,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 1));
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -1775,11 +1487,9 @@ const submitReplyComment = () => {
 
 /* 深色模式适配 */
 .dark :deep(.code-mask) {
-  background: linear-gradient(
-    to bottom,
-    rgba(31, 41, 55, 0),
-    rgba(31, 41, 55, 1)
-  );
+  background: linear-gradient(to bottom,
+      rgba(31, 41, 55, 0),
+      rgba(31, 41, 55, 1));
 }
 
 :deep(.mask-content) {
@@ -1810,10 +1520,12 @@ const submitReplyComment = () => {
 
 /* 展开后的遮罩样式（变为底部的收起按钮，不需要渐变遮挡了） */
 :deep(.code-mask.is-expanded-mask) {
-  position: relative; /* 不再覆盖 */
+  position: relative;
+  /* 不再覆盖 */
   height: 40px;
   background: none !important;
-  margin-top: -20px; /* 调整位置 */
+  margin-top: -20px;
+  /* 调整位置 */
   padding-bottom: 0;
   opacity: 0.9;
 }
@@ -1838,188 +1550,6 @@ const submitReplyComment = () => {
   color: #333;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.blog-comments {
-  margin-top: 32px;
-  padding: 20px 20px 0;
-  background: var(--paper);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  position: relative;
-  overflow: hidden;
-  animation: fadeUp 0.8s ease 0.22s both;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.comment-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-  flex-wrap: wrap;
-
-  h3 {
-    margin: 0;
-    font-size: 1.35rem;
-  }
-
-  .comment-count {
-    color: var(--muted);
-    font-size: 0.95rem;
-    flex: 1;
-  }
-}
-
-.comment-editor {
-  position: relative;
-  margin-bottom: 18px;
-  width: 100%;
-}
-
-.comment-editor__input {
-  min-height: 220px;
-  border-radius: var(--radius-md);
-  overflow: hidden;
-  background: #fff;
-  box-shadow: inset 0 0 0 1px rgba(47, 118, 210, 0.12);
-  width: 100%;
-}
-
-.comment-submit {
-  width: auto;
-  min-width: 80px;
-  border-radius: 999px;
-  padding: 8px 20px;
-  flex-shrink: 0;
-}
-
-.comment-card {
-  position: relative;
-  background: rgba(248, 251, 255, 0.9);
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(47, 118, 210, 0.12);
-  padding: 18px 20px;
-  margin-top: 18px;
-  box-shadow: 0 12px 28px rgba(18, 38, 63, 0.08);
-  width: 100%;
-  box-sizing: border-box;
-  overflow: hidden;
-
-  &::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 16px;
-    bottom: 16px;
-    width: 3px;
-    border-radius: 999px;
-    background: linear-gradient(
-      180deg,
-      rgba(47, 118, 210, 0.7),
-      rgba(243, 193, 75, 0.7)
-    );
-  }
-}
-
-.comment-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.comment-top--compact {
-  gap: 10px;
-}
-
-.comment-author {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--ink);
-}
-
-.avatar {
-  width: 45px !important;
-  height: 45px;
-  border-radius: 50%;
-}
-
-.avatar--small {
-  width: 38px !important;
-  height: 38px;
-}
-
-.comment-body {
-  margin: 8px 0 0 58px;
-  color: #2a303c;
-  overflow-x: hidden;
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-.comment-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 10px;
-  padding-left: 58px;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.comment-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.comment-action {
-  appearance: none;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 999px;
-  transition: color 0.2s ease, background 0.2s ease;
-  font-family: var(--font-family);
-
-  &:hover {
-    color: var(--accent);
-    background: rgba(47, 118, 210, 0.08);
-  }
-
-  img {
-    height: 16px;
-    width: 16px;
-    border-radius: 0;
-  }
-}
-
-.comment-reply {
-  margin-top: 16px;
-  margin-left: 52px;
-  padding: 14px 16px;
-  background: rgba(47, 118, 210, 0.05);
-  border-radius: var(--radius-md);
-  border: 1px dashed rgba(47, 118, 210, 0.2);
-  width: calc(100% - 52px);
-  box-sizing: border-box;
-  overflow: hidden;
-}
-
-.comment-reply .comment-body {
-  margin-left: 48px;
-}
-
-.comment-reply .comment-footer {
-  padding-left: 48px;
 }
 
 @media (max-width: 1000px) {
@@ -2078,40 +1608,16 @@ const submitReplyComment = () => {
     padding: 24px;
   }
 
-  .blog-comments {
-    padding: 24px;
-  }
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
 
-  .comment-body {
-    margin-left: 0;
-  }
-
-  .comment-footer {
-    padding-left: 0;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
-  }
-
-  .comment-reply {
-    margin-left: 0;
-  }
-
-  .comment-reply .comment-body,
-  .comment-reply .comment-footer {
-    margin-left: 0;
-    padding-left: 0;
-  }
-}
-
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 }
 </style>

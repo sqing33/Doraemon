@@ -8,49 +8,60 @@
           <section class="panel">
             <div class="panel__header">
               <h3 class="panel__title">最新文章</h3>
+              <div class="panel__header-center">
+                <el-input v-model="keyword" clearable placeholder="搜索标题或内容…" size="large" class="search-input"
+                  @keyup.enter="handleSearch">
+                  <template #prefix>
+                    <el-icon>
+                      <Search />
+                    </el-icon>
+                  </template>
+                </el-input>
+                <div ref="filterContainerRef" class="filter-container">
+                  <el-button size="large" class="filter-button" @click="toggleFilterCard">
+                    <el-icon>
+                      <Filter />
+                    </el-icon>
+                  </el-button>
+                  <div v-show="filterCardVisible" class="filter-card">
+                    <div class="filter-card__title">选择分类（可多选）</div>
+                    <div class="filter-card__categories">
+                      <div v-for="cat in categories" :key="cat.value"
+                        :class="['filter-category-item', { 'filter-category-item--active': selectedCategories.includes(cat.value) }]"
+                        @click="toggleCategory(cat.value)">
+                        {{ cat.label }}
+                      </div>
+                    </div>
+                    <div class="filter-card__footer">
+                      <el-button size="small" @click="resetFilter">重置</el-button>
+                      <el-button type="primary" size="small" @click="applyFilter">确定</el-button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="panel__header-right">
                 <span class="panel__count" v-if="total">共 {{ total }} 篇</span>
                 <span class="panel__hint">按发布时间展示</span>
               </div>
             </div>
+
             <el-skeleton v-if="loading" :rows="6" animated />
 
-            <el-empty
-              v-else-if="!posts.length"
-              description="暂无文章，去写一篇吧"
-            />
+            <el-empty v-else-if="!posts.length" description="暂无文章，去写一篇吧" />
 
             <div v-else class="post-grid-container">
-              <BlogCard
-                v-for="post in posts"
-                :key="post.id"
-                :post="post"
-                @click="goToPost(post.id)"
-              />
+              <BlogCard v-for="post in posts" :key="post.id" :post="post" @click="goToPost(post.id)" />
             </div>
 
             <div v-if="total > pagination.size" class="pagination">
-              <el-pagination
-                :current-page="pagination.page"
-                :page-size="pagination.size"
-                :pager-count="7"
-                :total="total"
-                background
-                layout="prev, pager, next"
-                @current-change="currentChange"
-              />
+              <el-pagination :current-page="pagination.page" :page-size="pagination.size" :pager-count="7"
+                :total="total" background layout="prev, pager, next" @current-change="currentChange" />
             </div>
           </section>
         </el-col>
 
         <el-col :lg="8" :md="8" :sm="24" :xs="24" class="aside-col">
-          <BlogSidebar
-            :categories="categories"
-            v-model:keyword="keyword"
-            v-model:categoryValue="categoryValue"
-            @search="search"
-            @selectCategory="selectCategory"
-          />
+          <BlogSidebar />
         </el-col>
       </el-row>
     </div>
@@ -58,15 +69,19 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, onUnmounted, reactive, ref } from "vue";
 import _axios from "@/api";
 import { useRouter } from "vue-router";
+import { ElMessage } from "element-plus";
+import { Search, Filter } from "@element-plus/icons-vue";
 import dateFunction from "@/utils/Date";
 import BlogCard from "./BlogCard.vue";
 import BlogHeaderNav from "./BlogHeaderNav.vue";
 import BlogSidebar from "./BlogSidebar.vue";
 
 const router = useRouter();
+
+const filterContainerRef = ref<HTMLElement | null>(null);
 
 type CategoryOption = {
   label: string;
@@ -78,6 +93,7 @@ type BlogPost = {
   title: string;
   content?: string;
   coverUrl?: string;
+  avatarUrl?: string;
   create_time: string;
   createTimeMs: number;
   category?: string;
@@ -88,6 +104,7 @@ type BlogPost = {
 };
 
 const categories = ref<CategoryOption[]>([
+  { label: "全部", value: 0 },
   { label: "分享", value: "分享" },
   { label: "娱乐", value: "娱乐" },
   { label: "杂谈", value: "杂谈" },
@@ -95,6 +112,8 @@ const categories = ref<CategoryOption[]>([
 
 const keyword = ref<string>("");
 const categoryValue = ref<string | number>(0);
+const selectedCategories = ref<(string | number)[]>([]);
+const filterCardVisible = ref(false);
 
 const loading = ref(false);
 const total = ref(0);
@@ -155,6 +174,7 @@ const normalizePost = (raw: any): BlogPost => {
     title: raw.title,
     content: raw.content,
     coverUrl: raw.coverUrl,
+    avatarUrl: raw.avatarUrl,
     category: raw.category,
     nickname: raw.nickname,
     createTimeMs,
@@ -218,11 +238,6 @@ const fetchPosts = async () => {
   }
 };
 
-onMounted(async () => {
-  await fetchCategories();
-  await fetchPosts();
-});
-
 const currentChange = (page: number) => {
   pagination.page = page;
   fetchPosts();
@@ -233,21 +248,77 @@ const search = () => {
   fetchPosts();
 };
 
-const selectCategory = (value: string | number) => {
-  categoryValue.value = value;
+const handleSearch = () => {
   pagination.page = 1;
   fetchPosts();
+};
+
+const toggleFilterCard = () => {
+  filterCardVisible.value = !filterCardVisible.value;
+};
+
+const toggleCategory = (value: string | number) => {
+  const index = selectedCategories.value.indexOf(value);
+  if (index > -1) {
+    selectedCategories.value.splice(index, 1);
+  } else {
+    selectedCategories.value.push(value);
+  }
+};
+
+const resetFilter = () => {
+  selectedCategories.value = [];
+  categoryValue.value = 0;
+  filterCardVisible.value = false;
+  fetchPosts();
+};
+
+const applyFilter = () => {
+  if (selectedCategories.value.length === 0) {
+    categoryValue.value = 0;
+  } else if (selectedCategories.value.length === 1) {
+    categoryValue.value = selectedCategories.value[0];
+  } else {
+    categoryValue.value = selectedCategories.value.join(",");
+  }
+  pagination.page = 1;
+  filterCardVisible.value = false;
+  fetchPosts();
+  const selectedLabels = selectedCategories.value
+    .map(v => categories.value.find(c => c.value === v)?.label)
+    .filter(Boolean)
+    .join("、");
+  ElMessage.success(`已筛选: ${selectedLabels || "全部"}`);
 };
 
 const goToPost = (id: string | number) => {
   router.push({ name: "blogPage", params: { id } });
 };
+
+const handleClickOutside = (event: MouseEvent) => {
+  if (filterCardVisible.value && filterContainerRef.value) {
+    const target = event.target as Node;
+    if (!filterContainerRef.value.contains(target)) {
+      filterCardVisible.value = false;
+    }
+  }
+};
+
+onMounted(async () => {
+  await fetchCategories();
+  await fetchPosts();
+  document.addEventListener("click", handleClickOutside);
+});
+
+onUnmounted(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
 <style lang="scss" scoped>
 .blog {
   width: 100%;
-  padding: 0 0 60px;
+  padding: 0;
   position: relative;
   color: #1b2430;
   font-family: var(--font-family);
@@ -294,7 +365,7 @@ const goToPost = (id: string | number) => {
 .panel {
   background: var(--panel);
   border-radius: var(--radius-lg);
-  padding: 18px 18px 20px;
+  padding-bottom: 20px;
   box-shadow: var(--shadow);
   border: 1px solid rgba(17, 24, 39, 0.06);
   position: relative;
@@ -313,17 +384,125 @@ const goToPost = (id: string | number) => {
 .panel__header {
   position: relative;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 14px;
-  z-index: 1;
+  z-index: 10;
   flex-wrap: wrap;
   background: rgba(255, 255, 255, 0.95);
   padding: 16px 18px;
   border-radius: var(--radius-lg);
   box-shadow: 0 14px 36px rgba(17, 24, 39, 0.12);
   border: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.panel__header-center {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  position: relative;
+  z-index: 100;
+}
+
+.filter-container {
+  position: relative;
+  z-index: 101;
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  font-weight: 600;
+  background: #ffffff;
+  border-color: rgba(47, 118, 210, 0.2);
+  color: #2f76d2;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(47, 118, 210, 0.08);
+    border-color: rgba(47, 118, 210, 0.3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(47, 118, 210, 0.15);
+  }
+}
+
+.filter-card {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.15);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+  padding: 16px;
+  z-index: 1000;
+}
+
+.filter-card__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1b2430;
+  margin-bottom: 12px;
+}
+
+.filter-card__categories {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.filter-category-item {
+  padding: 8px 6px;
+  border-radius: 8px;
+  background: #f9fafb;
+  border: 1px solid rgba(17, 24, 39, 0.06);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.8rem;
+  color: #5e6b7a;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: #f0f4ff;
+    border-color: rgba(47, 118, 210, 0.2);
+    color: #2f76d2;
+  }
+}
+
+.filter-category-item--active {
+  background: rgba(47, 118, 210, 0.1);
+  border-color: rgba(47, 118, 210, 0.3);
+  color: #2f76d2;
+  font-weight: 600;
+}
+
+.filter-card__footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(17, 24, 39, 0.06);
+}
+
+.search-input {
+  width: 250px;
+  flex: 0 0 250px;
 }
 
 .panel__header-right {
@@ -370,13 +549,14 @@ const goToPost = (id: string | number) => {
 }
 
 .main-col {
-  transform: translateY(calc(-100px * var(--progress)));
-  will-change: transform;
+  position: sticky;
+  top: 85px;
+  align-self: flex-start;
 }
 
 .post-grid-container {
   position: relative;
-  z-index: 1;
+  z-index: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 24px;
@@ -411,5 +591,4 @@ const goToPost = (id: string | number) => {
     grid-auto-flow: row;
   }
 }
-
 </style>

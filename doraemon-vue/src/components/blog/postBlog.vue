@@ -1,16 +1,7 @@
 <template>
-  <div
-    class="blog post-blog"
-    style="--progress: 0; --header-progress: 1; --header-offset: 140px"
-  >
-    <BlogHeaderNav
-      eyebrow="Doraemon Blog"
-      title="发表帖子"
-      subtitle="把灵感放进时光胶囊，分享给更多人。"
-      :showCarousel="false"
-      :collapsed="true"
-      :syncLayoutProgress="false"
-    />
+  <div class="blog post-blog" style="--progress: 0; --header-progress: 1; --header-offset: 140px">
+    <BlogHeaderNav eyebrow="Doraemon Blog" title="发表帖子" subtitle="把灵感放进时光胶囊，分享给更多人。" :showCarousel="false"
+      :collapsed="true" :syncLayoutProgress="false" />
 
     <div class="blog-shell">
       <el-row :gutter="18" class="blog-layout">
@@ -20,20 +11,12 @@
               <template #footer>
                 <div class="post-blog__footer">
                   <div class="post-blog__actions">
-                    <el-button
-                      size="large"
-                      type="primary"
-                      class="post-blog__btn post-blog__btn--primary"
-                      @click="onSubmit"
-                    >
+                    <el-button size="large" type="primary" class="post-blog__btn post-blog__btn--primary"
+                      @click="onSubmit">
                       发布
                     </el-button>
                     <router-link to="/blog" class="post-blog__link">
-                      <el-button
-                        size="large"
-                        class="post-blog__btn post-blog__btn--ghost"
-                        @click="onCancel"
-                      >
+                      <el-button size="large" class="post-blog__btn post-blog__btn--ghost" @click="onCancel">
                         取消
                       </el-button>
                     </router-link>
@@ -162,7 +145,7 @@ const onCancel = () => {
 <style lang="scss" scoped>
 .post-blog {
   width: 100%;
-  padding: 0 0 60px;
+  padding: 0;
   position: relative;
   color: #1b2430;
   font-family: var(--font-family);
@@ -180,16 +163,12 @@ const onCancel = () => {
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(
-        1000px 520px at 20% 0%,
+    background: radial-gradient(1000px 520px at 20% 0%,
         rgba(47, 118, 210, 0.14),
-        rgba(47, 118, 210, 0)
-      ),
-      radial-gradient(
-        820px 460px at 95% 20%,
+        rgba(47, 118, 210, 0)),
+      radial-gradient(820px 460px at 95% 20%,
         rgba(245, 185, 66, 0.14),
-        rgba(245, 185, 66, 0)
-      );
+        rgba(245, 185, 66, 0));
     pointer-events: none;
   }
 }
@@ -273,11 +252,9 @@ const onCancel = () => {
   padding: 16px 6px 12px;
   margin-top: 12px;
   border-top: 1px solid rgba(17, 24, 39, 0.06);
-  background: linear-gradient(
-    180deg,
-    rgba(255, 255, 255, 0),
-    rgba(255, 255, 255, 0.96)
-  );
+  background: linear-gradient(180deg,
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0.96));
   backdrop-filter: blur(10px);
 }
 
@@ -378,7 +355,7 @@ const onCancel = () => {
 
 @media screen and (max-width: 768px) {
   .post-blog {
-    padding: 0 0 60px;
+    padding: 0;
   }
 
   .post-blog__panel {
